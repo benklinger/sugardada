@@ -1,0 +1,226 @@
+/* public/styles.css */
+
+/* Existing CSS Variables */
+:root {
+  /* Light Theme Variables */
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --disclaimer-color: #666666;
+  --label-bg: #ddd;
+  --label-hover: #ccc;
+  --label-checked: #bbb;
+  --input-bg: #f9f9f9; /* New Variable for Input Background */
+  --error-bg: #ffe5e5;
+  --error-border: #ffcccc;
+  --error-text: #cc0000;
+  --selected-label-text: #ffffff; /* New Variable */
+}
+
+:root[data-theme="dark"] {
+  /* Dark Theme Variables */
+  --bg-color: #000000;
+  --text-color: #ffffff;
+  --disclaimer-color: #888888;
+  --label-bg: #333333;
+  --label-hover: #666666;
+  --label-checked: #555555;
+  --input-bg: #444444; /* Input Background in Dark Theme */
+  --error-bg: #660000;
+  --error-border: #990000;
+  --error-text: #ff6666;
+  --selected-label-text: #ffffff; /* Same as light theme */
+}
+
+/* Existing Styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Roboto', sans-serif;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  padding: 1rem 2rem;
+  z-index: 9999;
+  justify-content: flex-start;
+}
+
+.theme-toggle {
+  width: 2rem;
+  margin-right: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle i {
+  font-size: 1.5rem;
+  color: var(--text-color);
+}
+
+.site-name {
+  font-family: 'Radley', serif;
+  font-size: 1.5rem;
+  color: var(--text-color);
+}
+
+.site-name-link {
+  text-decoration: none;
+  color: var(--text-color);
+}
+
+.site-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: transparent;
+  color: var(--disclaimer-color);
+  font-size: 0.7rem;
+  line-height: 1.2;
+  padding: 0.5rem 1rem;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+  margin: 0 auto;
+  margin-top: 100px;
+  padding: 0 1rem;
+  border-radius: 8px;
+}
+
+.question {
+  font-family: 'Radley', serif;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  min-height: 3rem;
+  word-wrap: break-word;
+  color: var(--text-color);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.error {
+  list-style: none;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: var(--error-bg);
+  border: 1px solid var(--error-border);
+  border-radius: 4px;
+  color: var(--error-text);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.error li {
+  margin: 5px 0;
+}
+
+.gender-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.gender-form.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.gender-form label {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  background: var(--label-bg);
+  border-radius: 1rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  margin: 0.5rem;
+  color: var(--text-color);
+}
+
+.gender-form label:hover {
+  background: var(--label-hover);
+}
+
+.gender-form input[type="radio"] {
+  display: none;
+}
+
+.gender-form input[type="radio"]:checked + label {
+  background: var(--label-checked);
+  color: var(--selected-label-text); /* Use the new variable */
+}
+
+.gender-form textarea {
+  display: block;
+  width: 150px; 
+  line-height: 1.2;
+  resize: none;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.25rem;
+  background: var(--input-bg);
+  color: var(--text-color);
+  border: none;
+  border-radius: 1rem;
+  padding: 0.8rem 1.3rem;
+  margin: 0 auto 0.5rem auto;
+  transition: background 0.2s;
+  box-sizing: border-box;
+}
+
+.gender-form textarea:hover {
+  background: var(--label-hover);
+}
+
+.gender-form textarea:focus {
+  outline: none;
+  background: var(--label-hover);
+}
+
+.hint {
+  color: var(--disclaimer-color);
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  font-family: 'Roboto', sans-serif;
+}

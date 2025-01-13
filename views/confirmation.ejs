@@ -1,0 +1,40 @@
+<!-- views/confirmation.ejs -->
+
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <title>Onboarding: Sugar Dada</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <!-- Include Header Partial -->
+  <%- include('partials/header') %>
+
+  <div class="wrapper">
+    <!-- Confirmation Message -->
+    <div class="question">Thank you! Your baby's name has been saved successfully.</div>
+
+    <!-- Display Entered Information -->
+    <% if (gender && name) { %>
+      <div class="user-info">
+        <p><strong>Gender:</strong> <%= gender %></p>
+        <p><strong>Name:</strong> <%= name %></p>
+      </div>
+    <% } else { %>
+      <div class="user-info">
+        <p>No data available.</p>
+      </div>
+    <% } %>
+
+    <!-- Option to Start Over -->
+    <form action="/onboarding/1" method="GET" class="start-over-form">
+      <button type="submit" class="start-button">Start Over</button>
+    </form>
+  </div>
+
+  <!-- Include Footer Partial -->
+  <%- include('partials/footer') %>
+</body>
+</html>

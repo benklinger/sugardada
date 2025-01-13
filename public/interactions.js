@@ -1,5 +1,3 @@
-// public/interactions.js
-
 // Simple type effect for text content
 function typeText(el, text, i = 0, callback) {
   if (i < text.length) {
@@ -67,7 +65,7 @@ function enableAutoSubmitTextForm(form, input) {
 
 document.addEventListener('DOMContentLoaded', () => {
   const questionEl = document.querySelector('.question');
-  const formEl = document.querySelector('.gender-form'); // Only targets forms with 'gender-form' class
+  const formEl = document.querySelector('.form');
 
   if (!questionEl || !formEl) {
     console.error('Required elements not found in the DOM.');
@@ -100,10 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Textarea input not found in the form.');
       }
 
-      // Add 'show' class to trigger fade-in via CSS
       formEl.classList.add('show');
-
-      // Focus is handled in enableAutoSubmitTextForm via transitionend
     });
   }
 });

@@ -1,23 +1,17 @@
-<!-- views/gender.ejs -->
-
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <title>Onboarding: Sugar Dada</title>
-  <!-- Viewport Meta Tag for Responsive Design -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <!-- Include Header Partial -->
   <%- include('partials/header') %>
 
   <div class="wrapper">
-    <!-- Question Text with Typewriter Effect -->
     <div class="question"></div>
 
-    <!-- Display Errors -->
     <% if (errors.length > 0) { %>
       <ul class="error">
         <% errors.forEach(error => { %>
@@ -26,8 +20,7 @@
       </ul>
     <% } %>
 
-    <!-- Gender Selection Form -->
-    <form action="/onboarding/1" method="POST" class="gender-form">
+    <form action="/onboarding/1" method="POST" class="form">
       <div class="radio-group">
         <input type="radio" id="boy" name="babyGender" value="Boy" <% if (oldInput.babyGender === 'Boy') { %>checked<% } %> required>
         <label for="boy">Boy</label>

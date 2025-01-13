@@ -142,11 +142,7 @@ html, body {
   animation: fadeIn 0.5s ease-in-out;
 }
 
-.error li {
-  margin: 5px 0;
-}
-
-.gender-form {
+.form {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -155,7 +151,7 @@ html, body {
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-.gender-form.show {
+.form.show {
   opacity: 1;
   transform: translateY(0);
 }
@@ -167,7 +163,7 @@ html, body {
   justify-content: center;
 }
 
-.gender-form label {
+.form label {
   display: inline-block;
   padding: 0.8rem 1.5rem;
   background: var(--label-bg);
@@ -179,20 +175,20 @@ html, body {
   color: var(--text-color);
 }
 
-.gender-form label:hover {
+.form label:hover {
   background: var(--label-hover);
 }
 
-.gender-form input[type="radio"] {
+.form input[type="radio"] {
   display: none;
 }
 
-.gender-form input[type="radio"]:checked + label {
+.form input[type="radio"]:checked + label {
   background: var(--label-checked);
-  color: var(--selected-label-text); /* Use the new variable */
+  color: var(--selected-label-text);
 }
 
-.gender-form textarea {
+.form textarea {
   display: block;
   width: 150px; 
   line-height: 1.2;
@@ -209,11 +205,11 @@ html, body {
   box-sizing: border-box;
 }
 
-.gender-form textarea:hover {
+.form textarea:hover {
   background: var(--label-hover);
 }
 
-.gender-form textarea:focus {
+.form textarea:focus {
   outline: none;
   background: var(--label-hover);
 }

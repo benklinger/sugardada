@@ -1,3 +1,4 @@
+<!-- views/gender.ejs -->
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -20,7 +21,12 @@
       </ul>
     <% } %>
 
-    <form action="/onboarding/1" method="POST" class="form">
+    <!-- Use data-question to specify what to type -->
+    <form action="/onboarding/1"
+          method="POST"
+          class="form"
+          data-question="Are you setting this up for your baby boy or girl?">
+
       <div class="radio-group">
         <input type="radio" id="boy" name="babyGender" value="Boy" <% if (oldInput.babyGender === 'Boy') { %>checked<% } %> required>
         <label for="boy">Boy</label>
@@ -31,7 +37,6 @@
     </form>
   </div>
 
-  <!-- Include Footer Partial -->
   <%- include('partials/footer') %>
 </body>
 </html>

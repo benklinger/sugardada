@@ -1,5 +1,8 @@
-// Simple type effect for text content
+// public/interactions.js
+
+// A simple type effect function
 function typeText(el, text, i = 0, callback) {
+  if (!el) return;
   if (i < text.length) {
     el.textContent += text.charAt(i);
     setTimeout(() => typeText(el, text, i + 1, callback), 40);
@@ -8,97 +11,101 @@ function typeText(el, text, i = 0, callback) {
   }
 }
 
-/**
- * Enables form interactions by adding event listeners to radio inputs
- * to automatically submit the form upon selection.
- * 
- * @param {HTMLElement} form - The form element to be submitted.
- */
-function enableFormInteractions(form) {
-  const radioButtons = form.querySelectorAll('input[type="radio"]');
+// For text-based forms (e.g. name), submit on Enter
+function enableAutoSubmitText(form) {
+  const textarea = form.querySelector('textarea');
+  if (!textarea) return;
 
-  // Add the 'show' class to trigger fade-in via CSS
-  form.classList.add('show');
+  // Camelize input on each keystroke
+  textarea.addEventListener('input', () => {
+    const pos = textarea.selectionStart;
+    textarea.value =
+      textarea.value.charAt(0).toUpperCase() + textarea.value.slice(1).toLowerCase();
+    textarea.setSelectionRange(pos, pos);
+  });
 
-  radioButtons.forEach(radio => {
+  // Submit on Enter
+  textarea.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      form.submit();
+    }
+  });
+}
+
+// For radio-based forms (e.g. gender), submit on radio change
+function enableAutoSubmitRadio(form) {
+  const radios = form.querySelectorAll('input[type="radio"]');
+  if (!radios.length) return;
+
+  radios.forEach(radio => {
     radio.addEventListener('change', () => {
       form.submit();
     });
   });
 }
 
-/**
- * Enables auto-submit for text input forms.
- * Automatically submits the form when the user presses Enter.
- * Also camelizes the input regardless of how the user types it.
- * 
- * @param {HTMLElement} form - The form element to be submitted.
- * @param {HTMLElement} input - The input element within the form.
- */
-function enableAutoSubmitTextForm(form, input) {
-  // Function to camelize input
-  function camelize(str) {
-    if (!str) return '';
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-  }
+// For DOB-based forms (Month/Day/Year selects), submit when all are chosen
+function enableAutoSubmitDOB(form) {
+  const monthSelect = form.querySelector('select[name="dobMonth"]');
+  const daySelect   = form.querySelector('select[name="dobDay"]');
+  const yearSelect  = form.querySelector('select[name="dobYear"]');
+  if (!monthSelect || !daySelect || !yearSelect) return;
 
-  // Listen for input events to camelize
-  input.addEventListener('input', () => {
-    const cursorPosition = input.selectionStart;
-    input.value = camelize(input.value);
-    input.setSelectionRange(cursorPosition, cursorPosition);
-  });
-
-  // Submit on Enter key press
-  input.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
+  function maybeSubmit() {
+    if (monthSelect.value && daySelect.value && yearSelect.value) {
       form.submit();
     }
-  });
+  }
 
-  // Focus the input field after typewriter effect and form is shown
-  form.addEventListener('transitionend', () => {
-    input.focus();
-  }, { once: true }); // Ensures the event listener runs only once
+  [monthSelect, daySelect, yearSelect].forEach(select => {
+    select.addEventListener('change', maybeSubmit);
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   const questionEl = document.querySelector('.question');
-  const formEl = document.querySelector('.form');
+  if (!questionEl) return; // if there's no .question, do nothing
 
-  if (!questionEl || !formEl) {
-    console.error('Required elements not found in the DOM.');
-    return;
-  }
+  // Find all .form elements
+  const allForms = document.querySelectorAll('.form');
 
-  // Determine the page type based on the form's action attribute
-  const formAction = formEl.getAttribute('action');
+  allForms.forEach(form => {
+    // Prevent re-init if you revisit the page or partial reload
+    if (form.dataset.typed === 'true') return;
 
-  if (formAction === '/onboarding/1') {
-    // Gender Selection Page
-    typeText(questionEl, "Are you setting this up for your baby boy or girl?", 0, () => {
-      // After typing is complete, enable form interactions
-      enableFormInteractions(formEl);
+    // Build the question text
+    let questionText = form.dataset.question || '';
+
+    // If we have data-gender but no data-question, build a dynamic question for name
+    if (!questionText && form.dataset.gender) {
+      const g = form.dataset.gender.toLowerCase();
+      questionText = `What’s your ${g}’s name?`;
+    }
+
+    // If we have data-name but no data-question, handle the DOB question
+    if (!questionText && form.dataset.name) {
+      const childName = form.dataset.name;
+      questionText = `When was ${childName} born?`;
+    }
+
+    // Start typing the question
+    questionEl.textContent = ''; // clear existing
+    typeText(questionEl, questionText, 0, () => {
+      // Once done typing, fade in the form
+      form.classList.add('show');
+
+      // Focus the first field (radio or textarea or select)
+      const firstField = form.querySelector('input, textarea, select');
+      if (firstField) firstField.focus();
+
+      // Attach auto-submit logic
+      enableAutoSubmitRadio(form);
+      enableAutoSubmitText(form);
+      enableAutoSubmitDOB(form);
+
+      // Mark as typed
+      form.dataset.typed = 'true';
     });
-  } else if (formAction === '/onboarding/2') {
-    // Baby's Name Input Page
-    // Retrieve gender from the data attribute
-    const gender = formEl.getAttribute('data-gender') || 'your baby';
-
-    // Convert gender to lowercase for display
-    const genderLower = gender.toLowerCase();
-
-    typeText(questionEl, `What’s your ${genderLower}’s name?`, 0, () => {
-      // After typing is complete, enable auto-submit for the form
-      const inputEl = formEl.querySelector('textarea[name="babyName"]');
-      if (inputEl) {
-        enableAutoSubmitTextForm(formEl, inputEl);
-      } else {
-        console.error('Textarea input not found in the form.');
-      }
-
-      formEl.classList.add('show');
-    });
-  }
+  });
 });

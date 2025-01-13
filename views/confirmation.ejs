@@ -1,33 +1,39 @@
+<!-- views/confirmation.ejs -->
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <title>Onboarding: Sugar Dada</title>
+  <meta charset="UTF-8" />
+  <title>Confirmation: Sugar Dada</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
+  <!-- Include your header partial -->
   <%- include('partials/header') %>
 
   <div class="wrapper">
-    <div class="question">Thank you! Your baby's name has been saved successfully.</div>
+    <!-- Confirmation Header -->
+    <h2>Confirmation</h2>
 
+    <!-- Display Entered Information -->
     <% if (gender && name) { %>
-      <div class="user-info">
-        <p><strong>Gender:</strong> <%= gender %></p>
-        <p><strong>Name:</strong> <%= name %></p>
-      </div>
+      <p><strong>Gender:</strong> <%= gender %></p>
+      <p><strong>Name:</strong> <%= name %></p>
+      <!-- If DOB is provided, display it -->
+      <% if (dobMonth && dobDay && dobYear) { %>
+        <p><strong>Date of Birth:</strong> <%= dobMonth %> <%= dobDay %>, <%= dobYear %></p>
+      <% } %>
     <% } else { %>
-      <div class="user-info">
-        <p>No data available.</p>
-      </div>
+      <p>No data available. Please start over.</p>
     <% } %>
 
-    <form action="/onboarding/1" method="GET" class="start-over-form">
-      <button type="submit" class="start-button">Start Over</button>
-    </form>
+    <!-- Optionally, link to restart the onboarding flow or go home -->
+    <div style="margin-top: 1rem;">
+      <a href="/">Go Home</a>
+    </div>
   </div>
 
+  <!-- Include your footer partial -->
   <%- include('partials/footer') %>
 </body>
 </html>

@@ -111,6 +111,15 @@ html, body {
   border-radius: 8px;
 }
 
+.dob-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  box-sizing: border-box;
+  margin-top: 1rem;
+}
+
 .question {
   font-family: 'Radley', serif;
   font-size: 1.5rem;
@@ -212,6 +221,28 @@ html, body {
 .form textarea:focus {
   outline: none;
   background: var(--label-hover);
+}
+
+select {
+  background: var(--label-bg);
+  color: var(--text-color);
+  border: none;
+  border-radius: 1rem;
+  padding: 0.8rem 2rem 0.8rem 1.3rem;
+  font-size: 1.25rem;
+  font-family: 'Roboto', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s;
+  appearance: none; 
+}
+
+select:hover {
+  background: var(--label-hover);
+}
+
+select:focus {
+  outline: none;
+  background: var(--label-checked);
 }
 
 .hint {

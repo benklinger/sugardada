@@ -1,3 +1,4 @@
+<!-- views/name.ejs -->
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -20,12 +21,13 @@
       </ul>
     <% } %>
 
-    <form action="/onboarding/2" method="POST" class="form" data-gender="<%= gender %>">
-      <textarea
-        name="babyName"
-        rows="1"
-        required
-      ></textarea>
+    <!-- If you want to dynamically show 'boy'/'girl' in the question, you can also do it in data-question. -->
+    <!-- Or you can rely on data-gender and handle it in JS. We'll show both approaches in the JS. -->
+    <form action="/onboarding/2"
+          method="POST"
+          class="form"
+          data-gender="<%= gender %>">
+      <textarea name="babyName" rows="1" required><%= oldInput.babyName ? oldInput.babyName : '' %></textarea>
       <div class="hint">Press Enter to continue</div>
     </form>
   </div>

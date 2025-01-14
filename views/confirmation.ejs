@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <!-- Include Header Partial -->
   <%- include('partials/header') %>
 
   <div class="wrapper">
@@ -18,18 +17,16 @@
       <p><strong>Gender:</strong> <%= gender %></p>
       <p><strong>Name:</strong> <%= name %></p>
       <p><strong>Date of Birth:</strong> <%= dobMonth %> <%= dobDay %>, <%= dobYear %></p>
-      <p><strong>Monthly Investment:</strong> <%= monthly %></p>
+      <p><strong>Monthly Investment:</strong> $ <%= monthly.toLocaleString() %></p>
     <% } else { %>
       <p>No data available. Please start over.</p>
     <% } %>
 
-    <!-- Optionally, provide a link to restart or go home -->
     <div style="margin-top: 1rem;">
       <a href="/">Go Home</a>
     </div>
   </div>
 
-  <!-- Include Footer Partial -->
   <%- include('partials/footer') %>
 </body>
 </html>

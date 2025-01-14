@@ -1,0 +1,41 @@
+<!-- views/ib.ejs -->
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Onboarding: Sugar Dada</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <div class="wrapper">
+    <div class="question"></div>
+
+    <% if (errors.length > 0) { %>
+      <ul class="error">
+        <% errors.forEach(error => { %>
+          <li><%= error.msg %></li>
+        <% }) %>
+      </ul>
+    <% } %>
+
+    <form action="/onboarding/6" method="POST" class="form" data-question="Last question: Do you have a trading account with Interactive Brokers?">
+    <div class="subtitle">The account will be managed by you, not <%= babyName %></div>
+      <div class="radio-group">
+        <label>
+          <input type="radio" name="hasIBAccount" value="Yes" required />
+          Yes
+        </label>
+        <label>
+          <input type="radio" name="hasIBAccount" value="No" required />
+          No
+        </label>
+      </div>
+    </form>
+  </div>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

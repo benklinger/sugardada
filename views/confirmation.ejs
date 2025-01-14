@@ -13,13 +13,14 @@
   <div class="wrapper">
     <div class="question">Thank you for completing the onboarding!</div>
 
-    <% if (gender && name && dobMonth && dobDay && dobYear && monthly && riskLevel && investmentTicker) { %>
+    <% if (gender && name && dobMonth && dobDay && dobYear && monthly && riskLevel && investmentTicker && hasIBAccount) { %>
       <p><strong>Gender:</strong> <%= gender %></p>
       <p><strong>Name:</strong> <%= name %></p>
       <p><strong>Date of Birth:</strong> <%= dobMonth %> <%= dobDay %>, <%= dobYear %></p>
       <p><strong>Monthly Investment:</strong> $ <%= monthly.toLocaleString() %></p>
       <p><strong>Risk Level:</strong> <%= riskLevel %></p>
       <p><strong>Investment Ticker:</strong> <%= investmentTicker %></p>
+      <p><strong>Interactive Brokers Account:</strong> <%= hasIBAccount %></p>
     <% } else { %>
       <p>No data available. Please start over.</p>
     <% } %>

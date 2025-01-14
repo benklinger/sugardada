@@ -32,6 +32,11 @@ const userSchema = new mongoose.Schema({
     enum: ['SPY', 'QQQ', 'TECL'],
     required: true
   },
+  hasIBAccount: {
+    type: String,
+    enum: ['Yes', 'No'],
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now

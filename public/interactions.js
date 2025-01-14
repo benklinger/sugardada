@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (questionText.toLowerCase().includes('invest monthly')) {
         enableAutoSubmitText(form);
-      } else if (questionText.toLowerCase().includes('risk level')) {
+      } else if (questionText.toLowerCase().includes('risk level') || questionText.toLowerCase().includes('interactive brokers')) {
         enableAutoSubmitRadio(form);
       } else {
         enableAutoSubmitRadio(form);

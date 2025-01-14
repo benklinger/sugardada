@@ -62,8 +62,9 @@ app.get('/results', async (req, res) => {
   const monthly  = req.session.confirmationMonthly;
   const riskLevel = req.session.confirmationRiskLevel;
   const investmentTicker = req.session.confirmationInvestmentTicker;
+  const hasIBAccount = req.session.confirmationHasIBAccount;
 
-  if (!gender || !name || !dobMonth || !dobDay || !dobYear || !monthly || !riskLevel || !investmentTicker) {
+  if (!gender || !name || !dobMonth || !dobDay || !dobYear || !monthly || !riskLevel || !investmentTicker || !hasIBAccount) {
     return res.redirect('/');
   }
 
@@ -93,7 +94,8 @@ app.get('/results', async (req, res) => {
       dob,
       monthlyInvestment: monthlyInvestmentNum,
       riskLevel,
-      investmentTicker
+      investmentTicker,
+      hasIBAccount
     });
 
     await newUser.save();
@@ -106,6 +108,7 @@ app.get('/results', async (req, res) => {
     req.session.confirmationMonthly  = null;
     req.session.confirmationRiskLevel = null;
     req.session.confirmationInvestmentTicker = null;
+    req.session.confirmationHasIBAccount = null;
 
     res.render('confirmation', { 
       gender, 
@@ -115,7 +118,8 @@ app.get('/results', async (req, res) => {
       dobYear, 
       monthly: monthlyInvestmentNum,
       riskLevel,
-      investmentTicker
+      investmentTicker,
+      hasIBAccount
     });
   } catch (error) {
     console.error('Error saving user data:', error);
@@ -266,7 +270,29 @@ app.post('/onboarding/5', (req, res) => {
 
   req.session.confirmationRiskLevel = riskLevel;
   req.session.confirmationInvestmentTicker = investmentTicker;
+  res.redirect('/onboarding/6');
+});
 
+app.get('/onboarding/6', (req, res) => {
+  if (!req.session.confirmationName || !req.session.confirmationRiskLevel) {
+    return res.redirect('/');
+  }
+  res.render('ib', { errors: [], babyName: req.session.confirmationName });
+});
+
+app.post('/onboarding/6', (req, res) => {
+  const { hasIBAccount } = req.body;
+  const errors = [];
+
+  if (!hasIBAccount || !['Yes', 'No'].includes(hasIBAccount)) {
+    errors.push({ msg: 'Please select a valid option.' });
+  }
+
+  if (errors.length > 0) {
+    return res.render('ib', { errors, babyName: req.session.confirmationName });
+  }
+
+  req.session.confirmationHasIBAccount = hasIBAccount;
   res.redirect('/results');
 });
 

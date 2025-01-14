@@ -5,7 +5,7 @@ require('dotenv').config(); // Load environment variables from .env
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
-const User = require('./models/User');
+const User = require('./models/User'); // Ensure you have a User model defined
 const bodyParser = require('body-parser');
 const path = require('path');
 
@@ -19,10 +19,10 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'aSecretKey',
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false } // Set true if using HTTPS in production
+  cookie: { secure: false } // Set to true if using HTTPS in production
 }));
 
-// Connect to MongoDB (optional if storing data in DB)
+// Connect to MongoDB Atlas using MONGO_URI from .env
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -30,43 +30,48 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log('Connected to MongoDB Atlas successfully.'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-// GET / - Simple homepage (or render home.ejs if you like)
+// ============= ROUTES =============
+
+// GET / - Render the homepage
 app.get('/', (req, res) => {
   res.render('home');
 });
 
-// GET /results - Confirmation page
+// GET /results - Render the confirmation page with collected data
 app.get('/results', (req, res) => {
-  const gender = req.session.confirmationGender;
-  const name   = req.session.confirmationName;
-  const dobM   = req.session.confirmationDobMonth;
-  const dobD   = req.session.confirmationDobDay;
-  const dobY   = req.session.confirmationDobYear;
+  // Retrieve all necessary data from session
+  const gender   = req.session.confirmationGender;
+  const name     = req.session.confirmationName;
+  const dobMonth = req.session.confirmationDobMonth;
+  const dobDay   = req.session.confirmationDobDay;
+  const dobYear  = req.session.confirmationDobYear;
+  const monthly  = req.session.confirmationMonthly;
 
-  if (!gender || !name) {
-    // minimal check
-    return res.redirect('/');
+  // Check if essential data exists
+  if (!gender || !name || !dobMonth || !dobDay || !dobYear || !monthly) {
+    return res.redirect('/'); // Redirect to homepage or handle as desired
   }
 
-  // Clear session data after reading
-  req.session.confirmationGender = null;
-  req.session.confirmationName   = null;
+  // Clear the confirmation data from session after retrieving
+  req.session.confirmationGender   = null;
+  req.session.confirmationName     = null;
   req.session.confirmationDobMonth = null;
   req.session.confirmationDobDay   = null;
   req.session.confirmationDobYear  = null;
+  req.session.confirmationMonthly  = null;
 
-  // Render the confirmation page
-  // Add logic to show DOB if present
+  // Render the confirmation page with all data
   res.render('confirmation', { 
     gender, 
-    name,
-    dobMonth: dobM,
-    dobDay: dobD,
-    dobYear: dobY
+    name, 
+    dobMonth, 
+    dobDay, 
+    dobYear, 
+    monthly 
   });
 });
 
-// -------------- GENDER SCREEN -------------- //
+// ============= GENDER SCREEN =============
 app.get('/onboarding/1', (req, res) => {
   res.render('gender', { errors: [], oldInput: {} });
 });
@@ -89,21 +94,16 @@ app.post('/onboarding/1', (req, res) => {
     res.redirect('/onboarding/2');
   } catch (error) {
     console.error('Error saving user gender:', error);
-    res.status(500).send('An error occurred while saving your gender selection. Please try again.');
+    res.status(500).send('Error while saving gender. Please try again.');
   }
 });
 
-// -------------- NAME SCREEN -------------- //
+// ============= NAME SCREEN =============
 app.get('/onboarding/2', (req, res) => {
   if (!req.session.userGender) {
     return res.redirect('/onboarding/1');
   }
-
-  res.render('name', { 
-    errors: [], 
-    oldInput: {}, 
-    gender: req.session.userGender
-  });
+  res.render('name', { errors: [], oldInput: {}, gender: req.session.userGender });
 });
 
 app.post('/onboarding/2', async (req, res) => {
@@ -115,7 +115,11 @@ app.post('/onboarding/2', async (req, res) => {
   }
 
   if (errors.length > 0) {
-    return res.render('name', { errors, oldInput: { babyName }, gender: req.session.userGender });
+    return res.render('name', {
+      errors,
+      oldInput: { babyName },
+      gender: req.session.userGender
+    });
   }
 
   try {
@@ -126,10 +130,7 @@ app.post('/onboarding/2', async (req, res) => {
     }
 
     // Example of storing in DB
-    const newUser = new User({
-      gender: userGender,
-      name: babyName.trim()
-    });
+    const newUser = new User({ gender: userGender, name: babyName.trim() });
     await newUser.save();
 
     // Store confirmation data in session
@@ -139,27 +140,20 @@ app.post('/onboarding/2', async (req, res) => {
     // Clear onboarding data from session
     req.session.userGender = null;
 
-    // Instead of going to /results, go to dob screen
+    // Next step -> DOB
     res.redirect('/onboarding/3');
   } catch (error) {
-    console.error('Error saving user name:', error);
-    res.status(500).send('An error occurred while saving your baby\'s name. Please try again.');
+    console.error('Error saving name:', error);
+    res.status(500).send('Error while saving name. Please try again.');
   }
 });
 
-// -------------- DOB SCREEN -------------- //
+// ============= DOB SCREEN =============
 app.get('/onboarding/3', (req, res) => {
-  // Ensure name is set
   if (!req.session.confirmationName) {
     return res.redirect('/onboarding/2');
   }
-
-  // Render dob.ejs with child's name
-  res.render('dob', { 
-    errors: [], 
-    oldInput: {}, 
-    name: req.session.confirmationName
-  });
+  res.render('dob', { errors: [], oldInput: {}, name: req.session.confirmationName });
 });
 
 app.post('/onboarding/3', (req, res) => {
@@ -168,6 +162,9 @@ app.post('/onboarding/3', (req, res) => {
 
   if (!dobMonth || !dobDay || !dobYear) {
     errors.push({ msg: 'Please select Month, Day, and Year.' });
+  }
+
+  if (errors.length > 0) {
     return res.render('dob', {
       errors,
       oldInput: { dobMonth, dobDay, dobYear },
@@ -175,16 +172,44 @@ app.post('/onboarding/3', (req, res) => {
     });
   }
 
-  // Store in session for results
+  // Store DOB in session
   req.session.confirmationDobMonth = dobMonth;
   req.session.confirmationDobDay   = dobDay;
   req.session.confirmationDobYear  = dobYear;
 
-  // Move on to results
+  // Next step -> Monthly Investment
+  res.redirect('/onboarding/4');
+});
+
+// ============= MONTHLY INVESTMENT SCREEN =============
+app.get('/onboarding/4', (req, res) => {
+  // Ensure that previous steps are completed
+  if (!req.session.confirmationGender || !req.session.confirmationName || !req.session.confirmationDobMonth) {
+    return res.redirect('/');
+  }
+  res.render('monthly', { errors: [] });
+});
+
+app.post('/onboarding/4', (req, res) => {
+  const { monthlyInvestment } = req.body;
+  const errors = [];
+
+  if (!monthlyInvestment || !monthlyInvestment.trim()) {
+    errors.push({ msg: 'Please enter a valid monthly investment amount.' });
+  }
+
+  if (errors.length > 0) {
+    return res.render('monthly', { errors });
+  }
+
+  // Store in session
+  req.session.confirmationMonthly = monthlyInvestment.trim();
+
+  // Final step -> Confirmation
   res.redirect('/results');
 });
 
-// -------------- SERVER START -------------- //
+// ============= SERVER START =============
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

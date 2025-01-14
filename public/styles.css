@@ -123,10 +123,16 @@ html, body {
 .question {
   font-family: 'Radley', serif;
   font-size: 1.5rem;
-  margin-bottom: 1rem;
   min-height: 3rem;
   word-wrap: break-word;
   color: var(--text-color);
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--disclaimer-color);
+  margin-bottom: 1.5rem;
+  font-family: 'Roboto', sans-serif;
 }
 
 @keyframes fadeIn {

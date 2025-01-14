@@ -8,32 +8,28 @@
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <!-- Include your header partial -->
+  <!-- Include Header Partial -->
   <%- include('partials/header') %>
 
   <div class="wrapper">
-    <!-- Confirmation Header -->
-    <h2>Confirmation</h2>
+    <div class="question">Thank you for completing the onboarding!</div>
 
-    <!-- Display Entered Information -->
-    <% if (gender && name) { %>
+    <% if (gender && name && dobMonth && dobDay && dobYear && monthly) { %>
       <p><strong>Gender:</strong> <%= gender %></p>
       <p><strong>Name:</strong> <%= name %></p>
-      <!-- If DOB is provided, display it -->
-      <% if (dobMonth && dobDay && dobYear) { %>
-        <p><strong>Date of Birth:</strong> <%= dobMonth %> <%= dobDay %>, <%= dobYear %></p>
-      <% } %>
+      <p><strong>Date of Birth:</strong> <%= dobMonth %> <%= dobDay %>, <%= dobYear %></p>
+      <p><strong>Monthly Investment:</strong> <%= monthly %></p>
     <% } else { %>
       <p>No data available. Please start over.</p>
     <% } %>
 
-    <!-- Optionally, link to restart the onboarding flow or go home -->
+    <!-- Optionally, provide a link to restart or go home -->
     <div style="margin-top: 1rem;">
       <a href="/">Go Home</a>
     </div>
   </div>
 
-  <!-- Include your footer partial -->
+  <!-- Include Footer Partial -->
   <%- include('partials/footer') %>
 </body>
 </html>

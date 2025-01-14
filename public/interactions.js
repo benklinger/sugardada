@@ -2,7 +2,6 @@
 
 // A simple type effect function
 function typeText(el, text, i = 0, callback) {
-  if (!el) return;
   if (i < text.length) {
     el.textContent += text.charAt(i);
     setTimeout(() => typeText(el, text, i + 1, callback), 40);
@@ -11,18 +10,68 @@ function typeText(el, text, i = 0, callback) {
   }
 }
 
-// For text-based forms (e.g. name), submit on Enter
+// For radio-based forms (like gender)
+function enableAutoSubmitRadio(form) {
+  const radios = form.querySelectorAll('input[type="radio"]');
+  if (!radios.length) return;
+
+  radios.forEach(radio => {
+    radio.addEventListener('change', () => form.submit());
+  });
+}
+
+// For DOB forms or other select-based forms
+function enableAutoSubmitDOB(form) {
+  const month = form.querySelector('select[name="dobMonth"]');
+  const day   = form.querySelector('select[name="dobDay"]');
+  const year  = form.querySelector('select[name="dobYear"]');
+  if (!month || !day || !year) return;
+
+  function maybeSubmit() {
+    if (month.value && day.value && year.value) {
+      form.submit();
+    }
+  }
+
+  [month, day, year].forEach(sel => sel.addEventListener('change', maybeSubmit));
+}
+
+// A minimal approach for monthly or name forms
 function enableAutoSubmitText(form) {
   const textarea = form.querySelector('textarea');
   if (!textarea) return;
 
-  // Camelize input on each keystroke
-  textarea.addEventListener('input', () => {
-    const pos = textarea.selectionStart;
-    textarea.value =
-      textarea.value.charAt(0).toUpperCase() + textarea.value.slice(1).toLowerCase();
-    textarea.setSelectionRange(pos, pos);
-  });
+  // Check if it's the monthly form
+  const questionText = form.dataset.question || '';
+  const isMonthly = questionText.toLowerCase().includes('invest monthly');
+
+  if (isMonthly) {
+    // On input, format the monthly value with $ prefix, thousand separators
+    textarea.addEventListener('input', () => {
+      let val = textarea.value.replace(/^\$\s*/, '').replace(/,/g, '');
+      if (!val) {
+        textarea.value = '$ ';
+        return;
+      }
+      val = val.replace(/[^\d]/g, '');
+      let num = parseInt(val, 10);
+      if (isNaN(num)) {
+        num = '';
+      }
+      let formatted = num ? num.toLocaleString('en-US') : '';
+      textarea.value = '$ ' + formatted;
+    });
+  } else {
+    // For other text forms (e.g., Name), do a simple camel-case approach
+    textarea.addEventListener('input', () => {
+      const pos = textarea.selectionStart;
+      if (textarea.value.length) {
+        textarea.value =
+          textarea.value.charAt(0).toUpperCase() + textarea.value.slice(1).toLowerCase();
+        textarea.setSelectionRange(pos, pos);
+      }
+    });
+  }
 
   // Submit on Enter
   textarea.addEventListener('keypress', (e) => {
@@ -33,78 +82,59 @@ function enableAutoSubmitText(form) {
   });
 }
 
-// For radio-based forms (e.g. gender), submit on radio change
-function enableAutoSubmitRadio(form) {
-  const radios = form.querySelectorAll('input[type="radio"]');
-  if (!radios.length) return;
-
-  radios.forEach(radio => {
-    radio.addEventListener('change', () => {
-      form.submit();
-    });
-  });
-}
-
-// For DOB-based forms (Month/Day/Year selects), submit when all are chosen
-function enableAutoSubmitDOB(form) {
-  const monthSelect = form.querySelector('select[name="dobMonth"]');
-  const daySelect   = form.querySelector('select[name="dobDay"]');
-  const yearSelect  = form.querySelector('select[name="dobYear"]');
-  if (!monthSelect || !daySelect || !yearSelect) return;
-
-  function maybeSubmit() {
-    if (monthSelect.value && daySelect.value && yearSelect.value) {
-      form.submit();
-    }
-  }
-
-  [monthSelect, daySelect, yearSelect].forEach(select => {
-    select.addEventListener('change', maybeSubmit);
-  });
+// Helper to move cursor at the end of the field
+function setCursorToEnd(el) {
+  const len = el.value.length;
+  el.focus();
+  el.setSelectionRange(len, len);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   const questionEl = document.querySelector('.question');
-  if (!questionEl) return; // if there's no .question, do nothing
+  if (!questionEl) return;
 
-  // Find all .form elements
-  const allForms = document.querySelectorAll('.form');
-
-  allForms.forEach(form => {
-    // Prevent re-init if you revisit the page or partial reload
+  const forms = document.querySelectorAll('.form');
+  forms.forEach(form => {
     if (form.dataset.typed === 'true') return;
 
-    // Build the question text
+    // Build question from data-question or data-gender/name
     let questionText = form.dataset.question || '';
-
-    // If we have data-gender but no data-question, build a dynamic question for name
     if (!questionText && form.dataset.gender) {
       const g = form.dataset.gender.toLowerCase();
       questionText = `What’s your ${g}’s name?`;
+    } else if (!questionText && form.dataset.name) {
+      const n = form.dataset.name;
+      questionText = `When was ${n} born?`;
     }
 
-    // If we have data-name but no data-question, handle the DOB question
-    if (!questionText && form.dataset.name) {
-      const childName = form.dataset.name;
-      questionText = `When was ${childName} born?`;
-    }
-
-    // Start typing the question
-    questionEl.textContent = ''; // clear existing
+    // Type the question
+    questionEl.textContent = '';
     typeText(questionEl, questionText, 0, () => {
-      // Once done typing, fade in the form
+      // Once done typing, show the form
       form.classList.add('show');
 
-      // Focus the first field (radio or textarea or select)
-      const firstField = form.querySelector('input, textarea, select');
-      if (firstField) firstField.focus();
+      // A short delay ensures the form is fully visible before we move the cursor
+      setTimeout(() => {
+        // Focus the first field
+        const firstField = form.querySelector('input, textarea, select');
+        if (firstField) {
+          firstField.focus();
 
-      // Attach auto-submit logic
+          // If it's the monthly form, place the cursor at the end if it starts with "$ "
+          if (questionText.toLowerCase().includes('invest monthly')) {
+            if (firstField.value.startsWith('$ ')) {
+              setCursorToEnd(firstField);
+            }
+          }
+        }
+      }, 0);
+
+      // Attach auto-submits
       enableAutoSubmitRadio(form);
       enableAutoSubmitText(form);
       enableAutoSubmitDOB(form);
 
-      // Mark as typed
+      // Mark typed
       form.dataset.typed = 'true';
     });
   });

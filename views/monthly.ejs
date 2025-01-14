@@ -1,0 +1,45 @@
+<!-- views/monthly.ejs -->
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Onboarding: Sugar Dada</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <!-- Include Header Partial -->
+  <%- include('partials/header') %>
+
+  <div class="wrapper">
+    <!-- Question with typewriter effect -->
+    <div class="question"></div>
+
+    <!-- Subtitle below the question -->
+
+    <!-- Display validation errors, if any -->
+    <% if (errors.length > 0) { %>
+      <ul class="error">
+        <% errors.forEach(error => { %>
+          <li><%= error.msg %></li>
+        <% }) %>
+      </ul>
+    <% } %>
+
+    <!-- Monthly Investment Form -->
+    <form action="/onboarding/4" method="POST" class="form" data-question="How much would you invest monthly?">
+	<div class="subtitle">Invest what you won’t miss, even if everything tanks</div>
+      <!-- Textarea starts with "$ " -->
+      <textarea
+        name="monthlyInvestment"
+        rows="1"
+        required
+      >$ </textarea>
+      <div class="hint">Press Enter to continue</div>
+    </form>
+  </div>
+
+  <!-- Include Footer Partial -->
+  <%- include('partials/footer') %>
+</body>
+</html>

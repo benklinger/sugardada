@@ -26,6 +26,12 @@ const monthMap = {
   Dec: 11
 };
 
+const riskToTickerMap = {
+  Low: 'SPY',
+  Medium: 'QQQ',
+  High: 'TECL'
+};
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
@@ -54,8 +60,10 @@ app.get('/results', async (req, res) => {
   const dobDay   = req.session.confirmationDobDay;
   const dobYear  = req.session.confirmationDobYear;
   const monthly  = req.session.confirmationMonthly;
+  const riskLevel = req.session.confirmationRiskLevel;
+  const investmentTicker = req.session.confirmationInvestmentTicker;
 
-  if (!gender || !name || !dobMonth || !dobDay || !dobYear || !monthly) {
+  if (!gender || !name || !dobMonth || !dobDay || !dobYear || !monthly || !riskLevel || !investmentTicker) {
     return res.redirect('/');
   }
 
@@ -83,7 +91,9 @@ app.get('/results', async (req, res) => {
       gender,
       name,
       dob,
-      monthlyInvestment: monthlyInvestmentNum
+      monthlyInvestment: monthlyInvestmentNum,
+      riskLevel,
+      investmentTicker
     });
 
     await newUser.save();
@@ -94,6 +104,8 @@ app.get('/results', async (req, res) => {
     req.session.confirmationDobDay   = null;
     req.session.confirmationDobYear  = null;
     req.session.confirmationMonthly  = null;
+    req.session.confirmationRiskLevel = null;
+    req.session.confirmationInvestmentTicker = null;
 
     res.render('confirmation', { 
       gender, 
@@ -101,7 +113,9 @@ app.get('/results', async (req, res) => {
       dobMonth, 
       dobDay, 
       dobYear, 
-      monthly: monthlyInvestmentNum 
+      monthly: monthlyInvestmentNum,
+      riskLevel,
+      investmentTicker
     });
   } catch (error) {
     console.error('Error saving user data:', error);
@@ -222,6 +236,37 @@ app.post('/onboarding/4', (req, res) => {
   }
 
   req.session.confirmationMonthly = monthlyInvestment.trim();
+  res.redirect('/onboarding/5');
+});
+
+app.get('/onboarding/5', (req, res) => {
+  if (!req.session.confirmationName || !req.session.confirmationDobMonth || !req.session.confirmationMonthly) {
+    return res.redirect('/');
+  }
+  res.render('risk', { errors: [], babyName: req.session.confirmationName });
+});
+
+app.post('/onboarding/5', (req, res) => {
+  const { riskLevel } = req.body;
+  const errors = [];
+
+  if (!riskLevel || !['Low', 'Medium', 'High'].includes(riskLevel)) {
+    errors.push({ msg: 'Please select a valid risk level.' });
+  }
+
+  if (errors.length > 0) {
+    return res.render('risk', { errors, babyName: req.session.confirmationName });
+  }
+
+  const investmentTicker = riskToTickerMap[riskLevel];
+  if (!investmentTicker) {
+    errors.push({ msg: 'Invalid risk level selected.' });
+    return res.render('risk', { errors, babyName: req.session.confirmationName });
+  }
+
+  req.session.confirmationRiskLevel = riskLevel;
+  req.session.confirmationInvestmentTicker = investmentTicker;
+
   res.redirect('/results');
 });
 

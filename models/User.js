@@ -22,6 +22,16 @@ const userSchema = new mongoose.Schema({
     required: true,
     min: [0, 'Monthly investment must be a non-negative number']
   },
+  riskLevel: {
+    type: String,
+    enum: ['Low', 'Medium', 'High'],
+    required: true
+  },
+  investmentTicker: {
+    type: String,
+    enum: ['SPY', 'QQQ', 'TECL'],
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now

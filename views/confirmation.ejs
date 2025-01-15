@@ -1,3 +1,4 @@
+<!-- views/confirmation.ejs -->
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -11,6 +12,7 @@
   <%- include('partials/header') %>
 
   <div class="wrapper">
+    <!-- Existing Cards -->
     <div class="cards-container">
       <div class="card">
         <div class="card-inner">
@@ -22,7 +24,7 @@
       <div class="card">
         <div class="card-inner">
           <div class="card-title">Monthly Investment</div>
-          <div class="card-value">$ <%= monthly.toLocaleString() %></div>
+          <div class="card-value">$ <%= investment.toLocaleString() %></div>
         </div>
       </div>
 
@@ -40,19 +42,43 @@
         </div>
       </div>
     </div>
+
+    <!-- Investment Records Table -->
+    <% if (investmentRecords && investmentRecords.length > 0) { %>
+      <table border="1" cellspacing="0" cellpadding="8">
+        <thead>
+          <tr>
+            <th>Simulated Date</th>
+            <th>Historical Date</th>
+            <th>Total Investment ($)</th>
+            <th>Share Price ($)</th>
+            <th>Shares Purchased</th>
+            <th>Total Value ($)</th>
+            <th>Interest ($)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% investmentRecords.forEach(record => { %>
+            <tr>
+              <td><%= record.simulatedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></td>
+              <td><%= record.historicalDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></td>
+              <td>$<%= record.totalInvestment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+              <td>$<%= record.sharePrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+              <td><%= record.sharesPurchased.toFixed(4) %></td>
+              <td>$<%= record.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+              <td>$<%= record.interest.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p>No investment records to display.</p>
+    <% } %>
   </div>
 
   <%- include('partials/footer') %>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const cards = document.querySelectorAll('.card');
-      cards.forEach((card, index) => {
-        setTimeout(() => {
-          card.classList.add('card-enter');
-        }, index * 100);
-      });
-    });
-  </script>
+  <!-- Include External JavaScript File -->
+  <script src="/js/confirmation.js"></script>
 </body>
 </html>

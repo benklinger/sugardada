@@ -1,6 +1,5 @@
 /* public/styles.css */
 
-/* Existing CSS Variables */
 :root {
   /* Light Theme Variables */
   --bg-color: #ffffff;
@@ -9,11 +8,11 @@
   --label-bg: #ddd;
   --label-hover: #ccc;
   --label-checked: #bbb;
-  --input-bg: #f9f9f9; /* New Variable for Input Background */
+  --input-bg: #f9f9f9;
   --error-bg: #ffe5e5;
   --error-border: #ffcccc;
   --error-text: #cc0000;
-  --selected-label-text: #ffffff; /* New Variable */
+  --selected-label-text: #ffffff;
 }
 
 :root[data-theme="dark"] {
@@ -24,19 +23,18 @@
   --label-bg: #333333;
   --label-hover: #666666;
   --label-checked: #555555;
-  --input-bg: #444444; /* Input Background in Dark Theme */
+  --input-bg: #444444;
   --error-bg: #660000;
   --error-border: #990000;
   --error-text: #ff6666;
-  --selected-label-text: #ffffff; /* Same as light theme */
+  --selected-label-text: #ffffff;
 }
 
-/* Existing Styles */
 html, body {
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
-  overflow-y: hidden;
+/*  overflow-x: hidden;
+  overflow-y: hidden;*/
   background-color: var(--bg-color);
   color: var(--text-color);
   font-family: 'Roboto', sans-serif;

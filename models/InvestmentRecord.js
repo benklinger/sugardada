@@ -6,46 +6,45 @@ const investmentRecordSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
-  },
-  ticker: {
-    type: String,
-    required: true,
-  },
-  investment: {
-    type: Number,
-    required: true,
+    required: true
   },
   simulatedDate: {
     type: Date,
-    required: true,
+    required: true
   },
   historicalDate: {
     type: Date,
-    required: true,
+    required: true
   },
   totalInvestment: {
     type: Number,
     required: true,
+    min: [0, 'Total investment must be a non-negative number']
   },
   sharePrice: {
     type: Number,
     required: true,
+    min: [0, 'Share price must be a non-negative number']
   },
   sharesPurchased: {
     type: Number,
     required: true,
+    min: [0, 'Shares purchased must be a non-negative number']
   },
   totalValue: {
     type: Number,
     required: true,
+    min: [0, 'Total value must be a non-negative number']
   },
   interest: {
     type: Number,
     required: true,
+    min: [0, 'Interest must be a non-negative number']
   },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
-const InvestmentRecord = mongoose.model('InvestmentRecord', investmentRecordSchema);
-
-module.exports = InvestmentRecord;
+module.exports = mongoose.model('InvestmentRecord', investmentRecordSchema);

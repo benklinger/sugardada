@@ -5,13 +5,13 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const User = require('./models/User');
 const InvestmentRecord = require('./models/InvestmentRecord');
+const { getHistoricalData } = require('./services/yahooFinance');
 const bodyParser = require('body-parser');
 const path = require('path');
 
 const app = express();
 
 const monthMap = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11};
-
 const riskToTickerMap = { Low: 'SPY', Medium: 'QQQ', High: 'TECL'};
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -51,99 +51,218 @@ app.get('/', (req, res) => {
 
 app.get('/results', async (req, res) => {
   const { isDemo } = req.session;
-
+  
   try {
-    let user;
+    let userData;
+
     if (isDemo) {
-      user = new User({
-        _id: new mongoose.Types.ObjectId(), // Correct instantiation with 'new'
+      userData = {
+        _id: new mongoose.Types.ObjectId(),
         gender: "Girl",
         name: "Omer",
-        dob: new Date(Date.UTC(2023, 5, 28)), // Months are 0-indexed (June)
+        dob: new Date(Date.UTC(2023, 1, 28)),
         monthlyInvestment: 1000,
         riskLevel: "High",
         investmentTicker: "TECL",
         hasIBAccount: "No",
-        createdAt: new Date()
-      });
-      await user.save();
+        createdAt: new Date(),
+      };
       req.session.isDemo = false;
-
-      res.render('confirmation', { 
-        riskLevel: "High", 
-        investmentTicker: "TECL", 
-        monthly: 1000,
-        hasIBAccount: "No"
-      });
     } else {
-      const { 
-        confirmationGender: gender, 
-        confirmationName: name, 
-        confirmationDobMonth: dobMonth, 
-        confirmationDobDay: dobDay, 
-        confirmationDobYear: dobYear, 
-        confirmationMonthly: monthly, 
-        confirmationRiskLevel: riskLevel, 
-        confirmationInvestmentTicker: investmentTicker, 
-        confirmationHasIBAccount: hasIBAccount 
+      const {
+        confirmationGender: gender,
+        confirmationName: name,
+        confirmationDobMonth: dobMonth,
+        confirmationDobDay: dobDay,
+        confirmationDobYear: dobYear,
+        confirmationMonthly: investment,
+        confirmationRiskLevel: riskLevel,
+        confirmationInvestmentTicker: investmentTicker,
+        confirmationHasIBAccount: hasIBAccount,
       } = req.session;
 
-      if (!gender || !name || !dobMonth || !dobDay || !dobYear || !monthly || !riskLevel || !investmentTicker || hasIBAccount === undefined) {
+      if (![gender, name, dobMonth, dobDay, dobYear, investment, riskLevel, investmentTicker].every(Boolean) || hasIBAccount === undefined) {
         return res.redirect('/');
       }
 
       const numericMonth = monthMap[dobMonth];
-      if (numericMonth === undefined) {
-        throw new Error(`Invalid month abbreviation: ${dobMonth}`);
-      }
+      if (numericMonth === undefined) throw new Error(`Invalid month abbreviation: ${dobMonth}`);
 
       const numericDay = parseInt(dobDay, 10);
       const numericYear = parseInt(dobYear, 10);
+      if (isNaN(numericDay) || isNaN(numericYear)) throw new Error('Invalid day or year for DOB.');
 
-      if (isNaN(numericDay) || isNaN(numericYear)) {
-        throw new Error('Invalid day or year for DOB.');
-      }
+      const monthlyInvestmentNum = parseInt(investment.replace(/[^0-9]/g, ''), 10);
+      if (isNaN(monthlyInvestmentNum)) throw new Error('Invalid monthly investment amount.');
 
-      const dob = new Date(Date.UTC(numericYear, numericMonth, numericDay));
-
-      const monthlyInvestmentNum = parseInt(monthly.replace(/[^0-9]/g, ''), 10);
-      if (isNaN(monthlyInvestmentNum)) {
-        throw new Error('Invalid monthly investment amount.');
-      }
-
-      user = new User({
+      userData = {
         gender,
         name,
-        dob,
+        dob: new Date(Date.UTC(numericYear, numericMonth, numericDay)),
         monthlyInvestment: monthlyInvestmentNum,
         riskLevel,
         investmentTicker,
-        hasIBAccount
-      });
+        hasIBAccount,
+      };
 
-      await user.save();
+      // Clear session data
+      [
+        'confirmationGender', 'confirmationName', 'confirmationDobMonth', 
+        'confirmationDobDay', 'confirmationDobYear', 'confirmationMonthly', 
+        'confirmationRiskLevel', 'confirmationInvestmentTicker', 'confirmationHasIBAccount'
+      ].forEach(key => req.session[key] = null);
+    }
 
-      // Clear session
-      req.session.confirmationGender = null;
-      req.session.confirmationName = null;
-      req.session.confirmationDobMonth = null;
-      req.session.confirmationDobDay = null;
-      req.session.confirmationDobYear = null;
-      req.session.confirmationMonthly = null;
-      req.session.confirmationRiskLevel = null;
-      req.session.confirmationInvestmentTicker = null;
-      req.session.confirmationHasIBAccount = null;
+    // Create and save the user
+    const user = new User(userData);
+    await user.save();
 
-      res.render('confirmation', { 
-        riskLevel, 
-        investmentTicker, 
-        monthly: monthlyInvestmentNum,
-        hasIBAccount
+    // Calculate the user's 18th birthday
+    const dobDate = new Date(user.dob);
+    const eighteenBirthday = new Date(dobDate.getFullYear() + 18, dobDate.getMonth(), dobDate.getDate());
+
+    // Today's date
+    const today = new Date();
+
+    // Calculate the total number of months until 18th birthday
+    let totalMonths = calculateFullMonthDifference(today, eighteenBirthday);
+
+    // Handle scenarios where the user is already 18 or older
+    if (totalMonths <= 0) {
+      req.session.destroy();
+      return res.render('gender', {
+        errors: [{ msg: 'You have already turned 18 years old.' }],
+        oldInput: {},
+        currentStep: 1
       });
     }
+
+    console.log(`Total months to simulate: ${totalMonths}`);
+
+    // Limit to one investment record for debugging
+    const investmentLimit = totalMonths; // Change to 'totalMonths' for full simulation
+
+    // Define the start and end dates for historical data
+    const historicalMonths = investmentLimit; // Number of months to fetch historical data
+    const historicalStartDate = new Date(today.getFullYear(), today.getMonth() - historicalMonths, 1);
+    const historicalEndDate = today;
+
+    console.log(`Fetching historical data from ${historicalStartDate.toDateString()} to ${historicalEndDate.toDateString()}`);
+
+    try {
+      // Fetch historical data using getHistoricalData with '1mo' interval
+      const historicalData = await getHistoricalData(user.investmentTicker, historicalStartDate, historicalEndDate);
+
+      console.log(`Historical data length: ${historicalData.length}`);
+
+      if (!historicalData || historicalData.length === 0) {
+        return res.render('ib', {
+          errors: [{ msg: 'No historical data found for the provided ticker.' }],
+          oldInput: req.body,
+          currentStep: 6
+        });
+      }
+
+      // Ensure historicalData has at least 'investmentLimit' entries
+      if (historicalData.length < historicalMonths) {
+        return res.render('ib', {
+          errors: [{ msg: `Insufficient historical data for the provided ticker. Required: ${historicalMonths} months, Available: ${historicalData.length} months.` }],
+          oldInput: req.body,
+          currentStep: 6
+        });
+      }
+
+      // Sort the historical data from oldest to newest
+      historicalData.sort((a, b) => a.date - b.date);
+
+      // Log a sample of historical data
+      console.log('Sample historical data:', historicalData.slice(0, 3));
+
+      // Calculate monthly returns
+      const monthlyReturns = [];
+
+      for (let i = 1; i < historicalData.length; i++) {
+        const previousClose = historicalData[i - 1].close;
+        const currentClose = historicalData[i].close;
+        const monthlyReturn = (currentClose - previousClose) / previousClose;
+        monthlyReturns.push(monthlyReturn);
+      }
+
+      // Calculate average monthly return
+      const averageMonthlyReturn = monthlyReturns.reduce((acc, val) => acc + val, 0) / monthlyReturns.length;
+
+      console.log(`Average monthly return: ${(averageMonthlyReturn * 100).toFixed(2)}%`);
+
+      // Initialize simulation variables
+      let simulatedSharePrice = historicalData[historicalData.length - 1].close; // Last known share price
+      let totalInvestmentAmount = 0;
+      let totalShares = 0;
+      let totalValue = 0;
+      let totalInterest = 0;
+
+      const investmentRecords = [];
+
+      for (let i = 0; i < investmentLimit; i++) {
+        // Simulate date (end of each month)
+        const simulatedDate = new Date(
+          today.getFullYear(),
+          today.getMonth() + i + 1,
+          0 // 0th day of next month = last day of current month
+        );
+
+        // Apply average monthly return to simulate share price
+        simulatedSharePrice = simulatedSharePrice * (1 + averageMonthlyReturn);
+
+        // Calculate shares purchased
+        const sharesPurchased = user.monthlyInvestment / simulatedSharePrice;
+
+        // Update totals
+        totalInvestmentAmount += parseFloat(user.monthlyInvestment);
+        totalShares += parseFloat(sharesPurchased);
+        totalValue = parseFloat((totalShares * simulatedSharePrice).toFixed(2));
+        totalInterest = parseFloat((totalValue - totalInvestmentAmount).toFixed(2));
+
+        // Historical date corresponding to this investment month
+        const historicalDate = historicalData[i].date; // Assuming historicalData is ordered from oldest to newest
+
+        // Create investment record
+        investmentRecords.push({
+          user: user._id,
+          investmentTicker: user.investmentTicker.toUpperCase(),
+          investment: parseFloat(user.monthlyInvestment),
+          simulatedDate,
+          historicalDate,
+          totalInvestment: parseFloat(totalInvestmentAmount.toFixed(2)),
+          sharePrice: parseFloat(simulatedSharePrice.toFixed(2)),
+          sharesPurchased: parseFloat(sharesPurchased.toFixed(4)),
+          totalValue: totalValue,
+          interest: totalInterest >= 0 ? totalInterest : 0, // Ensure non-negative
+        });
+      }
+
+      console.log(`Generated ${investmentRecords.length} investment records.`);
+
+      // Save all investment records to MongoDB
+      await InvestmentRecord.insertMany(investmentRecords);
+
+      // Clear session data
+      req.session.destroy();
+
+      // Render the result page
+      res.render('confirmation', { 
+        dob: userData.dob,
+		riskLevel: user.riskLevel, 
+        investmentTicker: userData.investmentTicker.toUpperCase(), 
+        investment: parseFloat(userData.monthlyInvestment).toFixed(2), 
+        investmentRecords 
+      });
+    } catch (error) {
+      console.error('Error processing investment data:', error.message);
+      res.status(500).send('An error occurred while processing your investment data.');
+    }
   } catch (error) {
-    console.error('Error saving user data:', error);
-    res.status(500).send('Error while saving your information. Please try again.');
+    console.error('Error processing results:', error);
+    res.status(500).send('Error while processing your information. Please try again.');
   }
 });
 

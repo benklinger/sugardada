@@ -1,35 +1,58 @@
-<!-- views/confirmation.ejs -->
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <title>Confirmation: Sugar Dada</title>
+  <title>Your Plan: Sugar Dada</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-pvvYb9HfBc+1JHnY7u7YX5XpYFSUsvXuTJXNjRC7UY1nhz5wOPmZjwCqfGKyBs8CvIlrVhF5IVlYhOZoR4qkpg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
   <%- include('partials/header') %>
 
   <div class="wrapper">
-    <div class="question">Thank you for completing the onboarding!</div>
+    <div class="cards-container">
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-title"><%= riskLevel %> Risk</div>
+          <div class="card-value"><%= investmentTicker %></div>
+        </div>
+      </div>
 
-    <% if (gender && name && dobMonth && dobDay && dobYear && monthly && riskLevel && investmentTicker && hasIBAccount) { %>
-      <p><strong>Gender:</strong> <%= gender %></p>
-      <p><strong>Name:</strong> <%= name %></p>
-      <p><strong>Date of Birth:</strong> <%= dobMonth %> <%= dobDay %>, <%= dobYear %></p>
-      <p><strong>Monthly Investment:</strong> $ <%= monthly.toLocaleString() %></p>
-      <p><strong>Risk Level:</strong> <%= riskLevel %></p>
-      <p><strong>Investment Ticker:</strong> <%= investmentTicker %></p>
-      <p><strong>Interactive Brokers Account:</strong> <%= hasIBAccount %></p>
-    <% } else { %>
-      <p>No data available. Please start over.</p>
-    <% } %>
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-title">Monthly Investment</div>
+          <div class="card-value">$ <%= monthly.toLocaleString() %></div>
+        </div>
+      </div>
 
-    <div style="margin-top: 1rem;">
-      <a href="/">Go Home</a>
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-title">Total Value</div>
+          <div class="card-value">TBD</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-title">Interest Earned</div>
+          <div class="card-value">TBD</div>
+        </div>
+      </div>
     </div>
   </div>
 
   <%- include('partials/footer') %>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const cards = document.querySelectorAll('.card');
+      cards.forEach((card, index) => {
+        setTimeout(() => {
+          card.classList.add('card-enter');
+        }, index * 100);
+      });
+    });
+  </script>
 </body>
 </html>

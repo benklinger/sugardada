@@ -1,36 +1,18 @@
-// app.js
-
 require('dotenv').config();
 
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const User = require('./models/User');
+const InvestmentRecord = require('./models/InvestmentRecord');
 const bodyParser = require('body-parser');
 const path = require('path');
 
 const app = express();
 
-const monthMap = {
-  Jan: 0,
-  Feb: 1,
-  Mar: 2,
-  Apr: 3,
-  May: 4,
-  Jun: 5,
-  Jul: 6,
-  Aug: 7,
-  Sep: 8,
-  Oct: 9,
-  Nov: 10,
-  Dec: 11
-};
+const monthMap = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11};
 
-const riskToTickerMap = {
-  Low: 'SPY',
-  Medium: 'QQQ',
-  High: 'TECL'
-};
+const riskToTickerMap = { Low: 'SPY', Medium: 'QQQ', High: 'TECL'};
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
@@ -49,78 +31,116 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log('Connected to MongoDB Atlas successfully.'))
 .catch(err => console.error('MongoDB connection error:', err));
 
+// Helper function to calculate the total number of full months between two dates
+function calculateFullMonthDifference(startDate, endDate) {
+  let years = endDate.getFullYear() - startDate.getFullYear();
+  let months = endDate.getMonth() - startDate.getMonth();
+  let days = endDate.getDate() - startDate.getDate();
+
+  let totalMonths = years * 12 + months;
+  if (days < 0) {
+    totalMonths -= 1;
+  }
+
+  return totalMonths;
+}
+
 app.get('/', (req, res) => {
   res.render('home');
 });
 
 app.get('/results', async (req, res) => {
-  const gender   = req.session.confirmationGender;
-  const name     = req.session.confirmationName;
-  const dobMonth = req.session.confirmationDobMonth;
-  const dobDay   = req.session.confirmationDobDay;
-  const dobYear  = req.session.confirmationDobYear;
-  const monthly  = req.session.confirmationMonthly;
-  const riskLevel = req.session.confirmationRiskLevel;
-  const investmentTicker = req.session.confirmationInvestmentTicker;
-  const hasIBAccount = req.session.confirmationHasIBAccount;
-
-  if (!gender || !name || !dobMonth || !dobDay || !dobYear || !monthly || !riskLevel || !investmentTicker || !hasIBAccount) {
-    return res.redirect('/');
-  }
+  const { isDemo } = req.session;
 
   try {
-    const numericMonth = monthMap[dobMonth];
-    if (numericMonth === undefined) {
-      throw new Error(`Invalid month abbreviation: ${dobMonth}`);
+    let user;
+    if (isDemo) {
+      user = new User({
+        _id: new mongoose.Types.ObjectId(), // Correct instantiation with 'new'
+        gender: "Girl",
+        name: "Omer",
+        dob: new Date(Date.UTC(2023, 5, 28)), // Months are 0-indexed (June)
+        monthlyInvestment: 1000,
+        riskLevel: "High",
+        investmentTicker: "TECL",
+        hasIBAccount: "No",
+        createdAt: new Date()
+      });
+      await user.save();
+      req.session.isDemo = false;
+
+      res.render('confirmation', { 
+        riskLevel: "High", 
+        investmentTicker: "TECL", 
+        monthly: 1000,
+        hasIBAccount: "No"
+      });
+    } else {
+      const { 
+        confirmationGender: gender, 
+        confirmationName: name, 
+        confirmationDobMonth: dobMonth, 
+        confirmationDobDay: dobDay, 
+        confirmationDobYear: dobYear, 
+        confirmationMonthly: monthly, 
+        confirmationRiskLevel: riskLevel, 
+        confirmationInvestmentTicker: investmentTicker, 
+        confirmationHasIBAccount: hasIBAccount 
+      } = req.session;
+
+      if (!gender || !name || !dobMonth || !dobDay || !dobYear || !monthly || !riskLevel || !investmentTicker || hasIBAccount === undefined) {
+        return res.redirect('/');
+      }
+
+      const numericMonth = monthMap[dobMonth];
+      if (numericMonth === undefined) {
+        throw new Error(`Invalid month abbreviation: ${dobMonth}`);
+      }
+
+      const numericDay = parseInt(dobDay, 10);
+      const numericYear = parseInt(dobYear, 10);
+
+      if (isNaN(numericDay) || isNaN(numericYear)) {
+        throw new Error('Invalid day or year for DOB.');
+      }
+
+      const dob = new Date(Date.UTC(numericYear, numericMonth, numericDay));
+
+      const monthlyInvestmentNum = parseInt(monthly.replace(/[^0-9]/g, ''), 10);
+      if (isNaN(monthlyInvestmentNum)) {
+        throw new Error('Invalid monthly investment amount.');
+      }
+
+      user = new User({
+        gender,
+        name,
+        dob,
+        monthlyInvestment: monthlyInvestmentNum,
+        riskLevel,
+        investmentTicker,
+        hasIBAccount
+      });
+
+      await user.save();
+
+      // Clear session
+      req.session.confirmationGender = null;
+      req.session.confirmationName = null;
+      req.session.confirmationDobMonth = null;
+      req.session.confirmationDobDay = null;
+      req.session.confirmationDobYear = null;
+      req.session.confirmationMonthly = null;
+      req.session.confirmationRiskLevel = null;
+      req.session.confirmationInvestmentTicker = null;
+      req.session.confirmationHasIBAccount = null;
+
+      res.render('confirmation', { 
+        riskLevel, 
+        investmentTicker, 
+        monthly: monthlyInvestmentNum,
+        hasIBAccount
+      });
     }
-
-    const numericDay = parseInt(dobDay, 10);
-    const numericYear = parseInt(dobYear, 10);
-
-    if (isNaN(numericDay) || isNaN(numericYear)) {
-      throw new Error('Invalid day or year for DOB.');
-    }
-
-    const dob = new Date(Date.UTC(numericYear, numericMonth, numericDay));
-
-    const monthlyInvestmentNum = parseInt(monthly.replace(/[^0-9]/g, ''), 10);
-    if (isNaN(monthlyInvestmentNum)) {
-      throw new Error('Invalid monthly investment amount.');
-    }
-
-    const newUser = new User({
-      gender,
-      name,
-      dob,
-      monthlyInvestment: monthlyInvestmentNum,
-      riskLevel,
-      investmentTicker,
-      hasIBAccount
-    });
-
-    await newUser.save();
-
-    req.session.confirmationGender   = null;
-    req.session.confirmationName     = null;
-    req.session.confirmationDobMonth = null;
-    req.session.confirmationDobDay   = null;
-    req.session.confirmationDobYear  = null;
-    req.session.confirmationMonthly  = null;
-    req.session.confirmationRiskLevel = null;
-    req.session.confirmationInvestmentTicker = null;
-    req.session.confirmationHasIBAccount = null;
-
-    res.render('confirmation', { 
-      gender, 
-      name, 
-      dobMonth, 
-      dobDay, 
-      dobYear, 
-      monthly: monthlyInvestmentNum,
-      riskLevel,
-      investmentTicker,
-      hasIBAccount
-    });
   } catch (error) {
     console.error('Error saving user data:', error);
     res.status(500).send('Error while saving your information. Please try again.');
@@ -135,7 +155,7 @@ app.post('/onboarding/1', (req, res) => {
   const { babyGender } = req.body;
   const errors = [];
 
-  if (!babyGender || !['Boy', 'Girl'].includes(babyGender)) {
+  if (!babyGender || !['Boy', 'Girl', 'DEMO'].includes(babyGender)) {
     errors.push({ msg: 'Please select a valid gender.' });
   }
 
@@ -144,8 +164,13 @@ app.post('/onboarding/1', (req, res) => {
   }
 
   try {
-    req.session.confirmationGender = babyGender;
-    res.redirect('/onboarding/2');
+    if (babyGender === 'DEMO') {
+      req.session.isDemo = true;
+      res.redirect('/results');
+    } else {
+      req.session.confirmationGender = babyGender;
+      res.redirect('/onboarding/2');
+    }
   } catch (error) {
     console.error('Error saving user gender:', error);
     res.status(500).send('Error while saving gender. Please try again.');
@@ -159,7 +184,7 @@ app.get('/onboarding/2', (req, res) => {
   res.render('name', { errors: [], oldInput: {}, gender: req.session.confirmationGender });
 });
 
-app.post('/onboarding/2', async (req, res) => {
+app.post('/onboarding/2', (req, res) => {
   const { babyName } = req.body;
   const errors = [];
 
@@ -176,12 +201,6 @@ app.post('/onboarding/2', async (req, res) => {
   }
 
   try {
-    const userGender = req.session.confirmationGender;
-    if (!userGender) {
-      errors.push({ msg: 'User gender not found. Please start over.' });
-      return res.render('name', { errors, oldInput: { babyName }, gender: 'your baby' });
-    }
-
     req.session.confirmationName = babyName.trim();
     res.redirect('/onboarding/3');
   } catch (error) {
@@ -214,8 +233,8 @@ app.post('/onboarding/3', (req, res) => {
   }
 
   req.session.confirmationDobMonth = dobMonth;
-  req.session.confirmationDobDay   = dobDay;
-  req.session.confirmationDobYear  = dobYear;
+  req.session.confirmationDobDay = dobDay;
+  req.session.confirmationDobYear = dobYear;
 
   res.redirect('/onboarding/4');
 });

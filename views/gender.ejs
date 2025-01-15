@@ -1,4 +1,3 @@
-<!-- views/gender.ejs -->
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -12,31 +11,41 @@
 
   <div class="wrapper">
     <div class="question"></div>
-
-    <% if (errors.length > 0) { %>
-      <ul class="error">
-        <% errors.forEach(error => { %>
-          <li><%= error.msg %></li>
-        <% }) %>
-      </ul>
-    <% } %>
-
-    <!-- Use data-question to specify what to type -->
-    <form action="/onboarding/1"
-          method="POST"
-          class="form"
-          data-question="Are you setting this up for your baby boy or girl?">
-
+    <form action="/onboarding/1" method="POST" class="form" data-question="Are you setting this up for your baby boy or girl?">
+      <input type="hidden" id="demoInput" value="" />
+      
       <div class="radio-group">
-        <input type="radio" id="boy" name="babyGender" value="Boy" <% if (oldInput.babyGender === 'Boy') { %>checked<% } %> required>
+        <input type="radio" id="boy" name="babyGender" value="Boy" required />
         <label for="boy">Boy</label>
-
-        <input type="radio" id="girl" name="babyGender" value="Girl" <% if (oldInput.babyGender === 'Girl') { %>checked<% } %> required>
+        <input type="radio" id="girl" name="babyGender" value="Girl" required />
         <label for="girl">Girl</label>
       </div>
     </form>
   </div>
 
-  <%- include('partials/footer') %>
+  <%- include('partials/footer') %>  
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let inputSequence = '';
+      document.addEventListener('keydown', (e) => {
+        const key = e.key.toUpperCase();
+        if (key.length === 1 && /^[A-Z0-9]$/.test(key)) {
+          inputSequence += key;
+          if (inputSequence.length > 4) {
+            inputSequence = inputSequence.slice(-4);
+          }
+          if (inputSequence === 'DEMO') {
+			  const demoInput = document.getElementById('demoInput');
+            demoInput.value = 'DEMO';
+            demoInput.name = 'babyGender';
+            document.getElementById('boy').removeAttribute('name');
+            document.getElementById('girl').removeAttribute('name');
+            document.querySelector('.form').submit();
+          }
+        }
+      });
+    });
+  </script>
 </body>
 </html>

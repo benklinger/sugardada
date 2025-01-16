@@ -12,7 +12,7 @@ const path = require('path');
 const app = express();
 
 const monthMap = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11};
-const riskToTickerMap = { Low: 'SPY', Medium: 'QQQ', High: 'TECL'};
+const riskToTickerMap = { Low: 'SPY', Medium: 'QQQ', High: 'SOXX'};
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
@@ -63,7 +63,7 @@ app.get('/results', async (req, res) => {
         dob: new Date(Date.UTC(2023, 1, 28)),
         monthlyInvestment: 1000,
         riskLevel: "High",
-        investmentTicker: "TECL",
+        investmentTicker: "SOXX",
         hasIBAccount: "No",
         createdAt: new Date(),
       };

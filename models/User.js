@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
   },
   investmentTicker: {
     type: String,
-    enum: ['SPY', 'QQQ', 'TECL'],
+    enum: ['SPY', 'QQQ', 'SOXX'],
     required: true
   },
   hasIBAccount: {

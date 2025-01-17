@@ -255,6 +255,7 @@ select:focus {
   margin-top: 0.5rem;
   font-family: 'Roboto', sans-serif;
 }
+
 .cards-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -275,7 +276,7 @@ select:focus {
   color: var(--text-color);
   border-radius: 1rem;
   max-width: 240px;
-  min-height: 150px;
+  min-height: 120px;
   box-sizing: border-box;
   position: relative;
   display: flex;
@@ -293,7 +294,7 @@ select:focus {
 
 .card-title {
   font-family: 'Radley', serif;
-  font-size: 1.2rem;
+  font-size: 1rem;
   white-space: nowrap;
   margin: 0.5rem 0;
 }
@@ -304,21 +305,21 @@ select:focus {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin-top: -2rem;
 }
 
 .card-value {
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-family: 'Roboto', sans-serif;
   white-space: nowrap;
 }
 
 .card-hint {
-  position: absolute;
-  bottom: 0.5rem;
-  visibility: hidden;
-  opacity: 0;
-  transition: visibility 0s 0.2s, opacity 0.2s;
-  white-space: nowrap;
+	position: absolute;
+	bottom: 1rem;
+	left: 50%;
+	transform: translateX(-50%);
+	white-space: nowrap;
 }
 
 @media (max-width: 480px) {
@@ -327,10 +328,9 @@ select:focus {
   }
   .card {
     max-width: 180px;
-    min-height: 180px;
   }
   .card-title {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
   .card-value {
     font-size: 1.5rem;

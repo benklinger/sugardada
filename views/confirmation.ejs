@@ -29,14 +29,14 @@
 
       <div class="card">
         <div class="card-inner">
-          <div class="card-title">Total Value</div>
+          <div class="card-title">Est. Value</div>
      	  <div class="card-value">$<%= Math.round(investmentRecords[investmentRecords.length - 1].totalValue).toLocaleString() %></div>
         </div>
       </div>
 
 <div class="card">
   <div class="card-inner">
-    <div class="card-title">Return on Investment</div>
+    <div class="card-title">Est. Return</div>
  		<div class="card-value">x<%= (investmentRecords[investmentRecords.length - 1].interest / investmentRecords[investmentRecords.length - 1].totalInvestment).toFixed(1) %></div>
 		<div class="card-hint">$<%= Math.round(investmentRecords[investmentRecords.length - 1].interest).toLocaleString() %></div>
     </div>

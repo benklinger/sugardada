@@ -8,12 +8,9 @@
 </head>
 <body>
   <%- include('partials/header') %>
-
   <div class="wrapper">
     <div class="question"></div>
     <form action="/onboarding/1" method="POST" class="form" data-question="Are you setting this up for your baby boy or girl?">
-      <input type="hidden" id="demoInput" value="" />
-      
       <div class="radio-group">
         <input type="radio" id="boy" name="babyGender" value="Boy" required />
         <label for="boy">Boy</label>
@@ -22,30 +19,6 @@
       </div>
     </form>
   </div>
-
   <%- include('partials/footer') %>  
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      let inputSequence = '';
-      document.addEventListener('keydown', (e) => {
-        const key = e.key.toUpperCase();
-        if (key.length === 1 && /^[A-Z0-9]$/.test(key)) {
-          inputSequence += key;
-          if (inputSequence.length > 4) {
-            inputSequence = inputSequence.slice(-4);
-          }
-          if (inputSequence === 'DEMO') {
-			  const demoInput = document.getElementById('demoInput');
-            demoInput.value = 'DEMO';
-            demoInput.name = 'babyGender';
-            document.getElementById('boy').removeAttribute('name');
-            document.getElementById('girl').removeAttribute('name');
-            document.querySelector('.form').submit();
-          }
-        }
-      });
-    });
-  </script>
 </body>
 </html>

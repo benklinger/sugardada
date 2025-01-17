@@ -2,6 +2,8 @@
 
 const yahooFinance = require('yahoo-finance2').default;
 
+yahooFinance.suppressNotices(['ripHistorical']);
+
 /**
  * Fetches historical data for a specific ticker between startDate and endDate with a monthly interval.
  * @param {string} ticker - The stock ticker symbol (e.g., 'TECL').

@@ -4,7 +4,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const User = require('./models/User');
-const InvestmentRecord = require('./models/InvestmentRecord');
 const bodyParser = require('body-parser');
 const path = require('path');
 const { generateInvestmentRecords } = require('./services/investmentCalculator');
@@ -50,7 +49,6 @@ app.get('/demo', async (req, res) => {
     req.session.confirmationRiskLevel = 'High';
     req.session.confirmationInvestmentTicker = 'SOXX';
     req.session.confirmationHasIBAccount = 'No';
-
     req.session.save(err => {
       if (err) {
         console.error('Session save error:', err);
@@ -122,7 +120,6 @@ app.get('/results', async (req, res) => {
         hasIBAccount,
       };
 
-      // Clear session data
       [
         'confirmationGender', 'confirmationName', 'confirmationDobMonth', 
         'confirmationDobDay', 'confirmationDobYear', 'confirmationMonthly', 
@@ -130,25 +127,10 @@ app.get('/results', async (req, res) => {
       ].forEach(key => req.session[key] = null);
     }
 
-    // Create and save the user
     const user = new User(userData);
     await user.save();
 
-    const today = new Date();
-
-    let investmentRecords;
-    try {
-      investmentRecords = await generateInvestmentRecords(user, today);
-    } catch (calcError) {
-      req.session.destroy();
-      return res.render('gender', {
-        errors: [{ msg: calcError.message }],
-        oldInput: {},
-        currentStep: 1
-      });
-    }
-
-    req.session.destroy();
+    req.session.userId = user._id;
 
     res.render('confirmation', { 
       name: userData.name,
@@ -157,11 +139,32 @@ app.get('/results', async (req, res) => {
       investmentTicker: userData.investmentTicker.toUpperCase(), 
       investment: parseFloat(userData.monthlyInvestment).toFixed(2), 
       hasIBAccount: userData.hasIBAccount,
-      investmentRecords 
     });
   } catch (error) {
     console.error('Error processing results:', error);
     res.status(500).send('Error while processing your information. Please try again.');
+  }
+});
+
+app.get('/api/investment-records', async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(400).json({ error: 'User not found in session.' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    const today = new Date();
+    const investmentRecords = await generateInvestmentRecords(user, today);
+
+    res.json({ investmentRecords });
+  } catch (error) {
+    console.error('Error fetching investment records:', error);
+    res.status(500).json({ error: 'Failed to fetch investment records.' });
   }
 });
 

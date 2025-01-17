@@ -336,3 +336,8 @@ select:focus {
     font-size: 1.5rem;
   }
 }
+.animating {
+  color: #09f; /* Change text color during animation */
+  transform: scale(1.05); /* Slightly enlarge text */
+  transition: color 0.3s ease, transform 0.3s ease;
+}

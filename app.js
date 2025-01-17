@@ -11,8 +11,11 @@ const { generateInvestmentRecords } = require('./services/investmentCalculator')
 
 const app = express();
 
-const monthMap = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11};
-const riskToTickerMap = { Low: 'SPY', Medium: 'QQQ', High: 'SOXX'};
+const monthMap = { 
+  Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, 
+  Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 
+};
+const riskToTickerMap = { Low: 'SPY', Medium: 'QQQ', High: 'SOXX' };
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
@@ -35,44 +38,99 @@ app.get('/', (req, res) => {
   res.render('home');
 });
 
+app.get('/demo', async (req, res) => {
+  try {
+	  req.session.isDemo = true;
+    req.session.confirmationGender = 'Girl';
+    req.session.confirmationName = 'Omer';
+    req.session.confirmationDobMonth = 'Jun';
+    req.session.confirmationDobDay = '28';
+    req.session.confirmationDobYear = '2023';
+    req.session.confirmationMonthly = '100';
+    req.session.confirmationRiskLevel = 'High';
+    req.session.confirmationInvestmentTicker = 'SOXX';
+    req.session.confirmationHasIBAccount = 'No';
+
+    req.session.save(err => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).send('Error saving session.');
+      }
+      res.redirect('/results');
+    });
+  } catch (error) {
+    console.error('Error initiating demo:', error);
+    res.status(500).send('An error occurred while initiating the demo.');
+  }
+});
+
 app.get('/results', async (req, res) => {
   try {
-    const {
-      confirmationGender: gender,
-      confirmationName: name,
-      confirmationDobMonth: dobMonth,
-      confirmationDobDay: dobDay,
-      confirmationDobYear: dobYear,
-      confirmationMonthly: investment,
-      confirmationRiskLevel: riskLevel,
-      confirmationInvestmentTicker: investmentTicker,
-      confirmationHasIBAccount: hasIBAccount,
-    } = req.session;
+    let userData;
 
-    if (![gender, name, dobMonth, dobDay, dobYear, investment, riskLevel, investmentTicker].every(Boolean) || hasIBAccount === undefined) {
-      return res.redirect('/');
+    if (req.session.isDemo) {
+      userData = {
+        _id: new mongoose.Types.ObjectId(),
+        gender: req.session.confirmationGender,
+        name: req.session.confirmationName,
+        dob: new Date(Date.UTC(
+          parseInt(req.session.confirmationDobYear, 10),
+          monthMap[req.session.confirmationDobMonth],
+          parseInt(req.session.confirmationDobDay, 10)
+        )),
+        monthlyInvestment: parseInt(req.session.confirmationMonthly, 10),
+        riskLevel: req.session.confirmationRiskLevel,
+        investmentTicker: req.session.confirmationInvestmentTicker,
+        hasIBAccount: req.session.confirmationHasIBAccount,
+        createdAt: new Date(),
+      };
+      req.session.isDemo = false;
+    } else {
+      const {
+        confirmationGender: gender,
+        confirmationName: name,
+        confirmationDobMonth: dobMonth,
+        confirmationDobDay: dobDay,
+        confirmationDobYear: dobYear,
+        confirmationMonthly: investment,
+        confirmationRiskLevel: riskLevel,
+        confirmationInvestmentTicker: investmentTicker,
+        confirmationHasIBAccount: hasIBAccount,
+      } = req.session;
+
+      if (![gender, name, dobMonth, dobDay, dobYear, investment, riskLevel, investmentTicker].every(Boolean) || hasIBAccount === undefined) {
+        return res.redirect('/');
+      }
+
+      const numericMonth = monthMap[dobMonth];
+      if (numericMonth === undefined) throw new Error(`Invalid month abbreviation: ${dobMonth}`);
+
+      const numericDay = parseInt(dobDay, 10);
+      const numericYear = parseInt(dobYear, 10);
+      if (isNaN(numericDay) || isNaN(numericYear)) throw new Error('Invalid day or year for DOB.');
+
+      const monthlyInvestmentNum = parseInt(investment.replace(/[^0-9]/g, ''), 10);
+      if (isNaN(monthlyInvestmentNum)) throw new Error('Invalid monthly investment amount.');
+
+      userData = {
+        gender,
+        name,
+        dob: new Date(Date.UTC(numericYear, numericMonth, numericDay)),
+        monthlyInvestment: monthlyInvestmentNum,
+        riskLevel,
+        investmentTicker,
+        hasIBAccount,
+      };
+
+      // Clear session data
+      [
+        'confirmationGender', 'confirmationName', 'confirmationDobMonth', 
+        'confirmationDobDay', 'confirmationDobYear', 'confirmationMonthly', 
+        'confirmationRiskLevel', 'confirmationInvestmentTicker', 'confirmationHasIBAccount'
+      ].forEach(key => req.session[key] = null);
     }
 
-    const numericMonth = monthMap[dobMonth];
-    if (numericMonth === undefined) throw new Error(`Invalid month abbreviation: ${dobMonth}`);
-
-    const numericDay = parseInt(dobDay, 10);
-    const numericYear = parseInt(dobYear, 10);
-    if (isNaN(numericDay) || isNaN(numericYear)) throw new Error('Invalid day or year for DOB.');
-
-    const monthlyInvestmentNum = parseInt(investment.replace(/[^0-9]/g, ''), 10);
-    if (isNaN(monthlyInvestmentNum)) throw new Error('Invalid monthly investment amount.');
-
-    const userData = {
-      gender,
-      name,
-      dob: new Date(Date.UTC(numericYear, numericMonth, numericDay)),
-      monthlyInvestment: monthlyInvestmentNum,
-      riskLevel,
-      investmentTicker,
-      hasIBAccount,
-    };
-
+    // Create and save the user
     const user = new User(userData);
     await user.save();
 
@@ -93,10 +151,12 @@ app.get('/results', async (req, res) => {
     req.session.destroy();
 
     res.render('confirmation', { 
+      name: userData.name,
       dob: userData.dob,
-      riskLevel: user.riskLevel, 
+      riskLevel: userData.riskLevel, 
       investmentTicker: userData.investmentTicker.toUpperCase(), 
       investment: parseFloat(userData.monthlyInvestment).toFixed(2), 
+      hasIBAccount: userData.hasIBAccount,
       investmentRecords 
     });
   } catch (error) {

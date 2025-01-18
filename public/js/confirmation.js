@@ -326,3 +326,47 @@ document.addEventListener('DOMContentLoaded', () => {
       animateElement('roi-hint', 'Error');
     });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const monthlyInvestmentCard = document.getElementById('monthly-investment-card');
+  const monthlyInvestmentValue = document.getElementById('monthly-investment-value');
+  const estValueElement      = document.getElementById('est-value');
+  const estReturnElement     = document.getElementById('est-return');
+  const roiHintElement       = document.getElementById('roi-hint');
+
+  if (monthlyInvestmentCard) {
+    monthlyInvestmentCard.addEventListener('click', async () => {
+      try {
+        const response = await fetch('/api/update-monthly-investment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+			const newInvestment = data.monthlyInvestment; 
+          monthlyInvestmentValue.textContent = `$${Math.round(newInvestment).toLocaleString()}`;
+
+          if (data.roiMultiple) {
+            estReturnElement.firstChild.textContent = `x${data.roiMultiple}`;
+          }
+          if (typeof data.totalProfit === 'number') {
+            roiHintElement.textContent = `$${data.totalProfit.toLocaleString()}`;
+          }
+
+          if (data.investmentRecords && data.investmentRecords.length > 0) {
+            const latest = data.investmentRecords[data.investmentRecords.length - 1];
+            estValueElement.textContent = `$${Math.round(latest.totalValue).toLocaleString()}`;
+          }
+
+        } else {
+          console.error('Update monthly investment error:', data.error);
+          alert('Failed to update monthly investment!');
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+        alert('Something went wrong!');
+      }
+    });
+  }
+});

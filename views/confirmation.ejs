@@ -20,30 +20,30 @@
         </div>
       </div>
 
-      <div class="card card-clickable">
-        <div class="card-inner">
+    <div class="card card-clickable" id="monthly-investment-card">
+       <div class="card-inner">
           <div class="card-title">Monthly Investment</div>
-          <div class="card-value">$<%= Math.round(investment).toLocaleString() %></div>
-		  <div class="card-hint">Tap to add $50, double-tap to undo</div>
-        </div>
-      </div>
+          <div class="card-value" id="monthly-investment-value">$<%= Math.round(investment).toLocaleString() %></div>
+          <div class="card-hint">Tap to add $50, double-tap to undo</div>
+       </div>
+    </div>
 
       <div class="card">
         <div class="card-inner">
           <div class="card-title">Est. Value</div>
-          <div class="card-value" id="est-value">$999,999</div>
+          <div class="card-value" id="est-value">$<%= estValue %></div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-inner">
-          <div class="card-title">Est. Return</div>
-          <div class="card-value" id="est-return">
-            <span id="roi-multiple">x9.9</span>
-            <div class="card-hint hint-visible" id="roi-hint">$999,999</div>
-          </div>
-        </div>
-      </div>
+    <div class="card">
+           <div class="card-inner">
+             <div class="card-title">Est. Return</div>
+             <div class="card-value" id="est-return">
+               x<%= roiMultiple %>
+               <div class="card-hint hint-visible" id="roi-hint"><%= roiHint %></div>
+             </div>
+           </div>
+         </div>
     </div>
   </div>
 

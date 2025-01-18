@@ -132,16 +132,46 @@ app.get('/results', async (req, res) => {
 
     req.session.userId = user._id;
 
-    res.render('confirmation', { 
-      name: userData.name,
-      dob: userData.dob,
-      riskLevel: userData.riskLevel, 
-      investmentTicker: userData.investmentTicker.toUpperCase(), 
-      investment: parseFloat(userData.monthlyInvestment).toFixed(2), 
-      hasIBAccount: userData.hasIBAccount,
-    });
+    const today = new Date();
+    const investmentRecords = await generateInvestmentRecords(user, today);
+
+    let latestRecord;
+    if (investmentRecords && investmentRecords.length > 0) {
+      latestRecord = investmentRecords[investmentRecords.length - 1];
+
+      const { totalValue, totalInvestment } = latestRecord;
+      
+      const roiMultiple = totalInvestment > 0
+        ? (totalValue / totalInvestment).toFixed(2)
+        : '0.00';
+
+      const totalProfit = Math.round(totalValue - totalInvestment);
+
+      res.render('confirmation', {
+        name: userData.name,
+        dob: userData.dob,
+        riskLevel: userData.riskLevel,
+        investmentTicker: userData.investmentTicker.toUpperCase(),
+        investment: parseFloat(userData.monthlyInvestment).toFixed(2),
+        hasIBAccount: userData.hasIBAccount,
+        estValue: Math.round(totalValue).toLocaleString(),
+        roiMultiple, 
+        roiHint: `$${totalProfit.toLocaleString()}`,
+      });
+    } else {
+      res.render('confirmation', {
+        name: userData.name,
+        dob: userData.dob,
+        riskLevel: userData.riskLevel,
+        investmentTicker: userData.investmentTicker.toUpperCase(),
+        investment: parseFloat(userData.monthlyInvestment).toFixed(2),
+        hasIBAccount: userData.hasIBAccount,
+        estValue: '0',
+        roiMultiple: '0.00',
+        roiHint: '$0',
+      });
+    }
   } catch (error) {
-    console.error('Error processing results:', error);
     res.status(500).send('Error while processing your information. Please try again.');
   }
 });
@@ -165,6 +195,55 @@ app.get('/api/investment-records', async (req, res) => {
   } catch (error) {
     console.error('Error fetching investment records:', error);
     res.status(500).json({ error: 'Failed to fetch investment records.' });
+  }
+});
+
+app.post('/api/update-monthly-investment', async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(400).json({ error: 'User not found in session.' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    user.monthlyInvestment += 50;
+    await user.save();
+
+    const today = new Date();
+    const investmentRecords = await generateInvestmentRecords(user, today);
+
+    if (investmentRecords && investmentRecords.length > 0) {
+      const latestRecord = investmentRecords[investmentRecords.length - 1];
+      const { totalValue, totalInvestment } = latestRecord;
+
+      const roiMultiple = totalInvestment > 0
+        ? (totalValue / totalInvestment).toFixed(2)
+        : '0.00';
+
+      const totalProfit = Math.round(totalValue - totalInvestment);
+
+      res.json({
+        message: 'Monthly investment updated successfully.',
+        monthlyInvestment: user.monthlyInvestment,
+        investmentRecords,
+        roiMultiple,
+        totalProfit,
+      });
+    } else {
+      res.json({
+        message: 'Monthly investment updated, but no investment records found.',
+        monthlyInvestment: user.monthlyInvestment,
+        investmentRecords: [],
+        roiMultiple: '0.00',
+        totalProfit: 0,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update monthly investment.' });
   }
 });
 

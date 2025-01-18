@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema({
   monthlyInvestment: {
     type: Number,
     required: true,
+	default: 50,
     min: [0, 'Monthly investment must be a non-negative number']
   },
   riskLevel: {

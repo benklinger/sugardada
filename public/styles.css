@@ -330,12 +330,28 @@ select:focus {
   cursor: pointer;
 }
 
+.tap-animate {
+  animation: tapNudge 0.2s forwards;
+}
+
+@keyframes tapNudge {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 480px) {
   .cards-container {
     grid-template-columns: repeat(2, 1fr) !important;
   }
   .card {
-    max-width: 210px;
+    min-width: 170px;
   }
   .card-title {
     font-size: 1rem;

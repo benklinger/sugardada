@@ -326,6 +326,10 @@ select:focus {
   transition-delay: 0s;
 }
 
+.hint-visible {
+	left: 92px;
+}
+
 .card-clickable {
   cursor: pointer;
 }

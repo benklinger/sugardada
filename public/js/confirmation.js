@@ -75,114 +75,181 @@ document.addEventListener("DOMContentLoaded",()=>{
     return Number.isInteger(rounded)?String(rounded):rounded.toFixed(1);
   }
 
-  // Stagger the card transitions
+  // Card entrance animation
   document.querySelectorAll(".card").forEach((card,i)=>{
     setTimeout(()=>card.classList.add("card-enter"),i*100);
   });
 
+  // Animate from RND to current text
   ["ticker","monthly-investment-value","est-value","roi-multiple","roi-hint"].forEach(id=>{
     const el=document.getElementById(id);
     if(el) new universalRush(id,el.textContent.trim(),"RND",{stepDelayStart:20,stepDelayInc:3});
   });
 
-  // Load fresh data from your server
+  // Fetch up-to-date data on page load
   fetch("/api/investment-records")
-  .then(r=>r.json())
-  .then(d=>{
-    console.log("investment-records data:", d); // BROWSER-SIDE LOG
-    if(d.error){
-      animateElement("ticker","Err");
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.error){
+        animateElement("ticker","Err");
+        animateElement("est-value","Err");
+        animateElement("roi-multiple","N/A");
+        animateElement("roi-hint","Err");
+        return;
+      }
+      let recs=d.investmentRecords;
+      if(!recs||!recs.length){
+        animateElement("est-value","No data");
+        animateElement("roi-multiple","N/A");
+        animateElement("roi-hint","N/A");
+        return;
+      }
+      let last=recs[recs.length-1];
+      let interest=last.interest,total=last.totalValue,principal=total-interest;
+      animateElement("est-value",Math.round(total).toLocaleString());
+      animateElement("roi-multiple",formatRoi(principal>0?(interest/principal):"N/A"));
+      animateElement("roi-hint",Math.round(interest).toLocaleString());
+      if(last.ticker) animateElement("ticker",last.ticker);
+    })
+    .catch(_=>{
       animateElement("est-value","Err");
       animateElement("roi-multiple","N/A");
       animateElement("roi-hint","Err");
-      return;
-    }
-    let recs=d.investmentRecords;
-    if(!recs||!recs.length){
-      animateElement("est-value","No data");
-      animateElement("roi-multiple","N/A");
-      animateElement("roi-hint","N/A");
-      return;
-    }
-    let last=recs[recs.length-1];
-    let interest=last.interest,total=last.totalValue,principal=total-interest;
-    animateElement("est-value",Math.round(total).toLocaleString());
-    animateElement("roi-multiple",formatRoi(principal>0?(interest/principal):"N/A"));
-    animateElement("roi-hint",Math.round(interest).toLocaleString());
-    if(last.ticker) animateElement("ticker",last.ticker);
-  })
-  .catch(_=>{
-    animateElement("est-value","Err");
-    animateElement("roi-multiple","N/A");
-    animateElement("roi-hint","Err");
-  });
-
-  const card=document.getElementById("monthly-investment-card");
-  let clickTimer=null,delay=300;
-  if(card){
-    card.addEventListener("click",()=>{
-      if(clickTimer==null){
-        clickTimer=setTimeout(()=>{singleClick();clickTimer=null},delay);
-      }else{
-        clearTimeout(clickTimer);clickTimer=null;doubleClick();
-      }
     });
-    let lastTap=0;
-    card.addEventListener("touchend",e=>{
-      let now=Date.now(),elapsed=now-lastTap;
-      if(elapsed<delay && elapsed>0){
-        clearTimeout(clickTimer);clickTimer=null;
-        doubleClick();e.preventDefault();
+
+  /************************************
+   * Monthly Investment Card (single/double tap)
+   ************************************/
+  const investCard = document.getElementById("monthly-investment-card");
+  if(investCard){
+    let clickTimer=null, delay=300;
+    const isTouch=('ontouchstart' in window || navigator.maxTouchPoints>0);
+
+    if(isTouch){
+      investCard.addEventListener("touchend", handleTap);
+    } else {
+      investCard.addEventListener("click", handleTap);
+    }
+
+    function handleTap(e){
+      e.preventDefault();
+      if(clickTimer===null){
+        clickTimer=setTimeout(()=>{
+          singleClickInvest();
+          clickTimer=null;
+        }, delay);
       } else {
-        clickTimer=setTimeout(()=>{singleClick();clickTimer=null},delay);
+        clearTimeout(clickTimer);
+        clickTimer=null;
+        doubleClickInvest();
       }
-      lastTap=now;
-    });
-  }
+    }
 
-  async function singleClick(){
-    try{
-      card.style.pointerEvents="none";card.classList.add("disabled");
-      let r=await fetch("/api/update-monthly-investment",{method:"POST",headers:{"Content-Type":"application/json"}});
-      let j=await r.json();
-      if(r.ok){
-        animateElement("monthly-investment-value",Math.round(j.monthlyInvestment).toLocaleString());
-        if(j.roiMultiple) animateElement("roi-multiple",formatRoi(j.roiMultiple));
-        if(typeof j.totalProfit==="number") animateElement("roi-hint",Math.round(j.totalProfit).toLocaleString());
-        if(j.investmentRecords&&j.investmentRecords.length>0){
-          let l=j.investmentRecords[j.investmentRecords.length-1];
-          animateElement("est-value",Math.round(l.totalValue).toLocaleString());
-        }
-      }else{alert("Failed to update monthly investment!")}
-    }catch(_){alert("Something went wrong!")}
-    finally{
-      card.style.pointerEvents="auto";
-      card.classList.remove("disabled");
+    async function singleClickInvest(){
+      cardTapAnimate(investCard);
+      try{
+        investCard.style.pointerEvents="none";investCard.classList.add("disabled");
+        let r=await fetch("/api/update-monthly-investment",{method:"POST",headers:{"Content-Type":"application/json"}});
+        let j=await r.json();
+        if(r.ok && !j.error){
+          animateElement("monthly-investment-value",Math.round(j.monthlyInvestment).toLocaleString());
+          if(j.roiMultiple) animateElement("roi-multiple",formatRoi(j.roiMultiple));
+          if(typeof j.totalProfit==="number") animateElement("roi-hint",Math.round(j.totalProfit).toLocaleString());
+          if(j.investmentRecords && j.investmentRecords.length>0){
+            let l=j.investmentRecords[j.investmentRecords.length-1];
+            animateElement("est-value",Math.round(l.totalValue).toLocaleString());
+          }
+        }else{alert("Failed to update monthly investment!")}
+      }catch(_){alert("Something went wrong!")}
+      finally{
+        investCard.style.pointerEvents="auto";
+        investCard.classList.remove("disabled");
+      }
+    }
+
+    async function doubleClickInvest(){
+      cardTapAnimate(investCard);
+      try{
+        investCard.style.pointerEvents="none";investCard.classList.add("disabled");
+        let r=await fetch("/api/update-monthly-investment",{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({action:"decrement"})
+        });
+        let j=await r.json();
+        if(r.ok && !j.error){
+          animateElement("monthly-investment-value",Math.round(j.monthlyInvestment).toLocaleString());
+          if(j.roiMultiple) animateElement("roi-multiple",formatRoi(j.roiMultiple));
+          if(typeof j.totalProfit==="number") animateElement("roi-hint",Math.round(j.totalProfit).toLocaleString());
+          if(j.investmentRecords && j.investmentRecords.length>0){
+            let l=j.investmentRecords[j.investmentRecords.length-1];
+            animateElement("est-value",Math.round(l.totalValue).toLocaleString());
+          }
+        }else{alert("Failed to update monthly investment!")}
+      }catch(_){alert("Something went wrong!")}
+      finally{
+        investCard.style.pointerEvents="auto";
+        investCard.classList.remove("disabled");
+      }
     }
   }
 
-  async function doubleClick(){
-    try{
-      card.style.pointerEvents="none";card.classList.add("disabled");
-      let r=await fetch("/api/update-monthly-investment",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({action:"decrement"})
+  const riskCard=document.getElementById("risk-card");
+  if(riskCard){
+    const isTouch=('ontouchstart' in window || navigator.maxTouchPoints>0);
+
+    if(isTouch){
+      riskCard.addEventListener("touchend", e=>{
+        e.preventDefault();
+        cardTapAnimate(riskCard);
+        updateRisk();
       });
-      let j=await r.json();
-      if(r.ok){
-        animateElement("monthly-investment-value",Math.round(j.monthlyInvestment).toLocaleString());
-        if(j.roiMultiple) animateElement("roi-multiple",formatRoi(j.roiMultiple));
-        if(typeof j.totalProfit==="number") animateElement("roi-hint",Math.round(j.totalProfit).toLocaleString());
-        if(j.investmentRecords&&j.investmentRecords.length>0){
-          let l=j.investmentRecords[j.investmentRecords.length-1];
-          animateElement("est-value",Math.round(l.totalValue).toLocaleString());
-        }
-      }else{alert("Failed to update monthly investment!")}
-    }catch(_){alert("Something went wrong!")}
-    finally{
-      card.style.pointerEvents="auto";
-      card.classList.remove("disabled");
+    } else {
+      riskCard.addEventListener("click", ()=>{
+        cardTapAnimate(riskCard);
+        updateRisk();
+      });
     }
+  }
+
+  async function updateRisk(){
+    try{
+      riskCard.style.pointerEvents="none";
+      riskCard.classList.add("disabled");
+
+      let r=await fetch("/api/update-risk",{method:"POST"});
+      let data=await r.json();
+
+      if(r.ok && !data.error){
+		  animateElement("risk-level",data.riskLevel); 
+        animateElement("ticker", data.investmentTicker.toUpperCase());
+
+        if(data.monthlyInvestment!=null){
+          animateElement("monthly-investment-value",Math.round(data.monthlyInvestment).toLocaleString());
+        }
+
+        if(data.estValue!=null){
+          animateElement("est-value", data.estValue.toLocaleString());
+        }
+        if(data.roiMultiple){
+			animateElement("roi-multiple", data.roiMultiple);
+        }
+        if(data.totalProfit!=null){
+          animateElement("roi-hint", Math.round(data.totalProfit).toLocaleString());
+        }
+      } else {
+        alert("Failed to update risk!");
+      }
+    } catch(e){
+      alert("Something went wrong updating risk!");
+    } finally{
+      riskCard.style.pointerEvents="auto";
+      riskCard.classList.remove("disabled");
+    }
+  }
+
+  function cardTapAnimate(cardEl) {
+    cardEl.classList.add("tap-animate");
+    setTimeout(()=>cardEl.classList.remove("tap-animate"),200);
   }
 });

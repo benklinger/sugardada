@@ -335,19 +335,8 @@ select:focus {
 }
 
 .tap-animate {
-  animation: tapNudge 0.2s forwards;
-}
-
-@keyframes tapNudge {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-  100% {
-    transform: translateY(0);
-  }
+  transform: translateY(-5px)!important;
+  transition: transform 0.15s ease !important;
 }
 
 @media (max-width: 480px) {
@@ -355,7 +344,7 @@ select:focus {
     grid-template-columns: repeat(2, 1fr) !important;
   }
   .card {
-    min-width: 170px;
+    min-width: 160px;
   }
   .card-title {
     font-size: 1rem;
@@ -371,6 +360,9 @@ select:focus {
       max-width: 100%;
       visibility: visible !important;
       opacity: 1 !important;
+  }
+  .hint-visible {
+  	left: 38%;
   }
 }
 

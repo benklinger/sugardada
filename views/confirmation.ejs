@@ -12,24 +12,18 @@
   <div class="wrapper">
     <div class="cards-container">
 
-      <div class="card card-clickable">
-        <div class="card-inner">
-          <div class="card-title"><%= riskLevel %> Risk</div>
-          <!-- Ticker spins only the text inside the span -->
-          <div class="card-value">
-            <span id="ticker"><%= investmentTicker %></span>
-          </div>
-          <div class="card-hint">Tap to change, double-tap to party</div>
+	<div class="card card-clickable" id="risk-card">
+     <div class="card-inner">
+        <div class="card-title"><span id="risk-level"><%= riskLevel %></span> Risk</div>
+		<div class="card-value"><span id="ticker"><%= investmentTicker %></span></div>
+        <div class="card-hint">Tap to change</div><!-- , double-tap to party -->
         </div>
-      </div>
+     </div>
 
       <div class="card card-clickable" id="monthly-investment-card">
         <div class="card-inner">
           <div class="card-title">Monthly Investment</div>
-          <!-- $ is pinned; only the <span> content spins -->
-          <div class="card-value">
-            $<span id="monthly-investment-value"><%= Math.round(investment).toLocaleString() %></span>
-          </div>
+          <div class="card-value">$<span id="monthly-investment-value"><%= Math.round(investment).toLocaleString() %></span></div>
           <div class="card-hint">Tap to add $50, double-tap to undo</div>
         </div>
       </div>
@@ -37,22 +31,15 @@
       <div class="card">
         <div class="card-inner">
           <div class="card-title">Est. Value</div>
-          <!-- $ pinned, <span> for the spinning digits -->
-          <div class="card-value">
-            $<span id="est-value"><%= estValue %></span>
-          </div>
+          <div class="card-value">$<span id="est-value"><%= estValue %></span></div>
         </div>
       </div>
 
       <div class="card">
         <div class="card-inner">
           <div class="card-title">Est. Return</div>
-          <!-- x pinned, <span> for spinning the multiple -->
-          <div class="card-value">
-            x<span id="roi-multiple"><%= roiMultiple %></span>
-            <div class="card-hint hint-visible">
-              $<span id="roi-hint"><%= roiHint %></span>
-            </div>
+          <div class="card-value">x<span id="roi-multiple"><%= roiMultiple %></span>
+	      <div class="card-hint hint-visible">$<span id="roi-hint"><%= roiHint %></span></div>
           </div>
         </div>
       </div>

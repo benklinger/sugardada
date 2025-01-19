@@ -1,5 +1,4 @@
 require('dotenv').config();
-
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
@@ -16,6 +15,7 @@ const monthMap = {
 };
 const riskToTickerMap = { Low: 'SPY', Medium: 'QQQ', High: 'SOXX' };
 
+app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
@@ -39,7 +39,7 @@ app.get('/', (req, res) => {
 
 app.get('/demo', async (req, res) => {
   try {
-	  req.session.isDemo = true;
+    req.session.isDemo = true;
     req.session.confirmationGender = 'Girl';
     req.session.confirmationName = 'Omer';
     req.session.confirmationDobMonth = 'Jun';
@@ -135,12 +135,10 @@ app.get('/results', async (req, res) => {
     const today = new Date();
     const investmentRecords = await generateInvestmentRecords(user, today);
 
-    let latestRecord;
     if (investmentRecords && investmentRecords.length > 0) {
-      latestRecord = investmentRecords[investmentRecords.length - 1];
-
+      const latestRecord = investmentRecords[investmentRecords.length - 1];
       const { totalValue, totalInvestment } = latestRecord;
-      
+
       const roiMultiple = totalInvestment > 0
         ? (totalValue / totalInvestment).toFixed(2)
         : '0.00';
@@ -155,7 +153,7 @@ app.get('/results', async (req, res) => {
         investment: parseFloat(userData.monthlyInvestment).toFixed(2),
         hasIBAccount: userData.hasIBAccount,
         estValue: Math.round(totalValue).toLocaleString(),
-        roiMultiple, 
+        roiMultiple,
         roiHint: `$${totalProfit.toLocaleString()}`,
       });
     } else {
@@ -191,6 +189,9 @@ app.get('/api/investment-records', async (req, res) => {
     const today = new Date();
     const investmentRecords = await generateInvestmentRecords(user, today);
 
+    // SERVER-SIDE LOG (appears in your Node terminal)
+    console.log('Server investmentRecords:', investmentRecords);
+
     res.json({ investmentRecords });
   } catch (error) {
     console.error('Error fetching investment records:', error);
@@ -210,7 +211,14 @@ app.post('/api/update-monthly-investment', async (req, res) => {
       return res.status(404).json({ error: 'User not found.' });
     }
 
-    user.monthlyInvestment += 50;
+    const { action } = req.body;
+    if (action === 'decrement') {
+      user.monthlyInvestment -= 50;
+      if (user.monthlyInvestment < 0) user.monthlyInvestment = 0;
+    } else {
+      user.monthlyInvestment += 50;
+    }
+
     await user.save();
 
     const today = new Date();
@@ -218,11 +226,11 @@ app.post('/api/update-monthly-investment', async (req, res) => {
 
     if (investmentRecords && investmentRecords.length > 0) {
       const latestRecord = investmentRecords[investmentRecords.length - 1];
-      const { totalValue, totalInvestment } = latestRecord;
-
-      const roiMultiple = totalInvestment > 0
-        ? (totalValue / totalInvestment).toFixed(2)
-        : '0.00';
+	  const { totalValue, totalInvestment } = latestRecord;
+	  const interest = totalValue - totalInvestment;
+	  const roiMultiple = (totalInvestment > 0)
+	    ? (interest / totalInvestment).toFixed(2)
+	    : '0.00';
 
       const totalProfit = Math.round(totalValue - totalInvestment);
 

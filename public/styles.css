@@ -335,10 +335,10 @@ select:focus {
   transition: transform 0.15s ease !important;
 }
 
-.chart-container{
-  width:100%;
-  height:400px;
-  margin:0 auto;
+.chart-container {
+  width: 100%; 
+  height: 300vh; 
+  position: relative;
 }
 
 @media (max-width: 480px) {
@@ -374,4 +374,16 @@ select:focus {
 }
 :root[data-theme='dark'] .theme-toggle img {
   filter: brightness(0) invert(1);
+}
+
+.symbol-blue {
+  color: rgba(141, 182, 255, 1);
+}
+
+.symbol-red {
+  color: rgba(255, 153, 153, 1);
+}
+
+.symbol-green {
+  color: rgba(153, 255, 153, 1);
 }

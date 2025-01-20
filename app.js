@@ -178,14 +178,10 @@ app.get('/results', async (req, res) => {
 app.get('/api/investment-records', async (req, res) => {
   try {
     const userId = req.session.userId;
-    if (!userId) {
-      return res.status(400).json({ error: 'User not found in session.' });
-    }
+    if (!userId) return res.status(400).json({ error: 'User not found in session.' });
 
     const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found.' });
-    }
+    if (!user) return res.status(404).json({ error: 'User not found.' });
 
     const today = new Date();
     const investmentRecords = await generateInvestmentRecords(user, today);

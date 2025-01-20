@@ -39,6 +39,7 @@ app.get('/', (req, res) => {
 
 app.get('/demo', async (req, res) => {
   try {
+    // Fill session for a quick demo
     req.session.isDemo = true;
     req.session.confirmationGender = 'Girl';
     req.session.confirmationName = 'Omer';
@@ -49,6 +50,7 @@ app.get('/demo', async (req, res) => {
     req.session.confirmationRiskLevel = 'High';
     req.session.confirmationInvestmentTicker = 'SOXX';
     req.session.confirmationHasIBAccount = 'No';
+    req.session.confirmationEmail = 'benklinger@gmail.com'; // dummy email
     req.session.save(err => {
       if (err) {
         console.error('Session save error:', err);
@@ -67,6 +69,7 @@ app.get('/results', async (req, res) => {
     let userData;
 
     if (req.session.isDemo) {
+      // If it's a demo user
       userData = {
         _id: new mongoose.Types.ObjectId(),
         gender: req.session.confirmationGender,
@@ -80,10 +83,12 @@ app.get('/results', async (req, res) => {
         riskLevel: req.session.confirmationRiskLevel,
         investmentTicker: req.session.confirmationInvestmentTicker,
         hasIBAccount: req.session.confirmationHasIBAccount,
+        email: req.session.confirmationEmail || '',
         createdAt: new Date(),
       };
-      req.session.isDemo = false;
+      req.session.isDemo = false; // done with the demo
     } else {
+      // Real user creation
       const {
         confirmationGender: gender,
         confirmationName: name,
@@ -94,9 +99,11 @@ app.get('/results', async (req, res) => {
         confirmationRiskLevel: riskLevel,
         confirmationInvestmentTicker: investmentTicker,
         confirmationHasIBAccount: hasIBAccount,
+        confirmationEmail: userEmail
       } = req.session;
 
-      if (![gender, name, dobMonth, dobDay, dobYear, investment, riskLevel, investmentTicker].every(Boolean) || hasIBAccount === undefined) {
+      // If any missing
+      if (![gender, name, dobMonth, dobDay, dobYear, investment, riskLevel, investmentTicker, userEmail].every(Boolean)) {
         return res.redirect('/');
       }
 
@@ -105,10 +112,14 @@ app.get('/results', async (req, res) => {
 
       const numericDay = parseInt(dobDay, 10);
       const numericYear = parseInt(dobYear, 10);
-      if (isNaN(numericDay) || isNaN(numericYear)) throw new Error('Invalid day or year for DOB.');
+      if (isNaN(numericDay) || isNaN(numericYear)) {
+        throw new Error('Invalid day/year');
+      }
 
       const monthlyInvestmentNum = parseInt(investment.replace(/[^0-9]/g, ''), 10);
-      if (isNaN(monthlyInvestmentNum)) throw new Error('Invalid monthly investment amount.');
+      if (isNaN(monthlyInvestmentNum)) {
+        throw new Error('Invalid monthly investment amount.');
+      }
 
       userData = {
         gender,
@@ -118,20 +129,25 @@ app.get('/results', async (req, res) => {
         riskLevel,
         investmentTicker,
         hasIBAccount,
+        email: userEmail
       };
 
+      // Clear them out after
       [
-        'confirmationGender', 'confirmationName', 'confirmationDobMonth', 
-        'confirmationDobDay', 'confirmationDobYear', 'confirmationMonthly', 
-        'confirmationRiskLevel', 'confirmationInvestmentTicker', 'confirmationHasIBAccount'
+        'confirmationGender','confirmationName','confirmationDobMonth',
+        'confirmationDobDay','confirmationDobYear','confirmationMonthly',
+        'confirmationRiskLevel','confirmationInvestmentTicker','confirmationHasIBAccount',
+        'confirmationEmail'
       ].forEach(key => req.session[key] = null);
     }
 
+    // Actually create user in DB now
     const user = new User(userData);
     await user.save();
 
     req.session.userId = user._id;
 
+    // Generate records => final stats
     const today = new Date();
     const investmentRecords = await generateInvestmentRecords(user, today);
 
@@ -139,11 +155,9 @@ app.get('/results', async (req, res) => {
       const latestRecord = investmentRecords[investmentRecords.length - 1];
       const { totalValue, totalInvestment } = latestRecord;
       const interest = totalValue - totalInvestment;
-      // For example, interest/totalInvestment => ~6.1
       const roiMultiple = totalInvestment > 0
         ? (interest / totalInvestment).toFixed(2)
         : '0.00';
-
       const totalProfit = Math.round(interest);
 
       res.render('confirmation', {
@@ -171,6 +185,7 @@ app.get('/results', async (req, res) => {
       });
     }
   } catch (error) {
+    console.error(error);
     res.status(500).send('Error while processing your information. Please try again.');
   }
 });
@@ -249,7 +264,6 @@ app.post('/api/update-monthly-investment', async (req, res) => {
   }
 });
 
-/* NEW ENDPOINT: /api/update-risk */
 app.post('/api/update-risk', async (req, res) => {
   try {
     const userId = req.session.userId;
@@ -284,7 +298,6 @@ app.post('/api/update-risk', async (req, res) => {
     const totalValue = latest.totalValue;
     const totalInvestment = latest.totalInvestment;
     const interest = totalValue - totalInvestment;
-    // same formula as above
     const roiMultiple = totalInvestment > 0
       ? (interest / totalInvestment).toFixed(2)
       : '0.00';
@@ -310,7 +323,7 @@ function getNextRiskLevel(current) {
   return levels[(idx + 1) % levels.length];
 }
 
-/* ONBOARDING ROUTES, ETC... */
+// ONBOARDING ROUTES
 app.get('/onboarding/1', (req, res) => {
   res.render('gender', { errors: [], oldInput: {} });
 });
@@ -471,6 +484,91 @@ app.post('/onboarding/6', (req, res) => {
   }
 
   req.session.confirmationHasIBAccount = hasIBAccount;
+  res.redirect('/onboarding/7');
+});
+
+/**
+ * Step 7 => "Email" page with real data from generateInvestmentRecords
+ * but we do NOT create the DB user yet. 
+ */
+app.get('/onboarding/7', async (req, res) => {
+  try {
+    if(
+      !req.session.confirmationName ||
+      !req.session.confirmationRiskLevel ||
+      !req.session.confirmationDobMonth ||
+      !req.session.confirmationDobDay ||
+      !req.session.confirmationDobYear ||
+      !req.session.confirmationMonthly
+    ){
+      return res.redirect('/');
+    }
+
+    // Build a "temp user" object for the real calculator
+    const numericMonth = monthMap[req.session.confirmationDobMonth];
+    const numericDay   = parseInt(req.session.confirmationDobDay, 10);
+    const numericYear  = parseInt(req.session.confirmationDobYear, 10);
+    const monthlyInvestmentNum = parseInt(
+      req.session.confirmationMonthly.replace(/[^0-9]/g, ''),10
+    ) || 0;
+
+    const userLike = {
+      _id: new mongoose.Types.ObjectId(),
+      dob: new Date(Date.UTC(numericYear,numericMonth,numericDay)),
+      monthlyInvestment: monthlyInvestmentNum,
+      riskLevel: req.session.confirmationRiskLevel,
+      investmentTicker: req.session.confirmationInvestmentTicker
+    };
+
+    const today = new Date();
+    const investmentRecords = await generateInvestmentRecords(userLike, today);
+
+    let estValue='0', roiMultiple='0.00', roiHint='0';
+    if(investmentRecords && investmentRecords.length){
+      const last = investmentRecords[investmentRecords.length-1];
+      const { totalValue, totalInvestment } = last;
+      const interest = totalValue - totalInvestment;
+      estValue = Math.round(totalValue).toLocaleString();
+      if(totalInvestment>0){
+        roiMultiple = (interest/totalInvestment).toFixed(2);
+      }
+      roiHint = Math.round(interest).toLocaleString();
+    }
+
+    res.render('email',{
+      // real risk
+      riskLevel: req.session.confirmationRiskLevel || 'Medium',
+      // real ticker
+      investmentTicker: req.session.confirmationInvestmentTicker || 'QQQ',
+      // no extra $ => just the monthly invests
+      investment: monthlyInvestmentNum.toString(),
+      // real estValue, roiMultiple, roiHint
+      estValue,
+      roiMultiple,
+      roiHint,
+      errors:[]
+    });
+  } catch(err){
+    console.error('Error in GET /onboarding/7:', err);
+    res.redirect('/');
+  }
+});
+
+// POST => store email in session => proceed to /results
+app.post('/onboarding/7', (req, res) => {
+  const { userEmail } = req.body;
+  if(!userEmail || !userEmail.includes('@')){
+    return res.render('email',{
+      errors:[{msg:'Please enter a valid email'}],
+      riskLevel: req.session.confirmationRiskLevel || 'High',
+      investmentTicker: req.session.confirmationInvestmentTicker || 'SOXX',
+      investment: req.session.confirmationMonthly || '100',
+      estValue:'0',
+      roiMultiple:'0.00',
+      roiHint:'0'
+    });
+  }
+  req.session.confirmationEmail = userEmail.trim().toLowerCase();
   res.redirect('/results');
 });
 

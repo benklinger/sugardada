@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Onboarding: Sugar Dada</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <div class="wrapper">
+    <div class="cards-container" style="margin-bottom:2rem;">
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-title"><%= riskLevel %> Risk</div>
+          <div class="card-value blurred-value">
+            <span><%= investmentTicker.toUpperCase() %></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-title">Monthly</div>
+          <div class="card-value blurred-value">
+            <span class="symbol-blue">$</span><%= investment %>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-title">Est. Value</div>
+          <div class="card-value blurred-value">
+            <span class="symbol-red">$</span><span><%= estValue %></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-title">Est. Return</div>
+          <div class="card-value blurred-value">
+            <span class="symbol-green">x</span><span><%= roiMultiple %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="question"></div>
+
+    <% if (errors && errors.length > 0) { %>
+      <ul class="error">
+        <% errors.forEach(error => { %>
+          <li><%= error.msg %></li>
+        <% }) %>
+      </ul>
+    <% } %>
+
+    <form action="/onboarding/7" method="POST" class="form" data-question="Results are ready. What's your email?">
+      <div class="subtitle">One-time thing, we promise</div>
+      <textarea name="userEmail" rows="1" cols="30" style="text-transform: lowercase; width:300px;" required></textarea>
+      <div class="hint">Press Enter to continue</div>
+    </form>
+  </div>
+
+  <%- include('partials/footer') %>
+
+  <script>
+	  document.addEventListener('DOMContentLoaded', () => {
+	    const cards = document.querySelectorAll('.card');
+	    cards.forEach((card, i) => {
+	      setTimeout(() => {
+	        card.classList.add('card-enter');
+	      }, i * 100);
+	    });
+	  });
+  </script>
+</body>
+</html>

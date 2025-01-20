@@ -19,10 +19,6 @@ function cardTapAnimate(cardEl){
 
 document.addEventListener("DOMContentLoaded",()=>{
 	const cards = document.querySelectorAll(".card");
-	cards.forEach((card,i)=>{
-	  setTimeout(()=>card.classList.add("card-enter"), i*100);
-	});
-
 	setTimeout(()=>{
 	  ["ticker","monthly-investment-value","est-value","roi-multiple","roi-hint"].forEach(id=>{
 	    const el=document.getElementById(id);

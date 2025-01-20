@@ -36,6 +36,10 @@ const userSchema = new mongoose.Schema({
     enum: ['Yes', 'No'],
     required: true
   },
+  email: {
+	type: String,
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now

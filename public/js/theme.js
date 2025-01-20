@@ -1,4 +1,4 @@
-// public/theme.js
+// public/js/theme.js
 
 document.addEventListener('DOMContentLoaded', () => {
   const themeToggle = document.getElementById('themeToggle');

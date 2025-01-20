@@ -285,6 +285,12 @@ select:focus {
   transform: translateY(0);
 }
 
+.card.card-entered {
+	opacity: 1 !important;
+	transition:none !important;
+	transform: translateY(0) !important;
+}
+
 .card-title {
   font-family: 'Radley', serif;
   font-size: 1rem;
@@ -386,4 +392,9 @@ select:focus {
 
 .symbol-green {
   color: rgba(153, 255, 153, 1);
+}
+
+.blurred-value {
+  filter: blur(10px);
+  pointer-events: none;
 }

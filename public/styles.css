@@ -41,10 +41,10 @@ html, body {
   top: 0;
   left: 0;
   width: 100%;
-  background-color: transparent;
+  background-color: var(--bg-color);
   display: flex;
   align-items: center;
-  padding: 1rem;
+  padding: 0.6rem;
   z-index: 9999;
   justify-content: flex-start;
 }
@@ -73,7 +73,7 @@ html, body {
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: transparent;
+  background-color: var(--bg-color);
   color: var(--disclaimer-color);
   font-size: 0.7rem;
   line-height: 1.2;
@@ -92,7 +92,7 @@ html, body {
   text-align: center;
   box-sizing: border-box;
   margin: 0 auto;
-  margin-top: 100px;
+  margin-top: 60px;
   padding: 0 1rem;
   border-radius: 8px;
 }
@@ -109,9 +109,13 @@ html, body {
 .question {
   font-family: 'Radley', serif;
   font-size: 1.5rem;
-  min-height: 3rem;
+  margin: 40px 0 20px;
   word-wrap: break-word;
   color: var(--text-color);
+}
+
+.no-top-margin {
+  margin-top:0;
 }
 
 .subtitle {
@@ -245,12 +249,18 @@ select:focus {
 }
 
 .cards-container {
+  position: sticky;
+  top: 55px;
+  left: 0;
+  right: 0;
+  z-index: 9998;
+  background: var(--bg-color);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
   max-width: 1200px;
   width: 100%;
-  padding: 0 1rem;
+  padding: 1rem;
 }
 
 @media (max-width: 800px) {
@@ -395,6 +405,6 @@ select:focus {
 }
 
 .blurred-value {
-  filter: blur(10px);
+  filter: blur(6px);
   pointer-events: none;
 }

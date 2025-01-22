@@ -64,3 +64,44 @@ document.addEventListener("DOMContentLoaded",()=>{
     fetchAndBuildChart();
   }
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  const chartContainer = document.getElementById("chartContainer");
+  const scrollInstruction = document.getElementById("scrollInstruction");
+  if (!chartContainer) return;
+
+  if(scrollInstruction){
+    chartContainer.addEventListener("scroll", () => {
+      scrollInstruction.classList.add("hidden");
+    }, { once: true });
+  }
+
+  chartContainer.addEventListener("scroll", () => {
+    updateCardsOnScroll(chartContainer);
+  });
+});
+
+function updateCardsOnScroll(container) {
+  if(!window.investmentRecords || !window.investmentRecords.length) return;
+  const scrollLeft = container.scrollLeft;
+  const maxScroll = container.scrollWidth - container.clientWidth;
+  const ratio = maxScroll ? (scrollLeft / maxScroll) : 0;
+  const index = Math.round(ratio * (window.investmentRecords.length - 1));
+  const record = window.investmentRecords[index];
+  if (record) updateCardValues(record);
+}
+
+function updateCardValues(record) {
+  const estValueEl = document.getElementById("est-value");
+  const roiMultipleEl = document.getElementById("roi-multiple");
+  const roiHintEl = document.getElementById("roi-hint");
+
+  const totalValue = Math.round(record.totalValue || 0).toLocaleString();
+  const interest = record.interest || 0;
+  const principal = (record.totalValue || 0) - interest;
+  const roi = principal ? (interest / principal).toFixed(2) : "0.00";
+
+  if(estValueEl) estValueEl.textContent = totalValue;
+  if(roiMultipleEl) roiMultipleEl.textContent = roi;
+  if(roiHintEl) roiHintEl.textContent = Math.round(interest).toLocaleString();
+}

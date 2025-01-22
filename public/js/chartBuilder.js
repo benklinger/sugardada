@@ -103,16 +103,12 @@ function buildOrUpdateChart(labels, investData, interestData, interestTrendData)
       ]
     },
     options:{
-      indexAxis:'y',
+      indexAxis:'x',
       responsive:true,
       maintainAspectRatio:false,
       plugins:{
         legend:{display:false},
         tooltip:{
-          // Use Roboto for the tooltip text
-          bodyFont:{
-            family:'Roboto'
-          },
           callbacks:{
             label:function(context){
               const val=context.parsed.x;

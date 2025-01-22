@@ -287,9 +287,9 @@ select:focus {
 }
 
 .card.card-entered {
-	opacity: 1 !important;
-	transition:none !important;
-	transform: translateY(0) !important;
+	opacity: 1;
+	transition:none;
+	transform: translateY(0);
 }
 
 .card-title {
@@ -338,42 +338,8 @@ select:focus {
 }
 
 .tap-animate {
-  transform: translateY(-5px)!important;
-  transition: transform 0.15s ease !important;
-}
-
-.chart-container {
-  position: relative;
-  width: 100%;
-  height: calc(100% - 226px - 60px);
-  overflow-x: auto;
-  overflow-y: hidden;
-  margin-top: 2rem;
-}
-
-.chart-inner {
-  width: 500%;
-  height: 100%;
-  position: relative;
-}
-
-.scroll-instruction {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 0.8rem 1rem;
-  background-color: rgba(0,0,0,0.7);
-  color: #fff;
-  border-radius: 0.5rem;
-  font-size: 0.9rem;
-  z-index: 999;
-  pointer-events: none;
-}
-
-.scroll-instruction.hidden {
-  opacity: 0;
-  visibility: hidden;
+  transform: translateY(-5px) !important;
+  transition: transform 0.2s ease !important;
 }
 
 .theme-toggle img {

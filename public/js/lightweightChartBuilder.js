@@ -6,7 +6,6 @@ function buildLightweightChart() {
   const chartContainer = document.getElementById('chartContainer');
   if (!chartContainer) return;
 
-  // Set container height -> e.g. (viewport - 240)
   chartContainer.style.height = `${window.innerHeight - 240}px`;
 
   if (!myChart) {
@@ -16,7 +15,7 @@ function buildLightweightChart() {
       layout: {
         background: { type: 'Solid', color: 'transparent' },
         textColor: '#333',
-		attributionLogo: false
+        attributionLogo: false
       },
       grid: {
         vertLines: { visible: false },
@@ -32,7 +31,6 @@ function buildLightweightChart() {
       },
       timeScale: {
         borderVisible: false,
-        // Example: "Jun 2026" style
         tickMarkFormatter: (time, tickMarkType, locale) => {
           const dt = new Date(time);
           const month = dt.toLocaleString(locale || 'en-US', { month: 'short' });
@@ -40,15 +38,12 @@ function buildLightweightChart() {
           return `${month} ${year}`;
         }
       },
-      // remove branding
       branding: { visible: false },
       watermark: { visible: false },
-      // no crosshairs
       crosshair: {
         vertLine: { visible: false, labelVisible: false },
         horzLine: { visible: false, labelVisible: false }
       },
-      // disable user scaling/scrolling => chart is fixed
       handleScroll: {
         mouseWheel: false,
         pressedMouseMove: false,
@@ -60,7 +55,6 @@ function buildLightweightChart() {
       },
     });
 
-    // deposits area
     depositsSeries = myChart.addAreaSeries({
       lineColor: 'rgba(141, 182, 255, 1)',
       topColor: 'rgba(141, 182, 255, 0.4)',
@@ -70,7 +64,6 @@ function buildLightweightChart() {
       priceLineVisible: false
     });
 
-    // est value area
     estValueSeries = myChart.addAreaSeries({
       lineColor: 'rgba(255, 153, 153, 1)',
       topColor: 'rgba(255, 153, 153, 0.4)',
@@ -81,7 +74,6 @@ function buildLightweightChart() {
     });
   }
 
-  // fetch data each time
   fetchAndUpdateChart();
 }
 
@@ -102,7 +94,7 @@ function fetchAndUpdateChart() {
 
       // Convert your records to chart objects
       const depositsData = recs.map(r => ({
-        time: r.simulatedDate.slice(0, 10),
+        time: r.simulatedDate.slice(0, 10), // "YYYY-MM-DD"
         value: r.totalInvestment
       }));
       const estValueData = recs.map(r => ({
@@ -113,7 +105,18 @@ function fetchAndUpdateChart() {
       depositsSeries.setData(depositsData);
       estValueSeries.setData(estValueData);
 
-      // Show all data => fit the entire dataset
+      // NEW: If we have lifeEvents loaded from the server, set them as markers
+      if (window.lifeEvents && window.lifeEvents.length) {
+        const markers = window.lifeEvents.map(ev => ({
+          time: ev.time,         // "YYYY-MM-DD" 
+          position: 'aboveBar',  // or 'belowBar'
+          color: 'blue',         // marker color
+          shape: 'circle',       // arrowDown, arrowUp, circle, square
+          text: ev.text          // event text on hover
+        }));
+        estValueSeries.setMarkers(markers);
+      }
+
       myChart.timeScale().fitContent();
     })
     .catch(e => {

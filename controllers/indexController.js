@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const { monthMap } = require('../config/maps'); 
 const { generateInvestmentRecords } = require('../services/investmentCalculator');
+// NEW: import getLifeEventsForUser
+const { getLifeEventsForUser } = require('../services/lifeEvents');
 
 exports.renderHome = (req, res) => {
   res.render('home');
@@ -119,6 +121,11 @@ exports.showResults = async (req, res) => {
     const today = new Date();
     const investmentRecords = await generateInvestmentRecords(user, today);
 
+    // NEW: fetch life events for the user
+    const lifeEvents = getLifeEventsForUser(user); 
+    // This should return an array of objects like:
+    // [ { time: 'YYYY-MM-DD', text: 'some milestone' }, ... ]
+
     if (investmentRecords && investmentRecords.length > 0) {
       const latestRecord = investmentRecords[investmentRecords.length - 1];
       const { totalValue, totalInvestment } = latestRecord;
@@ -136,6 +143,8 @@ exports.showResults = async (req, res) => {
         estValue: Math.round(totalValue).toLocaleString(),
         roiMultiple,
         roiHint: `${totalProfit.toLocaleString()}`,
+        // Pass lifeEvents as JSON so we can access in the client
+        lifeEvents: JSON.stringify(lifeEvents)
       });
     } else {
       res.render('confirmation', {
@@ -145,9 +154,10 @@ exports.showResults = async (req, res) => {
         investmentTicker: userData.investmentTicker.toUpperCase(),
         investment: parseFloat(userData.monthlyInvestment).toFixed(2),
         hasIBAccount: userData.hasIBAccount,
-        estValue: '0',
-        roiMultiple: '0.00',
-        roiHint: '$0',
+        estValue: '123,456',
+        roiMultiple: '1.23',
+        roiHint: '$12,345',
+        lifeEvents: JSON.stringify(lifeEvents) // still pass lifeEvents
       });
     }
   } catch (error) {

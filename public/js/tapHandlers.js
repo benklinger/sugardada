@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   initializeNumberFlowLite();
+  pageLoadAnimate();
 
   const investCard = document.getElementById("monthly-investment-card");
   if (investCard) {
@@ -7,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const delay = 300;
     const isTouch = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
-    if (isTouch) {
+    if (isTouch){
       investCard.addEventListener("touchend", handleTap);
     } else {
       investCard.addEventListener("click", handleTap);
@@ -43,12 +44,16 @@ document.addEventListener("DOMContentLoaded", () => {
           const roiHintEl = document.getElementById("roi-hint");
           const estValueEl = document.getElementById("est-value");
 
-          if (monthlyValEl) animateNumberFlowValue(monthlyValEl, j.monthlyInvestment);
-          if (j.roiMultiple && roiMultipleEl) animateNumberFlowValue(roiMultipleEl, j.roiMultiple);
-          if (typeof j.totalProfit === "number" && roiHintEl){
+          if (monthlyValEl && j.monthlyInvestment != null) {
+            animateNumberFlowValue(monthlyValEl, j.monthlyInvestment);
+          }
+          if (roiMultipleEl && j.roiMultiple != null) {
+            animateNumberFlowValue(roiMultipleEl, j.roiMultiple);
+          }
+          if (roiHintEl && j.totalProfit != null) {
             animateNumberFlowValue(roiHintEl, j.totalProfit);
           }
-          if (j.investmentRecords && j.investmentRecords.length > 0 && estValueEl){
+          if (estValueEl && j.investmentRecords && j.investmentRecords.length > 0) {
             const last = j.investmentRecords[j.investmentRecords.length - 1];
             animateNumberFlowValue(estValueEl, last.totalValue);
           }
@@ -85,12 +90,16 @@ document.addEventListener("DOMContentLoaded", () => {
           const roiHintEl = document.getElementById("roi-hint");
           const estValueEl = document.getElementById("est-value");
 
-          if (monthlyValEl) animateNumberFlowValue(monthlyValEl, j.monthlyInvestment);
-          if (j.roiMultiple && roiMultipleEl) animateNumberFlowValue(roiMultipleEl, j.roiMultiple);
-          if (typeof j.totalProfit === "number" && roiHintEl){
+          if (monthlyValEl && j.monthlyInvestment != null) {
+            animateNumberFlowValue(monthlyValEl, j.monthlyInvestment);
+          }
+          if (roiMultipleEl && j.roiMultiple != null) {
+            animateNumberFlowValue(roiMultipleEl, j.roiMultiple);
+          }
+          if (roiHintEl && j.totalProfit != null) {
             animateNumberFlowValue(roiHintEl, j.totalProfit);
           }
-          if (j.investmentRecords && j.investmentRecords.length > 0 && estValueEl){
+          if (estValueEl && j.investmentRecords && j.investmentRecords.length > 0) {
             const last = j.investmentRecords[j.investmentRecords.length - 1];
             animateNumberFlowValue(estValueEl, last.totalValue);
           }
@@ -135,35 +144,30 @@ document.addEventListener("DOMContentLoaded", () => {
       const r = await fetch("/api/update-risk",{ method:"POST" });
       const data = await r.json();
       if(r.ok && !data.error){
-        // risk-level is updated with NO animation
         const riskLevelEl = document.getElementById("risk-level");
         if(riskLevelEl) {
           riskLevelEl.textContent = data.riskLevel;
         }
-
-        // Ticker is still animated text
         const tickerEl    = document.getElementById("ticker");
-        if(tickerEl) animateText(tickerEl, data.investmentTicker.toUpperCase());
-
-        // The rest are animated numbers, if present
+        if(tickerEl && data.investmentTicker != null) {
+          animateText(tickerEl, data.investmentTicker.toUpperCase());
+        }
         const monthlyValEl= document.getElementById("monthly-investment-value");
-        const estValueEl  = document.getElementById("est-value");
-        const roiMultipleEl = document.getElementById("roi-multiple");
-        const roiHintEl   = document.getElementById("roi-hint");
-
         if(monthlyValEl && data.monthlyInvestment != null){
           animateNumberFlowValue(monthlyValEl, data.monthlyInvestment);
         }
+        const estValueEl  = document.getElementById("est-value");
         if(estValueEl && data.estValue != null){
           animateNumberFlowValue(estValueEl, data.estValue);
         }
-        if(roiMultipleEl && data.roiMultiple){
+        const roiMultipleEl = document.getElementById("roi-multiple");
+        if(roiMultipleEl && data.roiMultiple != null){
           animateNumberFlowValue(roiMultipleEl, data.roiMultiple);
         }
+        const roiHintEl   = document.getElementById("roi-hint");
         if(roiHintEl && data.totalProfit != null){
           animateNumberFlowValue(roiHintEl, data.totalProfit);
         }
-
         if (window.updateLightweightChart){
           updateLightweightChart();
         }
@@ -179,11 +183,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function initializeNumberFlowLite(){
+  function initializeNumberFlowLite() {
     const monthlyValEl = document.getElementById("monthly-investment-value");
-    if (monthlyValEl){
-      const currentVal = parseFloat(monthlyValEl.textContent.replace(/[^\d.-]/g, '')) || 0;
-      initNumberFlowLiteOn(monthlyValEl, currentVal);
+    if (monthlyValEl) {
+      const initialVal = parseFloat(monthlyValEl.textContent.replace(/[^\d.-]/g, '')) || 0;
+      const isEstValue = (monthlyValEl.id === "est-value");
+      initNumberFlowLiteOn(monthlyValEl, initialVal, false, isEstValue);
+    }
+
+    const roiMultipleEl = document.getElementById("roi-multiple");
+    if (roiMultipleEl) {
+      const roiVal = parseFloat(roiMultipleEl.textContent) || 0;
+      initNumberFlowLiteOn(roiMultipleEl, roiVal);
+    }
+
+    const roiHintEl = document.getElementById("roi-hint");
+    if (roiHintEl) {
+      const hintVal = parseFloat(roiHintEl.textContent.replace(/[^\d.-]/g, '')) || 0;
+      initNumberFlowLiteOn(roiHintEl, hintVal);
+    }
+
+    const estValueEl = document.getElementById("est-value");
+    if (estValueEl) {
+      const val = parseFloat(estValueEl.textContent.replace(/[^\d.-]/g, '')) || 0;
+      initNumberFlowLiteOn(estValueEl, val, false, true);
     }
   }
 });
@@ -193,22 +216,23 @@ document.addEventListener("DOMContentLoaded", () => {
  ****************************/
 function cardTapAnimate(cardEl){
   cardEl.classList.add("tap-animate");
-  setTimeout(() => cardEl.classList.remove("tap-animate"), 200);
+  setTimeout(()=>cardEl.classList.remove("tap-animate"),200);
 }
 
 function formatRoi(val){
   const num = parseFloat(val);
   if(isNaN(num)) return "N/A";
-  const rounded = Math.round(num * 10) / 10;
+  const rounded = Math.round(num*10)/10;
   return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);
 }
 
-/** Creates or updates <number-flow-lite> with numeric or text data. */
-function initNumberFlowLiteOn(el, value, isText = false){
+function initNumberFlowLiteOn(el, value, isText = false, noDecimals = false){
   if(!el) return;
   const nf = document.createElement('number-flow-lite');
   if(isText){
     nf.data = formatTextToData(value);
+  } else if(noDecimals){
+    nf.data = formatToData(value, new Intl.NumberFormat('en-US',{ maximumFractionDigits: 0 }));
   } else {
     nf.data = formatToData(value, new Intl.NumberFormat('en-US'));
   }
@@ -218,10 +242,13 @@ function initNumberFlowLiteOn(el, value, isText = false){
 function animateNumberFlowValue(el, newVal){
   if(!el) return;
   const nf = el.querySelector('number-flow-lite');
+  const isEstValue = (el.id === "est-value");
   if(!nf){
-    initNumberFlowLiteOn(el, newVal);
+    initNumberFlowLiteOn(el, newVal, false, isEstValue);
   } else {
-    nf.data = formatToData(newVal, new Intl.NumberFormat('en-US'));
+    nf.data = isEstValue
+      ? formatToData(newVal, new Intl.NumberFormat('en-US',{ maximumFractionDigits: 0 }))
+      : formatToData(newVal, new Intl.NumberFormat('en-US'));
   }
 }
 
@@ -233,4 +260,26 @@ function animateText(el, newVal){
   } else {
     nf.data = formatTextToData(newVal);
   }
+}
+
+function pageLoadAnimate() {
+	const ids = ["monthly-investment-value", "est-value", "roi-multiple", "roi-hint"];
+  
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const finalStr = (el.dataset.final || "").replace(/,/g, "");
+    const finalVal = parseFloat(finalStr) || 0;
+
+    const initialStr = el.textContent.replace(/,/g, "");
+    const initialVal = parseFloat(initialStr) || 0;
+
+    el.textContent = "";
+    initNumberFlowLiteOn(el, initialVal);
+
+    requestAnimationFrame(() => {
+      animateNumberFlowValue(el, finalVal);
+    });
+  });
 }

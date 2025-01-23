@@ -78,6 +78,7 @@ if (BROWSER && CSS && CSS.registerProperty) {
 const supportsLinear = BROWSER && CSS && CSS.supports && CSS.supports('animation-timing-function','linear(0.4,0.6)');
 const supportsMod = BROWSER && CSS && CSS.supports && CSS.supports('line-height','mod(1,1)');
 const canAnimate = supportsMod && supportsLinear && supportsAtProperty;
+
 window.formatToData = function formatToData(value, formatter, prefix, suffix) {
   const parts = formatter.formatToParts(value);
   if (prefix) {

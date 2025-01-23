@@ -329,10 +329,6 @@ select:focus {
   transition-delay: 0s;
 }
 
-.hint-visible {
-	left: 92px;
-}
-
 .card-clickable {
   cursor: pointer;
 }
@@ -340,6 +336,10 @@ select:focus {
 .tap-animate {
   transform: translateY(-5px) !important;
   transition: transform 0.2s ease !important;
+}
+
+.chart-container {
+  width: 100%;
 }
 
 .theme-toggle img {
@@ -399,8 +399,5 @@ select:focus {
       max-width: 100%;
       visibility: visible !important;
       opacity: 1 !important;
-  }
-  .hint-visible {
-  	left: 38%;
   }
 }

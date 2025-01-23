@@ -135,7 +135,7 @@ exports.showResults = async (req, res) => {
         hasIBAccount: userData.hasIBAccount,
         estValue: Math.round(totalValue).toLocaleString(),
         roiMultiple,
-        roiHint: `$${totalProfit.toLocaleString()}`,
+        roiHint: `${totalProfit.toLocaleString()}`,
       });
     } else {
       res.render('confirmation', {

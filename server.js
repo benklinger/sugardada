@@ -23,10 +23,7 @@ app.use(session({
   cookie: { secure: false }
 }));
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log('Connected to MongoDB Atlas successfully.'))
 .catch(err => console.error('MongoDB connection error:', err));
 

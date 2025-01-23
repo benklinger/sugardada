@@ -43,14 +43,15 @@
     <div class="card-inner">
       <div class="card-title">Est. Return</div>
       <div class="card-value" id="est-return">
-        <span class="symbol-green">x</span><span id="roi-multiple"><%= roiMultiple %></span>
-	      <div class="card-hint hint-visible">$<span id="roi-hint"><%= roiHint %></span></div>
-          </div>
-        </div>
+		  <span class="symbol-green">x</span><span id="roi-multiple"><%= roiMultiple %></span>
+	  </div>
+	  <div class="card-hint hint-visible">$<span id="roi-hint"><%= roiHint %></span></div>
       </div>
+    </div>
 	  
     </div>
 	
+	<div class="chart-container" id="chartContainer" style="height: 300px;"></div>
   </div>
 
   <%- include('partials/footer') %>
@@ -58,5 +59,12 @@
   <script src="/js/universalRush.js"></script>
   <script src="/js/confirmationCommon.js"></script>
   <script src="/js/tapHandlers.js"></script>
+<script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+<script src="/js/lightweightChartBuilder.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.buildLightweightChart) buildLightweightChart();
+  });
+</script>
 </body>
 </html>

@@ -7,5 +7,5 @@ module.exports.monthMap = {
 module.exports.riskToTickerMap = {
   Low: 'SPY',
   Medium: 'QQQ',
-  High: 'SOXX'
+  High: 'SOXX',
 };

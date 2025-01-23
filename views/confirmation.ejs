@@ -15,7 +15,7 @@
 	<div class="card card-entered card-clickable" id="risk-card">
      <div class="card-inner">
         <div class="card-title"><span id="risk-level"><%= riskLevel %></span> Risk</div>
-		<div class="card-value"><span id="ticker"><%= investmentTicker %></span></div>
+		<div class="card-value"><span id="ticker" data-final="<%= investmentTicker %>"></span></div>
         <div class="card-hint">Tap to change</div><!-- , double-tap to party -->
         </div>
      </div>
@@ -24,7 +24,7 @@
     <div class="card-inner">
       <div class="card-title">Monthly</div>
       <div class="card-value">
-        <span class="symbol-blue">$</span><span id="monthly-investment-value" data-final="<%= investment %>">123</span>
+        <span class="symbol-blue">$</span><span id="monthly-investment-value" data-final="<%= investment %>"></span>
       </div>
       <div class="card-hint">Tap to add $50, double-tap to undo</div>
     </div>
@@ -34,7 +34,7 @@
     <div class="card-inner">
       <div class="card-title">Est. Value</div>
       <div class="card-value">
-        <span class="symbol-red">$</span><span id="est-value" data-final="<%= estValue %>">123,456</span>
+        <span class="symbol-red">$</span><span id="est-value" data-final="<%= estValue %>"></span>
       </div>
     </div>
   </div>
@@ -43,9 +43,9 @@
     <div class="card-inner">
       <div class="card-title">Est. Return</div>
       <div class="card-value" id="est-return">
-		  <span class="symbol-green">x</span><span id="roi-multiple" data-final="<%= roiMultiple %>">1.23</span>
+		  <span class="symbol-green">x</span><span id="roi-multiple" data-final="<%= roiMultiple %>"></span>
 	  </div>
-	  <div class="card-hint hint-visible">$<span id="roi-hint" data-final="<%= roiHint %>">12,345</span></div>
+	  <div class="card-hint hint-visible">$<span id="roi-hint" data-final="<%= roiHint %>"></span></div>
       </div>
     </div>
 	  
@@ -55,9 +55,7 @@
   </div>
 
   <%- include('partials/footer') %>
-<script>
-  window.lifeEvents = <%- lifeEvents %>;
-</script>
+<script>window.lifeEvents = <%- lifeEvents %>;</script>
 <script src="/js/confirmationCommon.js"></script>
 <script src="/js/number-flow-lite.js"></script>
 <script src="/js/tapHandlers.js"></script>

@@ -15,14 +15,3 @@ function cardTapAnimate(cardEl) {
   cardEl.classList.add("tap-animate");
   setTimeout(() => cardEl.classList.remove("tap-animate"), 200);
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  const cards = document.querySelectorAll(".card");
-  setTimeout(() => {
-    const tickerEl = document.getElementById("ticker");
-    if (tickerEl) {
-      // Just leaving the text as is, or you could do something else:
-      tickerEl.textContent = tickerEl.textContent.trim();
-    }
-  }, cards.length * 100 + 200);
-});

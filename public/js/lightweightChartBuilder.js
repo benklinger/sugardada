@@ -2,6 +2,8 @@ let myChart;
 let depositsSeries;
 let estValueSeries;
 
+const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+
 function buildLightweightChart() {
   const chartContainer = document.getElementById('chartContainer');
   if (!chartContainer) return;
@@ -14,12 +16,14 @@ function buildLightweightChart() {
       height: chartContainer.clientHeight,
       layout: {
         background: { type: 'Solid', color: 'transparent' },
+        // TEXT COLOR same as your cards (#333)
         textColor: '#333',
         attributionLogo: false
       },
+      // GRID lines, same color as text (#333) with 0.2 opacity
       grid: {
-        vertLines: { visible: false },
-        horzLines: { visible: false }
+        vertLines: { color: 'rgba(51,51,51,0.2)', visible: true },
+        horzLines: { color: 'rgba(51,51,51,0.2)', visible: true }
       },
       leftPriceScale: {
         visible: true,
@@ -38,12 +42,24 @@ function buildLightweightChart() {
           return `${month} ${year}`;
         }
       },
+      // no default branding or watermark
       branding: { visible: false },
       watermark: { visible: false },
       crosshair: {
-        vertLine: { visible: false, labelVisible: false },
-        horzLine: { visible: false, labelVisible: false }
+        // show vertical line on hover
+        vertLine: {
+          visible: true,
+          labelVisible: true,
+          style: 0, // 0 => solid line
+          width: 1,
+          color: 'rgba(51,51,51,0.6)'
+        },
+        horzLine: {
+          visible: false,
+          labelVisible: false
+        }
       },
+      // disable user scaling/scrolling => chart is fixed
       handleScroll: {
         mouseWheel: false,
         pressedMouseMove: false,
@@ -55,20 +71,37 @@ function buildLightweightChart() {
       },
     });
 
+    // WATERMARK with latest est value 
+    if (typeof window.latestValue === 'number') {
+      myChart.applyOptions({
+        watermark: {
+          visible: true,
+          color: 'rgba(51,51,51,0.3)',
+          text: `Est. Value: $${window.latestValue.toLocaleString()}`,
+          fontSize: 18,
+          horzAlign: 'center',
+          vertAlign: 'top'
+        }
+      });
+    }
+
+    // deposits area
     depositsSeries = myChart.addAreaSeries({
       lineColor: 'rgba(141, 182, 255, 1)',
       topColor: 'rgba(141, 182, 255, 0.4)',
       bottomColor: 'rgba(141, 182, 255, 0.0)',
-      lineWidth: 2,
+      // bigger line => bigger "dots" effect
+      lineWidth: 3,
       lastValueVisible: false,
       priceLineVisible: false
     });
 
+    // est value area
     estValueSeries = myChart.addAreaSeries({
       lineColor: 'rgba(255, 153, 153, 1)',
       topColor: 'rgba(255, 153, 153, 0.4)',
       bottomColor: 'rgba(255, 153, 153, 0.0)',
-      lineWidth: 2,
+      lineWidth: 3,
       lastValueVisible: false,
       priceLineVisible: false
     });
@@ -94,7 +127,7 @@ function fetchAndUpdateChart() {
 
       // Convert your records to chart objects
       const depositsData = recs.map(r => ({
-        time: r.simulatedDate.slice(0, 10), // "YYYY-MM-DD"
+        time: r.simulatedDate.slice(0, 10),
         value: r.totalInvestment
       }));
       const estValueData = recs.map(r => ({
@@ -105,15 +138,26 @@ function fetchAndUpdateChart() {
       depositsSeries.setData(depositsData);
       estValueSeries.setData(estValueData);
 
-      // NEW: If we have lifeEvents loaded from the server, set them as markers
+      // Build markers from lifeEvents (if any)
       if (window.lifeEvents && window.lifeEvents.length) {
-        const markers = window.lifeEvents.map(ev => ({
-          time: ev.time,         // "YYYY-MM-DD" 
-          position: 'aboveBar',  // or 'belowBar'
-          color: 'blue',         // marker color
-          shape: 'circle',       // arrowDown, arrowUp, circle, square
-          text: ev.text          // event text on hover
-        }));
+        const markers = window.lifeEvents.map((ev, i) => {
+          // default shape => "square"
+          let shape = 'square';
+		  
+          // If your code sets ev.specialShape for the first/last marker, override
+          if (ev.specialShape) {
+            shape = ev.specialShape; 
+          }
+
+          return {
+            time: ev.time,         
+            position: 'aboveBar',
+            color: isDarkTheme ? '#fff' : '#000',
+            shape,
+            text: ev.text
+          };
+        });
+
         estValueSeries.setMarkers(markers);
       }
 

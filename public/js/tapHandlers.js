@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   initializeNumberFlowLite();
-  pageLoadAnimate();
+  pageLoadAnimateAll();
 
   const investCard = document.getElementById("monthly-investment-card");
   if (investCard) {
@@ -262,24 +262,42 @@ function animateText(el, newVal){
   }
 }
 
-function pageLoadAnimate() {
-	const ids = ["monthly-investment-value", "est-value", "roi-multiple", "roi-hint"];
-  
-  ids.forEach(id => {
+function pageLoadAnimateAll() {
+  const placeholders = {
+    'monthly-investment-value': { type: 'number', initial: 999,    final: 123456 },
+    'est-value':               { type: 'number', initial: 999999, final: 800000 },
+    'roi-multiple':            { type: 'number', initial: 9.99,    final: 5.25 },
+    'roi-hint':                { type: 'number', initial: 9999,    final: 50000 },
+    'ticker':                  { type: 'text',   initial: 'ACME',  final: 'SPY' }
+  };
+
+  Object.entries(placeholders).forEach(([id, config]) => {
     const el = document.getElementById(id);
     if (!el) return;
 
-    const finalStr = (el.dataset.final || "").replace(/,/g, "");
-    const finalVal = parseFloat(finalStr) || 0;
+    if (config.type === 'number') {
+		const finalStr = (el.dataset.final || "").replace(/,/g, "");
+      const finalVal = parseFloat(finalStr) || config.final;
 
-    const initialStr = el.textContent.replace(/,/g, "");
-    const initialVal = parseFloat(initialStr) || 0;
+      const initialStr = el.textContent.replace(/,/g, "");
+      const initialVal = parseFloat(initialStr) || config.initial;
 
-    el.textContent = "";
-    initNumberFlowLiteOn(el, initialVal);
+      el.textContent = "";
+      initNumberFlowLiteOn(el, initialVal);
 
-    requestAnimationFrame(() => {
-      animateNumberFlowValue(el, finalVal);
-    });
+      requestAnimationFrame(() => {
+        animateNumberFlowValue(el, finalVal);
+      });
+    } else if (config.type === 'text') {
+		const finalText = el.dataset.final?.trim() || config.final;
+      const initialText = el.textContent.trim() || config.initial;
+
+      el.textContent = "";
+      initNumberFlowLiteOn(el, initialText, true);
+
+      requestAnimationFrame(() => {
+        animateText(el, finalText);
+      });
+    }
   });
 }

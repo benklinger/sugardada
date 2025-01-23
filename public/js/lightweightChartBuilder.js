@@ -123,3 +123,7 @@ function fetchAndUpdateChart() {
 
 window.buildLightweightChart = buildLightweightChart;
 window.updateLightweightChart = fetchAndUpdateChart;
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.buildLightweightChart) buildLightweightChart();
+});

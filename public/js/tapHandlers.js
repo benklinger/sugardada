@@ -6,16 +6,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (investCard) {
     let clickTimer = null;
     const delay = 300;
-    const isTouch = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
-    if (isTouch){
-      investCard.addEventListener("touchend", handleTap);
-    } else {
-      investCard.addEventListener("click", handleTap);
-    }
+    // Use pointerup for both mouse and touch
+    investCard.addEventListener("pointerup", handlePointerUp);
 
-    function handleTap(e) {
-      e.preventDefault();
+    function handlePointerUp(e) {
+      // If you don't want any default actions, uncomment:
+      // e.preventDefault();
+
       if (clickTimer === null) {
         clickTimer = setTimeout(() => {
           singleClickInvest();
@@ -121,20 +119,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const riskCard = document.getElementById("risk-card");
-  if(riskCard){
-    const isTouch = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
-    if(isTouch){
-      riskCard.addEventListener("touchend", e => {
-        e.preventDefault();
-        cardTapAnimate(riskCard);
-        updateRisk();
-      });
-    } else {
-      riskCard.addEventListener("click", () => {
-        cardTapAnimate(riskCard);
-        updateRisk();
-      });
-    }
+  if (riskCard){
+    // For risk, a simple single pointerup is enough
+    riskCard.addEventListener("pointerup", e => {
+      // e.preventDefault(); // optional
+      cardTapAnimate(riskCard);
+      updateRisk();
+    });
   }
 
   async function updateRisk(){
@@ -142,16 +133,16 @@ document.addEventListener("DOMContentLoaded", () => {
       riskCard.style.pointerEvents = "none";
       riskCard.classList.add("disabled");
       const r = await fetch(`/api/update-risk/${window.userId}`, {
- 		 	method: 'POST',
- 		 	headers: { 'Content-Type': 'application/json' },
-	  	});
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
       const data = await r.json();
       if(r.ok && !data.error){
         const riskLevelEl = document.getElementById("risk-level");
         if(riskLevelEl) {
           riskLevelEl.textContent = data.riskLevel;
         }
-        const tickerEl    = document.getElementById("ticker");
+        const tickerEl = document.getElementById("ticker");
         if(tickerEl && data.investmentTicker != null) {
           animateText(tickerEl, data.investmentTicker.toUpperCase());
         }
@@ -167,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if(roiMultipleEl && data.roiMultiple != null){
           animateNumberFlowValue(roiMultipleEl, data.roiMultiple);
         }
-        const roiHintEl   = document.getElementById("roi-hint");
+        const roiHintEl = document.getElementById("roi-hint");
         if(roiHintEl && data.totalProfit != null){
           animateNumberFlowValue(roiHintEl, data.totalProfit);
         }
@@ -279,7 +270,7 @@ function pageLoadAnimateAll() {
     if (!el) return;
 
     if (config.type === 'number') {
-		const finalStr = (el.dataset.final || "").replace(/,/g, "");
+      const finalStr = (el.dataset.final || "").replace(/,/g, "");
       const finalVal = parseFloat(finalStr) || config.final;
 
       const initialStr = el.textContent.replace(/,/g, "");
@@ -292,7 +283,7 @@ function pageLoadAnimateAll() {
         animateNumberFlowValue(el, finalVal);
       });
     } else if (config.type === 'text') {
-		const finalText = el.dataset.final?.trim() || config.final;
+      const finalText = el.dataset.final?.trim() || config.final;
       const initialText = el.textContent.trim() || config.initial;
 
       el.textContent = "";

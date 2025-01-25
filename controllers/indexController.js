@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const { monthMap } = require('../config/maps'); 
 const { generateInvestmentRecords } = require('../services/investmentCalculator');
-// NEW: import getLifeEventsForUser
+const { sendMail } = require('../services/mailService');
 const { getLifeEventsForUser } = require('../services/lifeEvents');
 
 exports.renderHome = (req, res) => {
@@ -114,10 +114,34 @@ exports.finalizeAndRedirect = async (req, res) => {
     const user = new User(userData);
     await user.save();
 
-    // (Optional) destroy or partially clear session entirely
-    // req.session.destroy(err => { ... });
+    const hostUrl = `${req.protocol}://${req.get('host')}`;
+    const shareableUrl = `${hostUrl}/results/${user._id}`;
 
-    // Instead of rendering the page, redirect to /results/:userId
+    if (user.email) {
+		const subject = `${user.name}` + "'s Plan is Ready";
+      const text = `
+Hello, 
+
+${user.name}'s plan has been created with a monthly investment of $${user.monthlyInvestment}.
+Risk level: ${user.riskLevel}, Ticker: ${user.investmentTicker}.
+
+Click here to view your results anytime:
+${shareableUrl}
+`;
+
+ // try {
+ //        await sendMail({
+ //          to: user.email,
+ //          subject,
+ //          text
+ //        });
+ //        console.log("Plan email sent to", user.email);
+ //      } catch (err) {
+ //        console.error("Failed to send plan email:", err);
+ //      }
+    }
+
+
     return res.redirect(`/results/${user._id}`);
   } catch (error) {
     console.error(error);

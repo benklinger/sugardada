@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@number-flow/react": "^0.5.5",
+    "@sendgrid/mail": "^8.1.4",
     "connect-mongo": "^4.6.0",
     "dotenv": "^16.0.3",
     "ejs": "^3.1.8",

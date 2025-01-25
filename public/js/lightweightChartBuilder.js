@@ -111,8 +111,15 @@ function buildLightweightChart() {
 }
 
 function fetchAndUpdateChart() {
-  fetch('/api/investment-records')
-    .then(res => res.json())
+  // 1) Make sure we have a userId
+  if (!window.userId) {
+    console.warn('No userId found, cannot fetch chart data');
+    return;
+  }
+
+  // 2) Fetch from /api/investment-records/:userId
+  fetch(`/api/investment-records/${window.userId}`)
+    .then(res => res.json())   // parse JSON here!
     .then(d => {
       if (d.error) {
         console.error('Error fetching records:', d.error);
@@ -120,12 +127,11 @@ function fetchAndUpdateChart() {
       }
       const recs = d.investmentRecords;
       if (!recs || !recs.length) {
+        console.warn('No records returned');
         depositsSeries.setData([]);
         estValueSeries.setData([]);
         return;
       }
-
-      // Convert your records to chart objects
       const depositsData = recs.map(r => ({
         time: r.simulatedDate.slice(0, 10),
         value: r.totalInvestment
@@ -134,30 +140,21 @@ function fetchAndUpdateChart() {
         time: r.simulatedDate.slice(0, 10),
         value: r.totalValue
       }));
-
       depositsSeries.setData(depositsData);
       estValueSeries.setData(estValueData);
 
-      // Build markers from lifeEvents (if any)
+      // If we have lifeEvents, set markers
       if (window.lifeEvents && window.lifeEvents.length) {
-        const markers = window.lifeEvents.map((ev, i) => {
-          // default shape => "square"
-          let shape = 'square';
-		  
-          // If your code sets ev.specialShape for the first/last marker, override
-          if (ev.specialShape) {
-            shape = ev.specialShape; 
-          }
-
+        const markers = window.lifeEvents.map(ev => {
+          let shape = ev.specialShape || 'square';
           return {
-            time: ev.time,         
+            time: ev.time,
             position: 'aboveBar',
             color: isDarkTheme ? '#fff' : '#000',
             shape,
             text: ev.text
           };
         });
-
         estValueSeries.setMarkers(markers);
       }
 

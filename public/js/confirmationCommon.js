@@ -1,3 +1,21 @@
+document.addEventListener('DOMContentLoaded', () => {
+	const bodyEl = document.body;
+  window.userId = bodyEl.dataset.userid || "";
+
+  const lifeEventsScript = document.getElementById('lifeEventsJson');
+  let parsed = [];
+  if (lifeEventsScript) {
+    const rawJson = lifeEventsScript.textContent.trim();
+    try {
+      parsed = JSON.parse(rawJson);
+    } catch (err) {
+      console.error("Failed to parse lifeEvents JSON:", err, rawJson);
+    }
+  }
+  window.lifeEvents = parsed;
+
+});
+
 function animateElement(id, newVal) {
   const el = document.getElementById(id);
   if (!el) return;

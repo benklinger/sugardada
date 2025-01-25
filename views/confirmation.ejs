@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
+<body data-userid="<%= userId %>" >
   <%- include('partials/header') %>
 
   <div class="wrapper">
@@ -55,7 +55,7 @@
   </div>
 
   <%- include('partials/footer') %>
-<script>window.lifeEvents = <%- lifeEvents %>;</script>
+<script id="lifeEventsJson" type="application/json"><%- lifeEvents %></script>
 <script src="/js/confirmationCommon.js"></script>
 <script src="/js/number-flow-lite.js"></script>
 <script src="/js/tapHandlers.js"></script>

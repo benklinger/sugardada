@@ -35,12 +35,12 @@ exports.startDemo = async (req, res) => {
   }
 };
 
-exports.showResults = async (req, res) => {
+exports.finalizeAndRedirect = async (req, res) => {
   try {
     let userData;
 
+    // DEMO or real
     if (req.session.isDemo) {
-      // Demo user
       userData = {
         _id: new mongoose.Types.ObjectId(),
         gender: req.session.confirmationGender,
@@ -59,7 +59,6 @@ exports.showResults = async (req, res) => {
       };
       req.session.isDemo = false;
     } else {
-      // Real user
       const {
         confirmationGender: gender,
         confirmationName: name,
@@ -73,7 +72,6 @@ exports.showResults = async (req, res) => {
         confirmationEmail: userEmail
       } = req.session;
 
-      // If missing any
       if (![gender, name, dobMonth, dobDay, dobYear, investment, riskLevel, investmentTicker, userEmail].every(Boolean)) {
         return res.redirect('/');
       }
@@ -108,23 +106,40 @@ exports.showResults = async (req, res) => {
         'confirmationGender','confirmationName','confirmationDobMonth',
         'confirmationDobDay','confirmationDobYear','confirmationMonthly',
         'confirmationRiskLevel','confirmationInvestmentTicker','confirmationHasIBAccount',
-        'confirmationEmail'
+        'confirmationEmail','isDemo'
       ].forEach(key => req.session[key] = null);
     }
 
     // Create user in DB
     const user = new User(userData);
     await user.save();
-    req.session.userId = user._id;
 
-    // Generate records
+    // (Optional) destroy or partially clear session entirely
+    // req.session.destroy(err => { ... });
+
+    // Instead of rendering the page, redirect to /results/:userId
+    return res.redirect(`/results/${user._id}`);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send('Error while processing your information. Please try again.');
+  }
+};
+
+exports.showUserById = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!userId) {
+      return res.redirect('/');
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send('User not found.');
+    }
+
     const today = new Date();
     const investmentRecords = await generateInvestmentRecords(user, today);
-
-    // NEW: fetch life events for the user
-    const lifeEvents = getLifeEventsForUser(user); 
-    // This should return an array of objects like:
-    // [ { time: 'YYYY-MM-DD', text: 'some milestone' }, ... ]
+    const lifeEvents = getLifeEventsForUser(user);
 
     if (investmentRecords && investmentRecords.length > 0) {
       const latestRecord = investmentRecords[investmentRecords.length - 1];
@@ -133,35 +148,36 @@ exports.showResults = async (req, res) => {
       const roiMultiple = totalInvestment > 0 ? (interest / totalInvestment).toFixed(2) : '0.00';
       const totalProfit = Math.round(interest);
 
-      res.render('confirmation', {
-        name: userData.name,
-        dob: userData.dob,
-        riskLevel: userData.riskLevel,
-        investmentTicker: userData.investmentTicker.toUpperCase(),
-        investment: parseFloat(userData.monthlyInvestment).toFixed(2),
-        hasIBAccount: userData.hasIBAccount,
+      return res.render('confirmation', {
+		userId: user._id.toString(),
+        name: user.name,
+        dob: user.dob,
+        riskLevel: user.riskLevel,
+        investmentTicker: user.investmentTicker.toUpperCase(),
+        investment: parseFloat(user.monthlyInvestment).toFixed(2),
+        hasIBAccount: user.hasIBAccount,
         estValue: Math.round(totalValue).toLocaleString(),
         roiMultiple,
         roiHint: `${totalProfit.toLocaleString()}`,
-        // Pass lifeEvents as JSON so we can access in the client
         lifeEvents: JSON.stringify(lifeEvents)
       });
     } else {
-      res.render('confirmation', {
-        name: userData.name,
-        dob: userData.dob,
-        riskLevel: userData.riskLevel,
-        investmentTicker: userData.investmentTicker.toUpperCase(),
-        investment: parseFloat(userData.monthlyInvestment).toFixed(2),
-        hasIBAccount: userData.hasIBAccount,
+      return res.render('confirmation', {
+        userId: user._id.toString(),
+		name: user.name,
+        dob: user.dob,
+        riskLevel: user.riskLevel,
+        investmentTicker: user.investmentTicker.toUpperCase(),
+        investment: parseFloat(user.monthlyInvestment).toFixed(2),
+        hasIBAccount: user.hasIBAccount,
         estValue: '123,456',
         roiMultiple: '1.23',
         roiHint: '$12,345',
-        lifeEvents: JSON.stringify(lifeEvents) // still pass lifeEvents
+        lifeEvents: JSON.stringify(lifeEvents)
       });
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Error while processing your information. Please try again.');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading plan. Please try again.');
   }
 };

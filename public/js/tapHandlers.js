@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         investCard.style.pointerEvents = "none";
         investCard.classList.add("disabled");
-        const r = await fetch("/api/update-monthly-investment", {
+        const r = await fetch(`/api/update-monthly-investment/${window.userId}`, {
           method:"POST",
           headers: { "Content-Type":"application/json" }
         });
@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         investCard.style.pointerEvents = "none";
         investCard.classList.add("disabled");
-        const r = await fetch("/api/update-monthly-investment", {
+        const r = await fetch(`/api/update-monthly-investment/${window.userId}`, {
           method:"POST",
           headers: { "Content-Type":"application/json" },
           body: JSON.stringify({ action: "decrement" })
@@ -141,7 +141,10 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       riskCard.style.pointerEvents = "none";
       riskCard.classList.add("disabled");
-      const r = await fetch("/api/update-risk",{ method:"POST" });
+      const r = await fetch(`/api/update-risk/${window.userId}`, {
+ 		 	method: 'POST',
+ 		 	headers: { 'Content-Type': 'application/json' },
+	  	});
       const data = await r.json();
       if(r.ok && !data.error){
         const riskLevelEl = document.getElementById("risk-level");

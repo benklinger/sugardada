@@ -1,13 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const {
-  getInvestmentRecords,
-  updateMonthlyInvestment,
-  updateRisk
+  getInvestmentRecordsByParam,
+  updateMonthlyInvestmentByParam,
+  updateRiskByParam
 } = require('../controllers/apiController');
 
-router.get('/investment-records', getInvestmentRecords);
-router.post('/update-monthly-investment', updateMonthlyInvestment);
-router.post('/update-risk', updateRisk);
+// 1) GET /api/investment-records/:userId
+router.get('/investment-records/:userId', getInvestmentRecordsByParam);
+
+// 2) POST /api/update-monthly-investment/:userId
+router.post('/update-monthly-investment/:userId', updateMonthlyInvestmentByParam);
+
+// 3) POST /api/update-risk/:userId
+router.post('/update-risk/:userId', updateRiskByParam);
 
 module.exports = router;

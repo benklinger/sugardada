@@ -3,36 +3,35 @@ const User = require('../models/User');
 const { generateInvestmentRecords } = require('../services/investmentCalculator');
 const { riskToTickerMap } = require('../config/maps'); 
 
-// Helper
-function getNextRiskLevel(current) {
-  const levels = ["Low","Medium","High"];
-  const idx = levels.indexOf(current);
-  return levels[(idx + 1) % levels.length];
-}
-
-exports.getInvestmentRecords = async (req, res) => {
+// GET /api/investment-records/:userId
+exports.getInvestmentRecordsByParam = async (req, res) => {
   try {
-    const userId = req.session.userId;
-    if (!userId) return res.status(400).json({ error: 'User not found in session.' });
+    const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).json({ error: 'No userId param provided.' });
+    }
 
     const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ error: 'User not found.' });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
 
     const today = new Date();
     const investmentRecords = await generateInvestmentRecords(user, today);
 
-    res.json({ investmentRecords });
+    return res.json({ investmentRecords });
   } catch (error) {
-    console.error('Error fetching investment records:', error);
-    res.status(500).json({ error: 'Failed to fetch investment records.' });
+    console.error('Error fetching investment records by param:', error);
+    return res.status(500).json({ error: 'Failed to fetch investment records by param.' });
   }
 };
 
-exports.updateMonthlyInvestment = async (req, res) => {
+// POST /api/update-monthly-investment/:userId
+exports.updateMonthlyInvestmentByParam = async (req, res) => {
   try {
-    const userId = req.session.userId;
+    const { userId } = req.params;
     if (!userId) {
-      return res.status(400).json({ error: 'User not found in session.' });
+      return res.status(400).json({ error: 'No userId param provided.' });
     }
 
     const user = await User.findById(userId);
@@ -43,7 +42,9 @@ exports.updateMonthlyInvestment = async (req, res) => {
     const { action } = req.body;
     if (action === 'decrement') {
       user.monthlyInvestment -= 50;
-      if (user.monthlyInvestment < 0) user.monthlyInvestment = 0;
+      if (user.monthlyInvestment < 0) {
+        user.monthlyInvestment = 0;
+      }
     } else {
       user.monthlyInvestment += 50;
     }
@@ -62,7 +63,7 @@ exports.updateMonthlyInvestment = async (req, res) => {
         : '0.00';
       const totalProfit = Math.round(interest);
 
-      res.json({
+      return res.json({
         message: 'Monthly investment updated successfully.',
         monthlyInvestment: user.monthlyInvestment,
         investmentRecords,
@@ -70,7 +71,7 @@ exports.updateMonthlyInvestment = async (req, res) => {
         totalProfit,
       });
     } else {
-      res.json({
+      return res.json({
         message: 'Monthly investment updated, but no investment records found.',
         monthlyInvestment: user.monthlyInvestment,
         investmentRecords: [],
@@ -79,15 +80,24 @@ exports.updateMonthlyInvestment = async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update monthly investment.' });
+    console.error('Error updating monthly investment by param:', error);
+    return res.status(500).json({ error: 'Failed to update monthly investment.' });
   }
 };
 
-exports.updateRisk = async (req, res) => {
+// Helper to get next risk
+function getNextRiskLevel(current) {
+  const levels = ["Low", "Medium", "High"];
+  const idx = levels.indexOf(current);
+  return levels[(idx + 1) % levels.length];
+}
+
+// POST /api/update-risk/:userId
+exports.updateRiskByParam = async (req, res) => {
   try {
-    const userId = req.session.userId;
+    const { userId } = req.params;
     if (!userId) {
-      return res.status(400).json({ error: 'No user in session.' });
+      return res.status(400).json({ error: 'No userId param provided.' });
     }
 
     const user = await User.findById(userId);
@@ -97,7 +107,7 @@ exports.updateRisk = async (req, res) => {
 
     const nextRisk = getNextRiskLevel(user.riskLevel);
     user.riskLevel = nextRisk;
-    user.investmentTicker = riskToTickerMap[nextRisk];
+    user.investmentTicker = riskToTickerMap[nextRisk] || 'SPY';
     await user.save();
 
     const investmentRecords = await generateInvestmentRecords(user, new Date());
@@ -121,7 +131,7 @@ exports.updateRisk = async (req, res) => {
       ? (interest / totalInvestment).toFixed(2)
       : '0.00';
 
-    res.json({
+    return res.json({
       message: 'Risk updated successfully.',
       riskLevel: user.riskLevel,
       investmentTicker: user.investmentTicker,
@@ -131,7 +141,7 @@ exports.updateRisk = async (req, res) => {
       totalProfit: Math.round(interest)
     });
   } catch (err) {
-    console.error('Error updating risk:', err);
-    res.status(500).json({ error: 'Failed to update risk.' });
+    console.error('Error updating risk by param:', err);
+    return res.status(500).json({ error: 'Failed to update risk.' });
   }
 };

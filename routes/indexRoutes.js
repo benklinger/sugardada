@@ -4,11 +4,13 @@ const router = express.Router();
 const {
   renderHome,
   startDemo,
-  showResults
+  finalizeAndRedirect, 
+  showUserById
 } = require('../controllers/indexController');
 
 router.get('/', renderHome);
 router.get('/demo', startDemo);
-router.get('/results', showResults);
+router.get('/results', finalizeAndRedirect);
+router.get('/results/:userId', showUserById);
 
 module.exports = router;

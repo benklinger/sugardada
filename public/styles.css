@@ -279,6 +279,7 @@ select:focus {
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.4s ease, transform 0.4s ease;
+  cursor: pointer;
 }
 
 .card.card-enter {
@@ -327,10 +328,6 @@ select:focus {
   visibility: visible;
   opacity: 1;
   transition-delay: 0s;
-}
-
-.card-clickable {
-  cursor: pointer;
 }
 
 .tap-animate {

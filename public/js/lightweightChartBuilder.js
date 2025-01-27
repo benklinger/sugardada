@@ -16,11 +16,9 @@ function buildLightweightChart() {
       height: chartContainer.clientHeight,
       layout: {
         background: { type: 'Solid', color: 'transparent' },
-        // TEXT COLOR same as your cards (#333)
         textColor: '#333',
         attributionLogo: false
       },
-      // GRID lines, same color as text (#333) with 0.2 opacity
       grid: {
         vertLines: { color: 'rgba(51,51,51,0.2)', visible: true },
         horzLines: { color: 'rgba(51,51,51,0.2)', visible: true }
@@ -31,7 +29,7 @@ function buildLightweightChart() {
       },
       rightPriceScale: { visible: false },
       localization: {
-        priceFormatter: value => '$' + Math.round(value).toLocaleString()
+        priceFormatter: shortDollarFormat // ← replaced the old priceFormatter
       },
       timeScale: {
         borderVisible: false,
@@ -42,15 +40,13 @@ function buildLightweightChart() {
           return `${month} ${year}`;
         }
       },
-      // no default branding or watermark
       branding: { visible: false },
       watermark: { visible: false },
       crosshair: {
-        // show vertical line on hover
         vertLine: {
           visible: true,
           labelVisible: true,
-          style: 0, // 0 => solid line
+          style: 0,
           width: 1,
           color: 'rgba(51,51,51,0.6)'
         },
@@ -59,19 +55,17 @@ function buildLightweightChart() {
           labelVisible: false
         }
       },
-      // disable user scaling/scrolling => chart is fixed
       handleScroll: {
         mouseWheel: false,
-        pressedMouseMove: false,
+        pressedMouseMove: false
       },
       handleScale: {
         axisPressedMouseMove: false,
         pinch: false,
-        mouseWheel: false,
-      },
+        mouseWheel: false
+      }
     });
 
-    // WATERMARK with latest est value 
     if (typeof window.latestValue === 'number') {
       myChart.applyOptions({
         watermark: {
@@ -85,18 +79,15 @@ function buildLightweightChart() {
       });
     }
 
-    // deposits area
     depositsSeries = myChart.addAreaSeries({
       lineColor: 'rgba(141, 182, 255, 1)',
       topColor: 'rgba(141, 182, 255, 0.4)',
       bottomColor: 'rgba(141, 182, 255, 0.0)',
-      // bigger line => bigger "dots" effect
       lineWidth: 3,
       lastValueVisible: false,
       priceLineVisible: false
     });
 
-    // est value area
     estValueSeries = myChart.addAreaSeries({
       lineColor: 'rgba(255, 153, 153, 1)',
       topColor: 'rgba(255, 153, 153, 0.4)',
@@ -111,15 +102,9 @@ function buildLightweightChart() {
 }
 
 function fetchAndUpdateChart() {
-  // 1) Make sure we have a userId
-  if (!window.userId) {
-    console.warn('No userId found, cannot fetch chart data');
-    return;
-  }
-
-  // 2) Fetch from /api/investment-records/:userId
+  if (!window.userId) return;
   fetch(`/api/investment-records/${window.userId}`)
-    .then(res => res.json())   // parse JSON here!
+    .then(res => res.json())
     .then(d => {
       if (d.error) {
         console.error('Error fetching records:', d.error);
@@ -127,7 +112,6 @@ function fetchAndUpdateChart() {
       }
       const recs = d.investmentRecords;
       if (!recs || !recs.length) {
-        console.warn('No records returned');
         depositsSeries.setData([]);
         estValueSeries.setData([]);
         return;
@@ -143,10 +127,9 @@ function fetchAndUpdateChart() {
       depositsSeries.setData(depositsData);
       estValueSeries.setData(estValueData);
 
-      // If we have lifeEvents, set markers
       if (window.lifeEvents && window.lifeEvents.length) {
         const markers = window.lifeEvents.map(ev => {
-          let shape = ev.specialShape || 'square';
+          const shape = ev.specialShape || 'square';
           return {
             time: ev.time,
             position: 'aboveBar',
@@ -157,12 +140,22 @@ function fetchAndUpdateChart() {
         });
         estValueSeries.setMarkers(markers);
       }
-
       myChart.timeScale().fitContent();
     })
     .catch(e => {
       console.error("Chart fetch error:", e);
     });
+}
+
+function shortDollarFormat(num) {
+  const absVal = Math.abs(num);
+  if (absVal >= 1e6) {
+    return '$' + (num / 1e6).toFixed(0) + 'M';
+  }
+  if (absVal >= 1e3) {
+    return '$' + (num / 1e3).toFixed(0) + 'k';
+  }
+  return '$' + Math.round(num);
 }
 
 window.buildLightweightChart = buildLightweightChart;

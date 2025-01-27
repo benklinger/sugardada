@@ -10,12 +10,19 @@ function calculateFullMonthDifference(startDate,endDate){
   return totalMonths;
 }
 
-async function generateInvestmentRecords(user,today){
-  const dobDate=new Date(user.dob);
-  const eighteenBirthday=new Date(dobDate.getFullYear()+18,dobDate.getMonth(),dobDate.getDate());
-  let totalMonths=calculateFullMonthDifference(today,eighteenBirthday);
-  if(totalMonths<=0)throw new Error('User is already 18 or older.');
-  const investmentLimit=totalMonths;
+async function generateInvestmentRecords(user, today, targetAge) {
+  const useAge = targetAge || user.targetAge || 18;
+  const dobDate = new Date(user.dob);
+  const targetBirthday = new Date(
+    dobDate.getFullYear() + useAge,
+    dobDate.getMonth(),
+    dobDate.getDate()
+  );
+  let totalMonths = calculateFullMonthDifference(today, targetBirthday);
+  if (totalMonths <= 0) {
+    throw new Error(`User is already at or past age ${useAge}`);
+  }
+  const investmentLimit = totalMonths;
   const historicalStartDate=new Date(today.getFullYear(),today.getMonth()-investmentLimit,1);
   const historicalEndDate=today;
   const historicalData=await getHistoricalData(user.investmentTicker,historicalStartDate,historicalEndDate);

@@ -1,199 +1,149 @@
 document.addEventListener("DOMContentLoaded", () => {
   initializeNumberFlowLite();
   pageLoadAnimateAll();
-  fetchAndSetYearsOnLoad();
 
-  const investCard = document.getElementById("monthly-investment-card");
-  if (investCard) {
+  setupCard({
+    cardId: "monthly-investment-card",
+    isDoubleTap: true,
+    fetchUrl: () => `/api/update-monthly-investment/${window.userId}`,
+    fetchBody: dbl => dbl ? { action: "decrement" } : null,
+    onSuccess: updatePlanUI
+  });
+
+  setupCard({
+    cardId: "risk-card",
+    isDoubleTap: false,
+    fetchUrl: () => `/api/update-risk/${window.userId}`,
+    fetchBody: () => null,
+    onSuccess: updatePlanUI
+  });
+
+  setupCard({
+    cardId: "est-value-card",
+    isDoubleTap: false,
+    fetchUrl: () => `/api/update-target-age/${window.userId}`,
+    fetchBody: () => null,
+    onSuccess: updatePlanUI
+  });
+});
+
+function setupCard({ cardId, isDoubleTap, fetchUrl, fetchBody, onSuccess }) {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+  if (isDoubleTap) {
     let clickTimer = null;
     const delay = 300;
-    investCard.addEventListener("pointerup", e => {
+    card.addEventListener("pointerup", e => {
       e.preventDefault();
       if (clickTimer === null) {
         clickTimer = setTimeout(() => {
-          singleClickInvest();
+          singleTap(card);
           clickTimer = null;
         }, delay);
       } else {
         clearTimeout(clickTimer);
         clickTimer = null;
-        doubleClickInvest();
+        doubleTap(card);
       }
     });
-    async function singleClickInvest(){
-      cardTapAnimate(investCard);
-      try {
-        investCard.style.pointerEvents = "none";
-        investCard.classList.add("disabled");
-        const r = await fetch(`/api/update-monthly-investment/${window.userId}`, {
-          method:"POST",
-          headers: { "Content-Type":"application/json" }
-        });
-        const j = await r.json();
-        if (r.ok && !j.error){
-          updateMonthlyUI(j);
-        } else {
-          alert("Failed to update monthly investment!");
-        }
-      } catch (err){
-        alert("Something went wrong!");
-        console.error(err);
-      } finally {
-        investCard.style.pointerEvents = "auto";
-        investCard.classList.remove("disabled");
-      }
-    }
-    async function doubleClickInvest(){
-      cardTapAnimate(investCard);
-      try {
-        investCard.style.pointerEvents = "none";
-        investCard.classList.add("disabled");
-        const r = await fetch(`/api/update-monthly-investment/${window.userId}`, {
-          method:"POST",
-          headers: { "Content-Type":"application/json" },
-          body: JSON.stringify({ action: "decrement" })
-        });
-        const j = await r.json();
-        if (r.ok && !j.error){
-          updateMonthlyUI(j);
-        } else {
-          alert("Failed to update monthly investment!");
-        }
-      } catch (err){
-        alert("Something went wrong!");
-        console.error(err);
-      } finally {
-        investCard.style.pointerEvents = "auto";
-        investCard.classList.remove("disabled");
-      }
-    }
-    function updateMonthlyUI(j){
-      const monthlyValEl = document.getElementById("monthly-investment-value");
-      if (monthlyValEl && j.monthlyInvestment != null) {
-        animateNumberFlowValue(monthlyValEl, j.monthlyInvestment);
-      }
-      const roiMultipleEl = document.getElementById("roi-multiple");
-      if (roiMultipleEl && j.roiPct != null) {
-        animateNumberFlowValue(roiMultipleEl, parseFloat(j.roiPct) || 0);
-      }
-      const estValueEl = document.getElementById("est-value");
-      if (estValueEl && j.investmentRecords && j.investmentRecords.length > 0) {
-        const last = j.investmentRecords[j.investmentRecords.length - 1];
-        animateNumberFlowValue(estValueEl, last.totalValue);
-        updateInYearsTitle(j.investmentRecords);
-      }
-      if (window.updateLightweightChart){
-        updateLightweightChart();
-      }
-    }
-  }
-
-  const riskCard = document.getElementById("risk-card");
-  if(riskCard){
-    riskCard.addEventListener("pointerup", e => {
+  } else {
+    card.addEventListener("pointerup", e => {
       e.preventDefault();
-      cardTapAnimate(riskCard);
-      updateRisk();
+      singleTap(card);
     });
   }
-  async function updateRisk(){
+  async function singleTap(el) {
+    cardTapAnimate(el);
+    await doCardAction(el, false);
+  }
+  async function doubleTap(el) {
+    cardTapAnimate(el);
+    await doCardAction(el, true);
+  }
+  async function doCardAction(el, dbl) {
     try {
-      riskCard.style.pointerEvents = "none";
-      riskCard.classList.add("disabled");
-      const r = await fetch(`/api/update-risk/${window.userId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const data = await r.json();
-      if(r.ok && !data.error){
-        updateRiskUI(data);
+      el.style.pointerEvents = "none";
+      el.classList.add("disabled");
+      const url = fetchUrl(dbl);
+      const bodyObj = fetchBody(dbl);
+      const opts = { method: 'POST', headers: { 'Content-Type': 'application/json' } };
+      if (bodyObj) opts.body = JSON.stringify(bodyObj);
+      const res = await fetch(url, opts);
+      const data = await res.json();
+      if (res.ok && !data.error) {
+        onSuccess(data);
       } else {
-        alert("Failed to update risk!");
+        alert(`Failed to update "${cardId}"`);
       }
-    } catch(err){
-      alert("Something went wrong updating risk!");
+    } catch (err) {
+      alert(`Error updating "${cardId}"`);
       console.error(err);
     } finally {
-      riskCard.style.pointerEvents = "auto";
-      riskCard.classList.remove("disabled");
+      el.style.pointerEvents = "auto";
+      el.classList.remove("disabled");
     }
   }
-  function updateRiskUI(data) {
+}
+
+function updatePlanUI(data) {
+  if (data.targetAge != null) {
+    const yearsEl = document.getElementById("est-years");
+    if (yearsEl) animateNumberFlowValue(yearsEl, data.targetAge);
+  }
+  if (data.riskLevel != null) {
     const riskLevelEl = document.getElementById("risk-level");
-    if(riskLevelEl) {
-      riskLevelEl.textContent = data.riskLevel;
-    }
+    if (riskLevelEl) riskLevelEl.textContent = data.riskLevel;
+  }
+  if (data.investmentTicker != null) {
     const tickerEl = document.getElementById("ticker");
-    if(tickerEl && data.investmentTicker != null) {
-      animateText(tickerEl, data.investmentTicker.toUpperCase());
-    }
-    const monthlyValEl= document.getElementById("monthly-investment-value");
-    if(monthlyValEl && data.monthlyInvestment != null){
-      animateNumberFlowValue(monthlyValEl, data.monthlyInvestment);
-    }
-    const estValueEl  = document.getElementById("est-value");
-    if(estValueEl && data.estValue != null){
-      animateNumberFlowValue(estValueEl, data.estValue);
-    }
-    const roiMultipleEl = document.getElementById("roi-multiple");
-    if (roiMultipleEl && data.roiPct != null) {
-      animateNumberFlowValue(roiMultipleEl, parseFloat(data.roiPct) || 0);
-    }
-    if (data.investmentRecords && data.investmentRecords.length > 0) {
-      updateInYearsTitle(data.investmentRecords);
-    }
-    if (window.updateLightweightChart){
-      updateLightweightChart();
-    }
+    if (tickerEl) animateText(tickerEl, data.investmentTicker.toUpperCase());
   }
-
-  async function fetchAndSetYearsOnLoad() {
-    if (!window.userId) return;
-    const r = await fetch(`/api/investment-records/${window.userId}`);
-    const d = await r.json();
-    if (d.investmentRecords && d.investmentRecords.length > 0) {
-      updateInYearsTitle(d.investmentRecords);
-    }
-  }
-
-  function updateInYearsTitle(records) {
-    const titleEl = document.getElementById("est-title");
-    if (!titleEl || !records || !records.length) return;
-    const lastDate = new Date(records[records.length - 1].simulatedDate);
-    const now = new Date();
-    const msDiff = lastDate - now;
-    const yearDiff = msDiff / (1000 * 60 * 60 * 24 * 365.25);
-    const intYears = Math.floor(yearDiff);
-    titleEl.textContent = `In ${intYears} Years`;
-  }
-
-  function initializeNumberFlowLite() {
+  if (data.monthlyInvestment != null) {
     const monthlyValEl = document.getElementById("monthly-investment-value");
-    if (monthlyValEl) {
-      const initialVal = parseFloat(monthlyValEl.textContent.replace(/[^\d.-]/g, '')) || 0;
-      const isEstValue = (monthlyValEl.id === "est-value");
-      initNumberFlowLiteOn(monthlyValEl, initialVal, false, isEstValue);
-    }
-    const roiMultipleEl = document.getElementById("roi-multiple");
-    if (roiMultipleEl) {
-      const roiVal = parseFloat(roiMultipleEl.textContent.replace(/[^\d.-]/g, '')) || 0;
-      initNumberFlowLiteOn(roiMultipleEl, roiVal);
-    }
-    const estValueEl = document.getElementById("est-value");
-    if (estValueEl) {
-      const val = parseFloat(estValueEl.textContent.replace(/[^\d.-]/g, '')) || 0;
-      initNumberFlowLiteOn(estValueEl, val, false, true);
-    }
+    if (monthlyValEl) animateNumberFlowValue(monthlyValEl, data.monthlyInvestment);
   }
-
-  fetchAndSetYearsOnLoad();
-});
+  if (data.roiPct != null) {
+    const roiMultipleEl = document.getElementById("roi-multiple");
+    if (roiMultipleEl) animateNumberFlowValue(roiMultipleEl, parseFloat(data.roiPct) || 0);
+  }
+  if (data.estValue != null) {
+    const estValueEl = document.getElementById("est-value");
+    if (estValueEl) animateNumberFlowValue(estValueEl, data.estValue);
+  }
+  if (window.updateLightweightChart) {
+    updateLightweightChart();
+  }
+}
 
 function cardTapAnimate(cardEl){
   cardEl.classList.add("tap-animate");
   setTimeout(() => cardEl.classList.remove("tap-animate"), 200);
 }
-function initNumberFlowLiteOn(el, value, isText = false, noDecimals = false){
+
+function initializeNumberFlowLite() {
+  const monthlyValEl = document.getElementById("monthly-investment-value");
+  if (monthlyValEl) {
+    const val = parseFloat(monthlyValEl.textContent.replace(/[^\d.-]/g, '')) || 0;
+    initNumberFlowLiteOn(monthlyValEl, val, false, monthlyValEl.id === "est-value");
+  }
+  const roiMultipleEl = document.getElementById("roi-multiple");
+  if (roiMultipleEl) {
+    const val = parseFloat(roiMultipleEl.textContent.replace(/[^\d.-]/g, '')) || 0;
+    initNumberFlowLiteOn(roiMultipleEl, val);
+  }
+  const estValueEl = document.getElementById("est-value");
+  if (estValueEl) {
+    const val = parseFloat(estValueEl.textContent.replace(/[^\d.-]/g, '')) || 0;
+    initNumberFlowLiteOn(estValueEl, val, false, true);
+  }
+  const estYearsEl = document.getElementById("est-years");
+  if (estYearsEl) {
+    const val = parseFloat(estYearsEl.textContent.replace(/[^\d.-]/g, '')) || 0;
+    initNumberFlowLiteOn(estYearsEl, val);
+  }
+}
+
+function initNumberFlowLiteOn(el, value, isText = false, noDecimals = false) {
   if(!el) return;
   const nf = document.createElement('number-flow-lite');
   if(isText){
@@ -205,6 +155,7 @@ function initNumberFlowLiteOn(el, value, isText = false, noDecimals = false){
   }
   el.replaceChildren(nf);
 }
+
 function animateNumberFlowValue(el, newVal){
   if(!el) return;
   const nf = el.querySelector('number-flow-lite');
@@ -217,6 +168,7 @@ function animateNumberFlowValue(el, newVal){
       : formatToData(newVal, new Intl.NumberFormat('en-US'));
   }
 }
+
 function animateText(el, newVal){
   if(!el) return;
   const nf = el.querySelector('number-flow-lite');
@@ -226,33 +178,33 @@ function animateText(el, newVal){
     nf.data = formatTextToData(newVal);
   }
 }
+
 function pageLoadAnimateAll() {
   const placeholders = {
-    'monthly-investment-value': { type: 'number', initial: 999,    final: 123456 },
+    'monthly-investment-value': { type: 'number', initial: 999, final: 123456 },
     'est-value':               { type: 'number', initial: 999999, final: 800000 },
     'roi-multiple':            { type: 'number', initial: 999,    final: 525 },
-    'ticker':                  { type: 'text',   initial: 'ACME',  final: 'SPY' }
+    'ticker':                  { type: 'text',   initial: 'ACME', final: 'SPY' },
+    'est-years':               { type: 'number', initial: 17,     final: 18 }
   };
-  Object.entries(placeholders).forEach(([id, config]) => {
+  Object.entries(placeholders).forEach(([id, cfg]) => {
     const el = document.getElementById(id);
     if (!el) return;
-    if (config.type === 'number') {
-      const finalStr = (el.dataset.final || "").replace(/,/g, "");
-      const finalVal = parseFloat(finalStr) || config.final;
-      const initialStr = el.textContent.replace(/[^\d.-]/g, "");
-      const initialVal = parseFloat(initialStr) || config.initial;
+    if (cfg.type === 'number') {
+      const finalVal = parseFloat((el.dataset.final||"").replace(/,/g,'')) || cfg.final;
+      const initVal = parseFloat(el.textContent.replace(/[^\d.-]/g,'')) || cfg.initial;
       el.textContent = "";
-      initNumberFlowLiteOn(el, initialVal);
+      initNumberFlowLiteOn(el, initVal);
       requestAnimationFrame(() => {
         animateNumberFlowValue(el, finalVal);
       });
-    } else if (config.type === 'text') {
-      const finalText = el.dataset.final?.trim() || config.final;
-      const initialText = el.textContent.trim() || config.initial;
+    } else {
+      const finalTxt = (el.dataset.final||"").trim() || cfg.final;
+      const initTxt = el.textContent.trim() || cfg.initial;
       el.textContent = "";
-      initNumberFlowLiteOn(el, initialText, true);
+      initNumberFlowLiteOn(el, initTxt, true);
       requestAnimationFrame(() => {
-        animateText(el, finalText);
+        animateText(el, finalTxt);
       });
     }
   });

@@ -22,7 +22,7 @@
 
   <div class="card card-entered" id="monthly-investment-card">
     <div class="card-inner">
-      <div class="card-title">Contribution</div>
+      <div class="card-title">Investment</div>
       <div class="card-value">
         <span class="symbol-blue">$</span><span id="monthly-investment-value" data-final="<%= investment %>"></span><span class="small">/mo</span>
       </div>
@@ -30,19 +30,19 @@
     </div>
   </div>
 
-  <div class="card card-entered">
+  <div class="card card-entered" id="est-value-card">
     <div class="card-inner">
-      <div class="card-title" id="est-title">In Many Years</div>
+      <div class="card-title" id="est-title"><%= name %> turns <span id="est-years" data-final="<%= targetAge %>"></span></div>
       <div class="card-value">
         <span class="symbol-red">$</span><span id="est-value" data-final="<%= estValue %>"></span>
       </div>
-      <!-- <div class="card-hint">Tap to change length</div> -->
+      <div class="card-hint">Tap to change length</div>
     </div>
   </div>
-
+  
   <div class="card card-entered">
     <div class="card-inner">
-      <div class="card-title">Gain</div>
+      <div class="card-title">ROI</div>
       <div class="card-value" id="est-return">
 		  <span id="roi-multiple" data-final="<%= roiPct %>"></span><span class="symbol-green">%</span>
 	  </div>

@@ -40,6 +40,10 @@ const userSchema = new mongoose.Schema({
 	type: String,
     required: true
   },
+  targetAge: { 
+	type: Number,
+	default: 18
+  },
   createdAt: {
     type: Date,
     default: Date.now

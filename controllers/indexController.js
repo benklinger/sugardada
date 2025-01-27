@@ -182,7 +182,8 @@ exports.showUserById = async (req, res) => {
         hasIBAccount: user.hasIBAccount,
         estValue: Math.round(totalValue).toLocaleString(),
         roiPct,
-        lifeEvents: JSON.stringify(lifeEvents)
+        lifeEvents: JSON.stringify(lifeEvents),
+		targetAge: user.targetAge || 18
       });
     } else {
       return res.render('confirmation', {
@@ -195,7 +196,8 @@ exports.showUserById = async (req, res) => {
         hasIBAccount: user.hasIBAccount,
         estValue: '123,456',
         roiPct: '123%',
-        lifeEvents: JSON.stringify(lifeEvents)
+        lifeEvents: JSON.stringify(lifeEvents),
+		targetAge: user.targetAge || 18
       });
     }
   } catch (err) {

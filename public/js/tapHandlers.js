@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   initializeNumberFlowLite();
   pageLoadAnimateAll();
+  fetchAndSetYearsOnLoad();
 
   const investCard = document.getElementById("monthly-investment-card");
   if (investCard) {
@@ -79,6 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (estValueEl && j.investmentRecords && j.investmentRecords.length > 0) {
         const last = j.investmentRecords[j.investmentRecords.length - 1];
         animateNumberFlowValue(estValueEl, last.totalValue);
+        updateInYearsTitle(j.investmentRecords);
       }
       if (window.updateLightweightChart){
         updateLightweightChart();
@@ -137,9 +139,32 @@ document.addEventListener("DOMContentLoaded", () => {
     if (roiMultipleEl && data.roiPct != null) {
       animateNumberFlowValue(roiMultipleEl, parseFloat(data.roiPct) || 0);
     }
+    if (data.investmentRecords && data.investmentRecords.length > 0) {
+      updateInYearsTitle(data.investmentRecords);
+    }
     if (window.updateLightweightChart){
       updateLightweightChart();
     }
+  }
+
+  async function fetchAndSetYearsOnLoad() {
+    if (!window.userId) return;
+    const r = await fetch(`/api/investment-records/${window.userId}`);
+    const d = await r.json();
+    if (d.investmentRecords && d.investmentRecords.length > 0) {
+      updateInYearsTitle(d.investmentRecords);
+    }
+  }
+
+  function updateInYearsTitle(records) {
+    const titleEl = document.getElementById("est-title");
+    if (!titleEl || !records || !records.length) return;
+    const lastDate = new Date(records[records.length - 1].simulatedDate);
+    const now = new Date();
+    const msDiff = lastDate - now;
+    const yearDiff = msDiff / (1000 * 60 * 60 * 24 * 365.25);
+    const intYears = Math.floor(yearDiff);
+    titleEl.textContent = `In ${intYears} Years`;
   }
 
   function initializeNumberFlowLite() {
@@ -160,6 +185,8 @@ document.addEventListener("DOMContentLoaded", () => {
       initNumberFlowLiteOn(estValueEl, val, false, true);
     }
   }
+
+  fetchAndSetYearsOnLoad();
 });
 
 function cardTapAnimate(cardEl){

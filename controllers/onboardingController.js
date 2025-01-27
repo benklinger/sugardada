@@ -203,25 +203,25 @@ exports.getStep7 = async (req, res) => {
     const today = new Date();
     const investmentRecords = await generateInvestmentRecords(userLike, today);
 
-    let estValue='0', roiMultiple='0.00', roiHint='0';
+    let estValue='0', roiPct='0';
     if(investmentRecords && investmentRecords.length){
       const last = investmentRecords[investmentRecords.length-1];
       const { totalValue, totalInvestment } = last;
       const interest = totalValue - totalInvestment;
       estValue = Math.round(totalValue).toLocaleString();
       if(totalInvestment>0){
-        roiMultiple = (interest/totalInvestment).toFixed(2);
+        roiPct = (interest/totalInvestment).toFixed(0) * 100;
       }
       roiHint = Math.round(interest).toLocaleString();
     }
 
     res.render('email',{
+	  name: req.session.confirmationName || 'Omer',
       riskLevel: req.session.confirmationRiskLevel || 'Medium',
       investmentTicker: req.session.confirmationInvestmentTicker || 'QQQ',
       investment: monthlyInvestmentNum.toString(),
       estValue,
-      roiMultiple,
-      roiHint,
+      roiPct,
       errors:[]
     });
   } catch(err){
@@ -235,11 +235,12 @@ exports.postStep7 = (req, res) => {
   if(!userEmail || !userEmail.includes('@')){
     return res.render('email',{
       errors:[{msg:'Please enter a valid email'}],
+	  name: req.session.confirmationName || 'Omer',
       riskLevel: req.session.confirmationRiskLevel || 'High',
       investmentTicker: req.session.confirmationInvestmentTicker || 'SOXX',
       investment: req.session.confirmationMonthly || '100',
       estValue:'0',
-      roiMultiple:'0.00',
+      roiPct:'0',
       roiHint:'0'
     });
   }

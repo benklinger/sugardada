@@ -23,7 +23,7 @@
 
       <div class="card">
         <div class="card-inner">
-          <div class="card-title">Monthly</div>
+          <div class="card-title">Investment</div>
           <div class="card-value blurred-value">
             <span class="symbol-blue">$</span><%= investment %>
           </div>
@@ -32,7 +32,7 @@
 
       <div class="card">
         <div class="card-inner">
-          <div class="card-title">Est. Value</div>
+          <div class="card-title"><%= name %> Turns 18</div>
           <div class="card-value blurred-value">
             <span class="symbol-red">$</span><span><%= estValue %></span>
           </div>
@@ -41,9 +41,9 @@
 
       <div class="card">
         <div class="card-inner">
-          <div class="card-title">Est. Return</div>
+          <div class="card-title">ROI</div>
           <div class="card-value blurred-value">
-            <span class="symbol-green">x</span><span><%= roiMultiple %></span>
+            <span><%= roiPct %></span><span class="symbol-green">%</span>
           </div>
         </div>
       </div>

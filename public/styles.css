@@ -364,6 +364,12 @@ select:focus {
   pointer-events: none;
 }
 
+.small {
+	vertical-align: baseline;
+	font-size: 1rem;
+	opacity:0.5;
+}
+
 @media (max-width: 800px) {
   .cards-container {
     grid-template-columns: repeat(2, 1fr);

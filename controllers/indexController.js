@@ -169,7 +169,7 @@ exports.showUserById = async (req, res) => {
       const latestRecord = investmentRecords[investmentRecords.length - 1];
       const { totalValue, totalInvestment } = latestRecord;
       const interest = totalValue - totalInvestment;
-      const roiMultiple = totalInvestment > 0 ? (interest / totalInvestment).toFixed(2) : '0.00';
+      const roiPct = totalInvestment > 0 ? (interest / totalInvestment).toFixed(2) * 100 : '0';
       const totalProfit = Math.round(interest);
 
       return res.render('confirmation', {
@@ -181,8 +181,7 @@ exports.showUserById = async (req, res) => {
         investment: parseFloat(user.monthlyInvestment).toFixed(2),
         hasIBAccount: user.hasIBAccount,
         estValue: Math.round(totalValue).toLocaleString(),
-        roiMultiple,
-        roiHint: `${totalProfit.toLocaleString()}`,
+        roiPct,
         lifeEvents: JSON.stringify(lifeEvents)
       });
     } else {
@@ -195,8 +194,7 @@ exports.showUserById = async (req, res) => {
         investment: parseFloat(user.monthlyInvestment).toFixed(2),
         hasIBAccount: user.hasIBAccount,
         estValue: '123,456',
-        roiMultiple: '1.23',
-        roiHint: '$12,345',
+        roiPct: '123%',
         lifeEvents: JSON.stringify(lifeEvents)
       });
     }

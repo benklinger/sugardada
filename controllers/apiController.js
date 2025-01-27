@@ -58,16 +58,14 @@ exports.updateMonthlyInvestmentByParam = async (req, res) => {
       const latestRecord = investmentRecords[investmentRecords.length - 1];
       const { totalValue, totalInvestment } = latestRecord;
       const interest = totalValue - totalInvestment;
-      const roiMultiple = totalInvestment > 0
-        ? (interest / totalInvestment).toFixed(2)
-        : '0.00';
+      const roiPct = totalInvestment > 0 ? (interest / totalInvestment).toFixed(2) * 100 : 0;
       const totalProfit = Math.round(interest);
 
       return res.json({
         message: 'Monthly investment updated successfully.',
         monthlyInvestment: user.monthlyInvestment,
         investmentRecords,
-        roiMultiple,
+        roiPct,
         totalProfit,
       });
     } else {
@@ -75,7 +73,7 @@ exports.updateMonthlyInvestmentByParam = async (req, res) => {
         message: 'Monthly investment updated, but no investment records found.',
         monthlyInvestment: user.monthlyInvestment,
         investmentRecords: [],
-        roiMultiple: '0.00',
+        roiPct: 0,
         totalProfit: 0,
       });
     }
@@ -118,7 +116,7 @@ exports.updateRiskByParam = async (req, res) => {
         investmentTicker: user.investmentTicker,
         monthlyInvestment: user.monthlyInvestment,
         estValue: 0,
-        roiMultiple: '0.00',
+        roiPct: 0,
         totalProfit: 0
       });
     }
@@ -127,9 +125,7 @@ exports.updateRiskByParam = async (req, res) => {
     const totalValue = latest.totalValue;
     const totalInvestment = latest.totalInvestment;
     const interest = totalValue - totalInvestment;
-    const roiMultiple = totalInvestment > 0
-      ? (interest / totalInvestment).toFixed(2)
-      : '0.00';
+    const roiPct = totalInvestment > 0 ? (interest / totalInvestment).toFixed(2) * 100 : 0;
 
     return res.json({
       message: 'Risk updated successfully.',
@@ -137,7 +133,7 @@ exports.updateRiskByParam = async (req, res) => {
       investmentTicker: user.investmentTicker,
       monthlyInvestment: user.monthlyInvestment,
       estValue: Math.round(totalValue),
-      roiMultiple,
+      roiPct,
       totalProfit: Math.round(interest)
     });
   } catch (err) {

@@ -6,14 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (investCard) {
     let clickTimer = null;
     const delay = 300;
-
-    // Use pointerup for both mouse and touch
-    investCard.addEventListener("pointerup", handlePointerUp);
-
-    function handlePointerUp(e) {
-      // If you don't want any default actions, uncomment:
-      // e.preventDefault();
-
+    investCard.addEventListener("pointerup", e => {
+      e.preventDefault();
       if (clickTimer === null) {
         clickTimer = setTimeout(() => {
           singleClickInvest();
@@ -24,8 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
         clickTimer = null;
         doubleClickInvest();
       }
-    }
-
+    });
     async function singleClickInvest(){
       cardTapAnimate(investCard);
       try {
@@ -37,28 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const j = await r.json();
         if (r.ok && !j.error){
-          const monthlyValEl = document.getElementById("monthly-investment-value");
-          const roiMultipleEl = document.getElementById("roi-multiple");
-          const roiHintEl = document.getElementById("roi-hint");
-          const estValueEl = document.getElementById("est-value");
-
-          if (monthlyValEl && j.monthlyInvestment != null) {
-            animateNumberFlowValue(monthlyValEl, j.monthlyInvestment);
-          }
-          if (roiMultipleEl && j.roiMultiple != null) {
-            animateNumberFlowValue(roiMultipleEl, j.roiMultiple);
-          }
-          if (roiHintEl && j.totalProfit != null) {
-            animateNumberFlowValue(roiHintEl, j.totalProfit);
-          }
-          if (estValueEl && j.investmentRecords && j.investmentRecords.length > 0) {
-            const last = j.investmentRecords[j.investmentRecords.length - 1];
-            animateNumberFlowValue(estValueEl, last.totalValue);
-          }
-
-          if (window.updateLightweightChart){
-            updateLightweightChart();
-          }
+          updateMonthlyUI(j);
         } else {
           alert("Failed to update monthly investment!");
         }
@@ -70,7 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
         investCard.classList.remove("disabled");
       }
     }
-
     async function doubleClickInvest(){
       cardTapAnimate(investCard);
       try {
@@ -83,28 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const j = await r.json();
         if (r.ok && !j.error){
-          const monthlyValEl = document.getElementById("monthly-investment-value");
-          const roiMultipleEl = document.getElementById("roi-multiple");
-          const roiHintEl = document.getElementById("roi-hint");
-          const estValueEl = document.getElementById("est-value");
-
-          if (monthlyValEl && j.monthlyInvestment != null) {
-            animateNumberFlowValue(monthlyValEl, j.monthlyInvestment);
-          }
-          if (roiMultipleEl && j.roiMultiple != null) {
-            animateNumberFlowValue(roiMultipleEl, j.roiMultiple);
-          }
-          if (roiHintEl && j.totalProfit != null) {
-            animateNumberFlowValue(roiHintEl, j.totalProfit);
-          }
-          if (estValueEl && j.investmentRecords && j.investmentRecords.length > 0) {
-            const last = j.investmentRecords[j.investmentRecords.length - 1];
-            animateNumberFlowValue(estValueEl, last.totalValue);
-          }
-
-          if (window.updateLightweightChart){
-            updateLightweightChart();
-          }
+          updateMonthlyUI(j);
         } else {
           alert("Failed to update monthly investment!");
         }
@@ -116,18 +66,34 @@ document.addEventListener("DOMContentLoaded", () => {
         investCard.classList.remove("disabled");
       }
     }
+    function updateMonthlyUI(j){
+      const monthlyValEl = document.getElementById("monthly-investment-value");
+      if (monthlyValEl && j.monthlyInvestment != null) {
+        animateNumberFlowValue(monthlyValEl, j.monthlyInvestment);
+      }
+      const roiMultipleEl = document.getElementById("roi-multiple");
+      if (roiMultipleEl && j.roiPct != null) {
+        animateNumberFlowValue(roiMultipleEl, parseFloat(j.roiPct) || 0);
+      }
+      const estValueEl = document.getElementById("est-value");
+      if (estValueEl && j.investmentRecords && j.investmentRecords.length > 0) {
+        const last = j.investmentRecords[j.investmentRecords.length - 1];
+        animateNumberFlowValue(estValueEl, last.totalValue);
+      }
+      if (window.updateLightweightChart){
+        updateLightweightChart();
+      }
+    }
   }
 
   const riskCard = document.getElementById("risk-card");
-  if (riskCard){
-    // For risk, a simple single pointerup is enough
+  if(riskCard){
     riskCard.addEventListener("pointerup", e => {
-      // e.preventDefault(); // optional
+      e.preventDefault();
       cardTapAnimate(riskCard);
       updateRisk();
     });
   }
-
   async function updateRisk(){
     try {
       riskCard.style.pointerEvents = "none";
@@ -138,33 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const data = await r.json();
       if(r.ok && !data.error){
-        const riskLevelEl = document.getElementById("risk-level");
-        if(riskLevelEl) {
-          riskLevelEl.textContent = data.riskLevel;
-        }
-        const tickerEl = document.getElementById("ticker");
-        if(tickerEl && data.investmentTicker != null) {
-          animateText(tickerEl, data.investmentTicker.toUpperCase());
-        }
-        const monthlyValEl= document.getElementById("monthly-investment-value");
-        if(monthlyValEl && data.monthlyInvestment != null){
-          animateNumberFlowValue(monthlyValEl, data.monthlyInvestment);
-        }
-        const estValueEl  = document.getElementById("est-value");
-        if(estValueEl && data.estValue != null){
-          animateNumberFlowValue(estValueEl, data.estValue);
-        }
-        const roiMultipleEl = document.getElementById("roi-multiple");
-        if(roiMultipleEl && data.roiMultiple != null){
-          animateNumberFlowValue(roiMultipleEl, data.roiMultiple);
-        }
-        const roiHintEl = document.getElementById("roi-hint");
-        if(roiHintEl && data.totalProfit != null){
-          animateNumberFlowValue(roiHintEl, data.totalProfit);
-        }
-        if (window.updateLightweightChart){
-          updateLightweightChart();
-        }
+        updateRiskUI(data);
       } else {
         alert("Failed to update risk!");
       }
@@ -176,6 +116,31 @@ document.addEventListener("DOMContentLoaded", () => {
       riskCard.classList.remove("disabled");
     }
   }
+  function updateRiskUI(data) {
+    const riskLevelEl = document.getElementById("risk-level");
+    if(riskLevelEl) {
+      riskLevelEl.textContent = data.riskLevel;
+    }
+    const tickerEl = document.getElementById("ticker");
+    if(tickerEl && data.investmentTicker != null) {
+      animateText(tickerEl, data.investmentTicker.toUpperCase());
+    }
+    const monthlyValEl= document.getElementById("monthly-investment-value");
+    if(monthlyValEl && data.monthlyInvestment != null){
+      animateNumberFlowValue(monthlyValEl, data.monthlyInvestment);
+    }
+    const estValueEl  = document.getElementById("est-value");
+    if(estValueEl && data.estValue != null){
+      animateNumberFlowValue(estValueEl, data.estValue);
+    }
+    const roiMultipleEl = document.getElementById("roi-multiple");
+    if (roiMultipleEl && data.roiPct != null) {
+      animateNumberFlowValue(roiMultipleEl, parseFloat(data.roiPct) || 0);
+    }
+    if (window.updateLightweightChart){
+      updateLightweightChart();
+    }
+  }
 
   function initializeNumberFlowLite() {
     const monthlyValEl = document.getElementById("monthly-investment-value");
@@ -184,19 +149,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const isEstValue = (monthlyValEl.id === "est-value");
       initNumberFlowLiteOn(monthlyValEl, initialVal, false, isEstValue);
     }
-
     const roiMultipleEl = document.getElementById("roi-multiple");
     if (roiMultipleEl) {
-      const roiVal = parseFloat(roiMultipleEl.textContent) || 0;
+      const roiVal = parseFloat(roiMultipleEl.textContent.replace(/[^\d.-]/g, '')) || 0;
       initNumberFlowLiteOn(roiMultipleEl, roiVal);
     }
-
-    const roiHintEl = document.getElementById("roi-hint");
-    if (roiHintEl) {
-      const hintVal = parseFloat(roiHintEl.textContent.replace(/[^\d.-]/g, '')) || 0;
-      initNumberFlowLiteOn(roiHintEl, hintVal);
-    }
-
     const estValueEl = document.getElementById("est-value");
     if (estValueEl) {
       const val = parseFloat(estValueEl.textContent.replace(/[^\d.-]/g, '')) || 0;
@@ -205,21 +162,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-/****************************
- * Helper functions
- ****************************/
 function cardTapAnimate(cardEl){
   cardEl.classList.add("tap-animate");
-  setTimeout(()=>cardEl.classList.remove("tap-animate"),200);
+  setTimeout(() => cardEl.classList.remove("tap-animate"), 200);
 }
-
-function formatRoi(val){
-  const num = parseFloat(val);
-  if(isNaN(num)) return "N/A";
-  const rounded = Math.round(num*10)/10;
-  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);
-}
-
 function initNumberFlowLiteOn(el, value, isText = false, noDecimals = false){
   if(!el) return;
   const nf = document.createElement('number-flow-lite');
@@ -232,7 +178,6 @@ function initNumberFlowLiteOn(el, value, isText = false, noDecimals = false){
   }
   el.replaceChildren(nf);
 }
-
 function animateNumberFlowValue(el, newVal){
   if(!el) return;
   const nf = el.querySelector('number-flow-lite');
@@ -245,7 +190,6 @@ function animateNumberFlowValue(el, newVal){
       : formatToData(newVal, new Intl.NumberFormat('en-US'));
   }
 }
-
 function animateText(el, newVal){
   if(!el) return;
   const nf = el.querySelector('number-flow-lite');
@@ -255,40 +199,31 @@ function animateText(el, newVal){
     nf.data = formatTextToData(newVal);
   }
 }
-
 function pageLoadAnimateAll() {
   const placeholders = {
     'monthly-investment-value': { type: 'number', initial: 999,    final: 123456 },
     'est-value':               { type: 'number', initial: 999999, final: 800000 },
-    'roi-multiple':            { type: 'number', initial: 9.99,    final: 5.25 },
-    'roi-hint':                { type: 'number', initial: 9999,    final: 50000 },
+    'roi-multiple':            { type: 'number', initial: 999,    final: 525 },
     'ticker':                  { type: 'text',   initial: 'ACME',  final: 'SPY' }
   };
-
   Object.entries(placeholders).forEach(([id, config]) => {
     const el = document.getElementById(id);
     if (!el) return;
-
     if (config.type === 'number') {
       const finalStr = (el.dataset.final || "").replace(/,/g, "");
       const finalVal = parseFloat(finalStr) || config.final;
-
-      const initialStr = el.textContent.replace(/,/g, "");
+      const initialStr = el.textContent.replace(/[^\d.-]/g, "");
       const initialVal = parseFloat(initialStr) || config.initial;
-
       el.textContent = "";
       initNumberFlowLiteOn(el, initialVal);
-
       requestAnimationFrame(() => {
         animateNumberFlowValue(el, finalVal);
       });
     } else if (config.type === 'text') {
       const finalText = el.dataset.final?.trim() || config.final;
       const initialText = el.textContent.trim() || config.initial;
-
       el.textContent = "";
       initNumberFlowLiteOn(el, initialText, true);
-
       requestAnimationFrame(() => {
         animateText(el, finalText);
       });

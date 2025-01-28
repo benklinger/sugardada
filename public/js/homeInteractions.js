@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (heroCTA) heroCTA.classList.add("show");
       });
     }, 1000);
-  }, 2000);
+  }, 1000);
 
   if (heroCTA) {
     heroCTA.addEventListener('click', () => {
@@ -102,6 +102,7 @@ function drawSecondWord() {
     { text: "second", textAlign: "center" }
   ], {
     strokeWidth: 1.5,
+	duration: 750,
     fontSize: 24,
     autoAnimation: true,
     color: textColor,
@@ -117,6 +118,6 @@ function drawCaret(rc) {
   rc.path(caretakerPath, {
     stroke: textColor,
     strokeWidth: 2,
-    roughness: 2
+	roughness: 1
   });
 }

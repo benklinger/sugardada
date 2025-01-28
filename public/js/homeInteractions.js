@@ -58,17 +58,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { threshold: 0.01 });
     observer.observe(heroCTA);
   }
-
-  // Expose a global for theme toggling so we can redraw caretaker + second word color
+	  
   window.updateHomeTheme = function() {
-    // redraw caretaker with new text color
-    if (rc && caretakerContainer) {
+	  if (rc && caretakerContainer) {
       caretakerCanvas.width = caretakerCanvas.offsetWidth;
       caretakerCanvas.height = caretakerCanvas.offsetHeight;
       rc.clear();
       drawCaret(rc);
     }
-    // re-draw "second" if needed
     if (varaContainer) {
       varaContainer.innerHTML = "";
       varaContainer.style.opacity = 1;
@@ -105,7 +102,6 @@ function drawSecondWord() {
     { text: "second", textAlign: "center" }
   ], {
     strokeWidth: 1.5,
-    drawSpeed: 3,
     fontSize: 24,
     autoAnimation: true,
     color: textColor,

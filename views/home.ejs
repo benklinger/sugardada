@@ -9,11 +9,14 @@
   <%- include('partials/header') %>
 
 <section class="hero-section" id="heroSection">
-  <div class="hero-content">
-    <div class="title-wrapper">
-      <h1 class="hero-title" id="heroTitle">The best time to start investing was yesterday</h1>
-      <div id="varaContainer"></div>
-    </div>
+    <div class="hero-content">
+      <div class="title-wrapper">
+        <h1 class="hero-title" id="heroTitle">The best time to start investing was yesterday</h1>
+        <div id="varaContainer"></div>
+        <div id="caretContainer">
+          <canvas id="caretCanvas"></canvas>
+        </div>
+      </div>
     <p class="hero-subtitle">It’s never too late to give your baby's future a head start</p>
     <button class="cta-button" id="heroCTA">Start Now</button>
   </div>
@@ -26,7 +29,8 @@
 
   <%- include('partials/footer') %>
 
-	<script src="https://unpkg.com/vara"></script>
-	<script src="/js/homeInteractions.js"></script>
+  <script src="https://unpkg.com/roughjs@latest/bundled/rough.js"></script>
+  <script src="https://unpkg.com/vara"></script>
+  <script src="/js/homeInteractions.js"></script>
 </body>
 </html>

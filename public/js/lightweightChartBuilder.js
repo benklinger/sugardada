@@ -1,8 +1,24 @@
 let myChart;
 let depositsSeries;
 let estValueSeries;
+let isDarkTheme;
+let gridColor;
+let textColor;
 
-const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+function updateChartTheme() {
+  if (!myChart) return;
+  isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+  gridColor = isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+  textColor = isDarkTheme ? '#fff' : '#000';
+  myChart.applyOptions({
+    layout: { textColor },
+    grid: {
+      vertLines: { color: gridColor },
+      horzLines: { color: gridColor }
+    }
+  });
+  fetchAndUpdateChart();
+}
 
 function buildLightweightChart() {
   const chartContainer = document.getElementById('chartContainer');
@@ -10,18 +26,18 @@ function buildLightweightChart() {
 
   chartContainer.style.height = `${window.innerHeight - 240}px`;
 
+  isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+  gridColor = isDarkTheme ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
+  textColor = isDarkTheme ? '#fff' : '#000';
+
   if (!myChart) {
     myChart = LightweightCharts.createChart(chartContainer, {
       width: chartContainer.clientWidth,
       height: chartContainer.clientHeight,
       layout: {
         background: { type: 'Solid', color: 'transparent' },
-        textColor: '#333',
+        textColor,
         attributionLogo: false
-      },
-      grid: {
-        vertLines: { color: 'rgba(51,51,51,0.2)', visible: true },
-        horzLines: { color: 'rgba(51,51,51,0.2)', visible: true }
       },
       leftPriceScale: {
         visible: true,
@@ -29,15 +45,13 @@ function buildLightweightChart() {
       },
       rightPriceScale: { visible: false },
       localization: {
-        priceFormatter: shortDollarFormat // ← replaced the old priceFormatter
+        priceFormatter: shortDollarFormat
       },
       timeScale: {
         borderVisible: false,
-        tickMarkFormatter: (time, tickMarkType, locale) => {
+        tickMarkFormatter: (time) => {
           const dt = new Date(time);
-          const month = dt.toLocaleString(locale || 'en-US', { month: 'short' });
-          const year = dt.getFullYear();
-          return `${month} ${year}`;
+          return dt.getFullYear().toString();
         }
       },
       branding: { visible: false },
@@ -63,21 +77,12 @@ function buildLightweightChart() {
         axisPressedMouseMove: false,
         pinch: false,
         mouseWheel: false
+      },
+      grid: {
+        vertLines: { color: gridColor, visible: true },
+        horzLines: { color: gridColor, visible: true }
       }
     });
-
-    if (typeof window.latestValue === 'number') {
-      myChart.applyOptions({
-        watermark: {
-          visible: true,
-          color: 'rgba(51,51,51,0.3)',
-          text: `Est. Value: $${window.latestValue.toLocaleString()}`,
-          fontSize: 18,
-          horzAlign: 'center',
-          vertAlign: 'top'
-        }
-      });
-    }
 
     depositsSeries = myChart.addAreaSeries({
       lineColor: 'rgba(141, 182, 255, 1)',
@@ -128,16 +133,15 @@ function fetchAndUpdateChart() {
       estValueSeries.setData(estValueData);
 
       if (window.lifeEvents && window.lifeEvents.length) {
-        const markers = window.lifeEvents.map(ev => {
-          const shape = ev.specialShape || 'square';
-          return {
-            time: ev.time,
-            position: 'aboveBar',
-            color: isDarkTheme ? '#fff' : '#000',
-            shape,
-            text: ev.text
-          };
-        });
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const color = isDark ? '#fff' : '#000';
+        const markers = window.lifeEvents.map(ev => ({
+          time: ev.time,
+          position: 'aboveBar',
+          color,
+          shape: ev.specialShape || 'square',
+          text: ev.text
+        }));
         estValueSeries.setMarkers(markers);
       }
       myChart.timeScale().fitContent();

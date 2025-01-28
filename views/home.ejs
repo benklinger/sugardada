@@ -1,20 +1,32 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" class="home-page" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Home: Sugar Dada</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <link rel="stylesheet" href="/styles.css">
 </head>
-<body>
+<body class="home-page">
   <%- include('partials/header') %>
 
-  <div class="wrapper">
-    <br><br><br>
-    <h1><a href="/onboarding/1">Start Onboarding</a></h1>
-    <h1><a href="/demo">Skip Onboarding</a></h1>
+<section class="hero-section" id="heroSection">
+  <div class="hero-content">
+    <div class="title-wrapper">
+      <h1 class="hero-title" id="heroTitle">The best time to start investing was yesterday</h1>
+      <div id="varaContainer"></div>
+    </div>
+    <p class="hero-subtitle">It’s never too late to give your baby's future a head start</p>
+    <button class="cta-button" id="heroCTA">Start Now</button>
   </div>
+</section>
+
+  <section class="second-section">
+    <h2>Placeholder Section 2</h2>
+    <p>Scroll to see the header CTA appear.</p>
+  </section>
 
   <%- include('partials/footer') %>
+
+	<script src="https://unpkg.com/vara"></script>
+	<script src="/js/homeInteractions.js"></script>
 </body>
 </html>

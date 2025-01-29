@@ -18,17 +18,70 @@
         </div>
       </div>
     <p class="hero-subtitle">It’s never too <a href="/demo">late</a> to give your baby's future a head start</p>
-    <button class="cta-button" id="heroCTA">Start Now</button>
+    <button class="cta-button" id="heroCTA">Start Today</button>
   </div>
 </section>
 
-  <section class="second-section">
-    <h2>Placeholder Section 2</h2>
-    <p>Scroll to see the header CTA appear.</p>
-  </section>
+<section class="section-2">
+  <div class="section-inner">
+    <div class="section-text">
+      <h2>Compound Interest Magic <span class="magic-emoji">🪄</span></h2>
+      <p>
+        No need to start with a big lump sum. Compound interest grows exponentially, turning small contributions
+        into significant returns over time. It’s the perfect approach for
+        long-term investing.
+      </p>
+    </div>
+	<div class="section-2-animation">
+        <div class="column">
+          <h3>Year</h3>
+          <div id="yearEl"></div>
+        </div>
+        <div class="column">
+          <h3>Contributions</h3>
+         <span class="symbol-blue">$</span><div class="compound" id="contrEl"></div>
+        </div>
+        <div class="column">
+          <h3>Interest</h3>
+         <span class="symbol-green">$</span><div class="compound" id="interestEl"></div>
+        </div>
+      </div>
+      <div class="bar-wrapper">
+        <div class="bar-contr" id="barContr"></div>
+        <div class="bar-interest" id="barInterest"></div>
+      </div>
+  </div>
+</section>
+
+<section class="section-4" id="section4">
+  <div class="video-background">
+    <video id="heroVideo" autoplay muted playsinline>
+      <source src="/images/hero.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="section-inner">
+    <h2>Set It and Forget It</h2>
+    <p>
+      Creating a plan takes less than 90 seconds.<br/>Once you're set up,
+      it grows on autopilot—because parenting is already enough work.
+    </p>
+  </div>
+</section>
+
+<section class="section-5">
+  <div class="section-inner">
+    <h2>Simple, Proven, and Timeless</h2>
+    <p>
+      This isn’t a new concept, and there’s no AI buzzword here.<br/>It’s just 
+      tried-and-true investing strategies made accessible to young parents.
+    </p>
+    <button class="cta-button show">Start Today</button>
+  </div>
+</section>
 
   <%- include('partials/footer') %>
 
+  <script src="/js/number-flow-lite.js"></script>
   <script src="https://unpkg.com/roughjs@latest/bundled/rough.js"></script>
   <script src="https://unpkg.com/vara"></script>
   <script src="/js/homeInteractions.js"></script>

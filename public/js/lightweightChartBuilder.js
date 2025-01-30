@@ -1,3 +1,10 @@
+/* lightweightChartBuilder.js */
+
+/* 
+Ensure this file is loaded AFTER:
+<script src="https://unpkg.com/lightweight-charts@5.0.1/dist/lightweight-charts.production.js"></script>
+*/
+
 let myChart;
 let depositsSeries;
 let estValueSeries;
@@ -21,6 +28,12 @@ function updateChartTheme() {
 }
 
 function buildLightweightChart() {
+  // Confirm LightweightCharts is defined:
+  if (typeof LightweightCharts === 'undefined') {
+    console.error('LightweightCharts is not defined. Ensure you included the correct library script first.');
+    return;
+  }
+
   const chartContainer = document.getElementById('chartContainer');
   if (!chartContainer) return;
 
@@ -71,12 +84,12 @@ function buildLightweightChart() {
       },
       handleScroll: {
         mouseWheel: false,
-        pressedMouseMove: false
+        pressedMouseMove: false,
       },
       handleScale: {
         axisPressedMouseMove: false,
         pinch: false,
-        mouseWheel: false
+        mouseWheel: false,
       },
       grid: {
         vertLines: { color: gridColor, visible: true },
@@ -165,6 +178,18 @@ function shortDollarFormat(num) {
 window.buildLightweightChart = buildLightweightChart;
 window.updateLightweightChart = fetchAndUpdateChart;
 
+/* 
+If you rely on DOMContentLoaded to call buildLightweightChart, you can place:
 document.addEventListener('DOMContentLoaded', () => {
   if (window.buildLightweightChart) buildLightweightChart();
+});
+*/
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof LightweightCharts === 'undefined') {
+    console.error('LightweightCharts not loaded. Check your script tag.');
+    return;
+  }
+  if (window.buildLightweightChart) {
+    buildLightweightChart();
+  }
 });

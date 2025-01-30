@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const untypeCount = 14;
   let rc = null;
 
-  // Table data
   const tableData = [
     { year: 2025, contr: 1000, interest: 40 },
     { year: 2026, contr: 2000, interest: 23 },
@@ -30,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { year: 2042, contr: 18000, interest: 119153 }
   ];
 
-  // Section 2
   const section2El = document.querySelector('.section-2');
   if (section2El) {
     const yearEl = document.getElementById('yearEl');
@@ -65,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // caretaker, vara, etc.
   if (varaContainer) varaContainer.style.opacity = 0;
   if (caretakerContainer) caretakerContainer.style.opacity = 0;
   if (caretakerCanvas) {
@@ -74,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
     rc = rough.canvas(caretakerCanvas);
   }
 
-  // hero untyping
   setTimeout(() => {
     untypeWords(heroTitle, untypeCount);
     if (varaContainer) {
@@ -92,7 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1000);
   }, 1000);
 
-  // CTA events
   if (heroCTA) {
     heroCTA.addEventListener('click', () => {
       window.location.href = "/onboarding/1";
@@ -116,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
     observer2.observe(heroCTA);
   }
 
-  // theming
   window.updateHomeTheme = function() {
     if (rc && caretakerContainer) {
       caretakerCanvas.width = caretakerCanvas.offsetWidth;
@@ -132,8 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 });
 
-/* Once the observer triggers, we loop through tableData row by row. 
-   year => no grouping, contr & interest => grouping. */
 function startSection2Animation(yearEl, contrEl, interestEl, data) {
   let idx = 0;
   const interval = setInterval(() => {
@@ -183,7 +175,6 @@ function animateNumberFlowValueWithGrouping(el, newVal) {
   }
 }
 
-/* caretaker & second word stuff */
 function untypeWords(el, count, callback) {
   if (!el) return;
   if (count <= 0) {
@@ -258,7 +249,7 @@ function updateBars(barContr, barInterest, contrVal, interestVal) {
   const c = contrVal < 0 ? 0 : contrVal;
   const i = interestVal < 0 ? 0 : interestVal;
   const total = c + i;
-  // If total=0, both bars are 0
+  
   if (total === 0) {
     barContr.style.width = '0';
     barInterest.style.width = '0';

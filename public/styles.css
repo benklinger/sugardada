@@ -10,10 +10,11 @@
   --error-border: #ffcccc;
   --error-text: #cc0000;
   --selected-label-text: #ffffff;
+  --spring-green: #00FF7F;
 }
 
 :root[data-theme="dark"] {
-  --bg-color: #000000;
+  --bg-color: #030303;
   --text-color: #ffffff;
   --disclaimer-color: #888888;
   --label-bg: #333333;
@@ -24,6 +25,7 @@
   --error-border: #990000;
   --error-text: #ff6666;
   --selected-label-text: #ffffff;
+  --spring-green: #00FF7F;
 }
 
 html, body {
@@ -125,7 +127,6 @@ html:not(.home-page), body:not(.home-page) {
 
 .hero-section {
   position: relative;
-  width: 100%;
   height: 70vh;
   display: flex;
   align-items: center;
@@ -135,9 +136,33 @@ html:not(.home-page), body:not(.home-page) {
 }
 
 .hero-content {
-  z-index:3;
+  z-index: 3;
+  position: relative;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.lottie-right {
+  position: absolute;
+  bottom: -13px;
+  right: -22px;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.lottie-left {
+  position: absolute;
+  bottom: -14px;
+  left: -51px;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.lottie {
+	width: 615px;
+	height: 356px;
 }
 
 .hero-title {
@@ -148,36 +173,42 @@ html:not(.home-page), body:not(.home-page) {
 }
 
 .hero-subtitle {
-  font-size: 1.2rem;
-  margin-bottom: 2rem;
+  font-size: 1rem;
+  margin-bottom: 4rem;
 }
 
 .cta-button {
   transform: translateY(-20px);
   opacity: 0;
   transition: transform 0.4s ease, opacity 0.4s ease;
-  border: 3px solid rgba(141, 182, 255, 1);
-  background: rgba(141, 182, 255, 0.9);
-  color: var(--text-color);
-  font-size: 1rem;
-  padding: 0.75rem 1.5rem;
+  background-color: var(--spring-green);
+  color: var(--bg-color);
+  font-size: 1.2rem;
+  font-family: 'Radley', serif;
+  padding: 1rem 2rem;
+  text-transform: uppercase;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 12px;
   font-weight: bold;
+  border:0;
+  box-shadow: var(--spring-green, 0.5) 0px 5px 30px -10px;
 }
 
 .header-cta {
-  font-size: 0.9rem;
-  border: 2px solid rgba(141, 182, 255, 1);
-  background: rgba(141, 182, 255, 0.9);
-  color: var(--text-color);
-  padding: 0.3rem 0.75rem;
-  border-radius: 4px;
+  font-size: 1rem;
+  text-transform: uppercase;
+  background-color: var(--spring-green);
+  font-family: 'Radley', serif;
+  color: var(--bg-color);
+  padding: 0.8rem 1.4rem;
+  border-radius: 9px;
   transition: opacity 0.2s ease, transform 0.2s ease;
   opacity: 0;
   font-weight: bold;
+  border: 0;
   cursor: pointer;
   transform: translateY(-20px);
+  box-shadow: var(--spring-green, 0.5) 0px 5px 30px -10px;
 }
 
 .header-cta.show, .cta-button.show {
@@ -187,7 +218,6 @@ html:not(.home-page), body:not(.home-page) {
 }
 
 h2 {
-    font-family: 'Radley', serif;
 	font-size: 2rem;
 }
 
@@ -197,7 +227,7 @@ h3 {
 }
 
 section {
-  padding: 4rem 0rem;
+  padding: 4rem 20px;
   height: 50vh;
 }
 
@@ -208,32 +238,10 @@ section {
 
 .section-2, .section-5 {
     background: var(--label-bg);
-}
-
-.section-2 .section-inner {
-  display: flex;
-  flex-wrap: wrap;
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align:left;
-}
-
-.section-2 .section-text,
-.section-2 .section-2-animation {
-  flex: 0 0 50%;
-  box-sizing: border-box;
-}
-
-.section-2-animation {
-  display: flex;
-  gap: 2rem;
-  justify-content: center;
-  text-align: center;
+	text-align:center;
 }
 
 .section-2-animation .column {
-  display: flex;
-  flex-direction: column;
   align-items: center;
   display:inline-block;
   font-size:2rem;
@@ -281,7 +289,7 @@ section {
   position: relative;
   width: 100%;
   max-width: 600px;
-  height: 20px;
+  height: 100px;
   background: #ddd;
   margin: 1rem auto 0 auto;
   border-radius: 4px;
@@ -301,7 +309,7 @@ section {
   transition: width 0.4s ease;
 }
 .bar-interest {
-  background: rgba(153, 255, 153, 1);
+  background: #00FF7F;
   right: 0;
   width: 0;
   transition: width 0.4s ease;
@@ -584,7 +592,7 @@ select:focus {
 }
 
 .symbol-green {
-  color: rgba(153, 255, 153, 1);
+  color: var(--spring-green);
 }
 
 .blurred-value {
@@ -598,7 +606,7 @@ select:focus {
 	opacity:0.5;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 768px) {
   .cards-container {
     grid-template-columns: repeat(2, 1fr);
   }

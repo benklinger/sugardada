@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const varaContainer   = document.getElementById("varaContainer");
   const heroCTA         = document.getElementById("heroCTA");
   const headerCTA       = document.getElementById("headerCTA");
+  const sectionCTA      = document.getElementById("sectionCTA");
   const caretakerCanvas = document.getElementById("caretCanvas");
   const caretakerContainer = document.getElementById("caretContainer");
   const untypeCount     = 14;
@@ -100,8 +101,8 @@ document.addEventListener('DOMContentLoaded', () => {
       typeText(heroTitle, " is today", 0, () => {
         if (heroCTA) heroCTA.classList.add("show");
       });
-    }, 1000);
-  }, 1000);
+    }, 2000);
+  }, 2000);
 
   if (heroCTA) {
     heroCTA.addEventListener("click", () => {
@@ -110,6 +111,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   if (headerCTA) {
     headerCTA.addEventListener("click", () => {
+      window.location.href = "/onboarding/1";
+    });
+  }
+  if (sectionCTA) {
+    sectionCTA.addEventListener("click", () => {
       window.location.href = "/onboarding/1";
     });
   }

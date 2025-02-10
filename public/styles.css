@@ -124,7 +124,7 @@ html:not(.home-page), body:not(.home-page) {
 .hero-content {
   z-index: 3;
   position: relative;
-  max-width: 1200px;
+  max-width: 1024px;
   margin: 0 auto;
 }
 
@@ -160,9 +160,12 @@ html:not(.home-page), body:not(.home-page) {
 
 .hero-subtitle {
   font-size: 1rem;
-  margin-bottom: 100px;
+  margin-bottom: 270px;
 }
 
+.margin-100 {
+	margin-bottom: 100px;
+}
 .cta-button {
   transform: translateY(-20px);
   opacity: 0;
@@ -213,7 +216,7 @@ h3 {
 }
 
 .section-inner {
-  max-width: 1200px;
+  max-width: 1024px;
   margin: 0 auto;
   position: relative;
 }
@@ -224,7 +227,7 @@ h3 {
   color: var(--text-color);
   text-align: center;
   padding: 3rem 1rem;
-  height: 270px;
+  height: 450px;
 }
 
 .ci-inner {
@@ -310,7 +313,7 @@ h3 {
   text-align:center;
   overflow: hidden;
   z-index: 1;
-  height:270px;
+  height:450px;
 }
 
 .section-5 {
@@ -517,9 +520,9 @@ select:focus {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
-  max-width: 1200px;
+  max-width: 1024px;
   width: 100%;
-  padding: 1rem;
+  padding: 1rem 1rem 1rem 0rem;
   margin: 0 auto;
 }
 

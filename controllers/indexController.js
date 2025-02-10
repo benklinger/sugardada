@@ -164,6 +164,7 @@ You can revisit or update it anytime using <a href="${shareableUrl}">this link</
 
       try {
         await sendMail({
+          from: 'Ben @ Sugar Dada',
           to: user.email,
           subject,
           html

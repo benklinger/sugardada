@@ -240,7 +240,7 @@ function drawSecondWord() {
     { text: "second", textAlign: "center" }
   ], {
     strokeWidth: 1.5,
-    duration: 750,
+    duration: 1500,
     fontSize: 24,
     autoAnimation: true,
     color: textColor,

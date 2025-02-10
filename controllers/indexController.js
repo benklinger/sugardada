@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
-const { monthMap } = require('../config/maps'); 
+const { monthMap } = require('../config/maps');
+const { tickerParagraphMap } = require('../config/maps');
 const { generateInvestmentRecords } = require('../services/investmentCalculator');
 const { sendMail } = require('../services/mailService');
 const { getLifeEventsForUser } = require('../services/lifeEvents');
@@ -101,7 +102,6 @@ exports.finalizeAndRedirect = async (req, res) => {
         email: userEmail
       };
 
-      // Clear session data
       [
         'confirmationGender','confirmationName','confirmationDobMonth',
         'confirmationDobDay','confirmationDobYear','confirmationMonthly',
@@ -110,7 +110,6 @@ exports.finalizeAndRedirect = async (req, res) => {
       ].forEach(key => req.session[key] = null);
     }
 
-    // Create user in DB
     const user = new User(userData);
     await user.save();
 
@@ -118,29 +117,62 @@ exports.finalizeAndRedirect = async (req, res) => {
     const shareableUrl = `${hostUrl}/results/${user._id}`;
 
     if (user.email) {
-		const subject = `${user.name}` + "'s Plan is Ready";
-      const text = `
-Hello, 
+	  const endAge = user.targetAge || 18;
+      const alink = 'https://u50048141.ct.sendgrid.net/ls/click?upn=u001.-2BlOTt6iTKyiCh3-2BMr4ellWVMqPTFCul7oE3y-2FV2F6it-2F4ckbZUff-2FQg5z5o7AD-2F2Oekg_Q21ZqrWvlwXxIMJklgw9w8-2FrXpMcNFIlJWo8kVCKJ0sYHklF4FqJg8YLpOqyl2x-2FM0UXciSKSS-2B0KLajDntSwKp6BgPuIRq1foDPVWwC-2BRDZ3mOuQbU7VPlnTsS49VaMVmTfHAV13Bi7WvB4QDmzL8dkmQrZMlvW4iPEZNwNx-2B-2B50P1lbRKkZ46SAT9oqs-2F6-2F5TIuPbFn7AnfJted1qeEg-3D-3D';
+      const rlink = 'https://u50048141.ct.sendgrid.net/ls/click?upn=u001.-2BlOTt6iTKyiCh3-2BMr4ellQa-2FbSjj8lPfQS7OhIiF0RMisMSMUSBWhXvHRaQoYX-2FQtncT03dP1VX54eQj6IefEg-3D-3Ddu6E_Q21ZqrWvlwXxIMJklgw9w8-2FrXpMcNFIlJWo8kVCKJ0sYHklF4FqJg8YLpOqyl2x-2FEt7he-2Fbz4ic2SMmPFVTROTah8MjsyxY8tI3gFP3I7wByQYg4ethIKTcwyqasuak-2B7QNkNA8ZzO18-2F8R3BN24h3k0Rii0Cp3KQFS3nrsQBhYp8aybBJvDz-2Fdwmz0R3ICi4328kJm0sH-2FND7IiutUL3A-3D-3D';
+      const tickerParagraph = tickerParagraphMap[user.investmentTicker.toUpperCase()] || '';
 
-${user.name}'s plan has been created with a monthly investment of $${user.monthlyInvestment}.
-Risk level: ${user.riskLevel}, Ticker: ${user.investmentTicker}.
+      const today = new Date();
+      const investmentRecords = await generateInvestmentRecords(user, today);
+      let estValue, roiPct;
+      if (investmentRecords && investmentRecords.length > 0) {
+        const latestRecord = investmentRecords[investmentRecords.length - 1];
+        estValue = `$${Math.round(latestRecord.totalValue).toLocaleString()}`;
+        const interest = latestRecord.totalValue - latestRecord.totalInvestment;
+        roiPct = latestRecord.totalInvestment > 0 ? Math.round((interest / latestRecord.totalInvestment) * 100) : '0';
+      } else {
+        estValue = 'N/A';
+        roiPct = 'N/A';
+      }
 
-Click here to view your results anytime:
-${shareableUrl}
+      const step2 = (user.hasIBAccount &&
+        (typeof user.hasIBAccount === 'string'
+          ? user.hasIBAccount.toLowerCase() === 'yes'
+          : user.hasIBAccount === true))
+        ? `<li><del>Sign up for a trading account</del></li>`
+        : `<li><a href="${alink}">Sign up for a trading account</a></li>`;
+
+      const subject = `${user.name}'s Plan is Ready`;
+      const html = `
+<p>Thanks for creating an investment plan for ${user.name}!<br>
+You can revisit or update it anytime using <a href="${shareableUrl}">this link</a>.</p>
+
+<p>Here’s the deal: if you invest <strong>$${user.monthlyInvestment}/mo</strong> in <strong>${user.investmentTicker.toUpperCase()}</strong> until ${user.name} turns ${endAge}, your investment could grow to <strong>${estValue}</strong> — that’s an ROI of ~${roiPct}%.</p>
+
+<p>${tickerParagraph}</p>
+
+<p>Ready to get started? Here’s what to do:</p>
+<ol>
+  <li><del>Have a plan</del></li>
+  ${step2}
+  <li><a href="${rlink}">Set up recurring investments</a></li>
+  <li>Sit back and watch your plan work</li>
+</ol>
+
+<p>Cheers,<br/>Ben</p>
 `;
 
- // try {
- //        await sendMail({
- //          to: user.email,
- //          subject,
- //          text
- //        });
- //        console.log("Plan email sent to", user.email);
- //      } catch (err) {
- //        console.error("Failed to send plan email:", err);
- //      }
+      try {
+        await sendMail({
+          to: user.email,
+          subject,
+          html
+        });
+        console.log("Plan email sent to", user.email);
+      } catch (err) {
+        console.error("Failed to send plan email:", err);
+      }
     }
-
 
     return res.redirect(`/results/${user._id}`);
   } catch (error) {
@@ -169,11 +201,10 @@ exports.showUserById = async (req, res) => {
       const latestRecord = investmentRecords[investmentRecords.length - 1];
       const { totalValue, totalInvestment } = latestRecord;
       const interest = totalValue - totalInvestment;
-      const roiPct = totalInvestment > 0 ? (interest / totalInvestment).toFixed(2) * 100 : '0';
-      const totalProfit = Math.round(interest);
+      const roiPct = totalInvestment > 0 ? Math.round((interest / totalInvestment) * 100) : '0';
 
       return res.render('confirmation', {
-		userId: user._id.toString(),
+        userId: user._id.toString(),
         name: user.name,
         dob: user.dob,
         riskLevel: user.riskLevel,
@@ -183,12 +214,12 @@ exports.showUserById = async (req, res) => {
         estValue: Math.round(totalValue).toLocaleString(),
         roiPct,
         lifeEvents: JSON.stringify(lifeEvents),
-		targetAge: user.targetAge || 18
+        targetAge: user.targetAge || 18
       });
     } else {
       return res.render('confirmation', {
         userId: user._id.toString(),
-		name: user.name,
+        name: user.name,
         dob: user.dob,
         riskLevel: user.riskLevel,
         investmentTicker: user.investmentTicker.toUpperCase(),
@@ -197,7 +228,7 @@ exports.showUserById = async (req, res) => {
         estValue: '123,456',
         roiPct: '123%',
         lifeEvents: JSON.stringify(lifeEvents),
-		targetAge: user.targetAge || 18
+        targetAge: user.targetAge || 18
       });
     }
   } catch (err) {

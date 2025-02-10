@@ -13,7 +13,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 async function sendMail({ to, subject, text, html }) {
   const msg = {
     to,
-    from: 'noreply@sugardada.app', // must be verified in SendGrid
+	from: 'Ben @ Sugar Dada <noreply@sugardada.app>',
     subject,
     text,
     html

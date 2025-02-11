@@ -1,11 +1,6 @@
 [
   {
     "gender": "both",
-    "sentence": "🐶 {babyName} says 'dada' (or 'doggy'?)",
-    "months_from_birth": 12
-  },
-  {
-    "gender": "both",
     "sentence": "🦷 Tooth fairy leaves $1 (inflation!)",
     "months_from_birth": 84
   },
@@ -18,10 +13,5 @@
     "gender": "boy",
     "sentence": "🧩 {babyName} wants ALL the Legos",
     "months_from_birth": 132
-  },
-  {
-    "gender": "both",
-    "sentence": "🚘 Keys? {babyName}'s driving now!",
-    "months_from_birth": 204
   }
 ]

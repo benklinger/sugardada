@@ -1,13 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const heroTitle       = document.getElementById("heroTitle");
-  const varaContainer   = document.getElementById("varaContainer");
-  const heroCTA         = document.getElementById("heroCTA");
-  const headerCTA       = document.getElementById("headerCTA");
-  const sectionCTA      = document.getElementById("sectionCTA");
-  const caretakerCanvas = document.getElementById("caretCanvas");
+  const heroTitle         = document.getElementById("heroTitle");
+  const varaContainer     = document.getElementById("varaContainer");
+  const heroCTA           = document.getElementById("heroCTA");
+  const headerCTA         = document.getElementById("headerCTA");
+  const sectionCTA        = document.getElementById("sectionCTA");
+  const caretakerCanvas   = document.getElementById("caretCanvas");
   const caretakerContainer = document.getElementById("caretContainer");
-  const untypeCount     = 14;
-  let rc                = null;
+  const untypeCount       = 14;
+  let rc                  = null;
+  console.log('Hero Title Height:', heroTitle.offsetHeight, 'px');
 
   const tableData = [
     { year: 2025, contr: 1000,  interest: 40 },
@@ -87,21 +88,47 @@ document.addEventListener('DOMContentLoaded', () => {
     rc = rough.canvas(caretakerCanvas);
   }
 
+  // Update: target the span with class "line-break" so that it persists.
   setTimeout(() => {
-    untypeWords(heroTitle, untypeCount);
-    if (varaContainer) {
-      varaContainer.style.opacity = 1;
-      drawSecondWord();
-    }
-    setTimeout(() => {
-      if (rc && caretakerContainer) {
-        drawCaret(rc);
-        caretakerContainer.style.opacity = 1;
-      }
-      typeText(heroTitle, " is today", 0, () => {
-        if (heroCTA) heroCTA.classList.add("show");
+    // Look for the span inside heroTitle
+    let lineBreakSpan = heroTitle.querySelector('.line-break');
+    if (lineBreakSpan) {
+      // Remove the span's text content via untyping
+      untypeWords(lineBreakSpan, lineBreakSpan.textContent.length, () => {
+        if (varaContainer) {
+          varaContainer.style.opacity = 1;
+          drawSecondWord();
+        }
+        setTimeout(() => {
+          if (rc && caretakerContainer) {
+            drawCaret(rc);
+            caretakerContainer.style.opacity = 1;
+          }
+          // Type into the span so it stays wrapped for styling
+          typeText(lineBreakSpan, " is today", 0, () => {
+            if (heroCTA) heroCTA.classList.add("show");
+          });
+        }, 2000);
       });
-    }, 2000);
+    } else {
+      // If the span doesn't exist, create it.
+      lineBreakSpan = document.createElement('span');
+      lineBreakSpan.classList.add('line-break');
+      heroTitle.appendChild(lineBreakSpan);
+      if (varaContainer) {
+        varaContainer.style.opacity = 1;
+        drawSecondWord();
+      }
+      setTimeout(() => {
+        if (rc && caretakerContainer) {
+          drawCaret(rc);
+          caretakerContainer.style.opacity = 1;
+        }
+        typeText(lineBreakSpan, " is today", 0, () => {
+          if (heroCTA) heroCTA.classList.add("show");
+        });
+      }, 2000);
+    }
   }, 2000);
 
   if (heroCTA) {

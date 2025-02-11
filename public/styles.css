@@ -131,7 +131,7 @@ html:not(.home-page), body:not(.home-page) {
 .lottie-right {
   position: absolute;
   bottom: -13px;
-  right: -22px;
+  right: -50px;
   pointer-events: none;
   z-index: 0;
   overflow: hidden;
@@ -147,8 +147,8 @@ html:not(.home-page), body:not(.home-page) {
 }
 
 .lottie {
-	width: 615px;
-	height: 356px;
+	width: 515px;
+	height: auto;
 }
 
 .hero-title {
@@ -164,8 +164,13 @@ html:not(.home-page), body:not(.home-page) {
 }
 
 .margin-100 {
-	margin-bottom: 100px;
+	margin-bottom:100px !important;
 }
+
+.margin-200 {
+	margin-bottom: 200px;
+}
+
 .cta-button {
   transform: translateY(-20px);
   opacity: 0;
@@ -524,13 +529,15 @@ select:focus {
   width: 100%;
   padding: 1rem 1rem 1rem 0rem;
   margin: 0 auto;
+  place-items: center;
 }
 
 .card {
   background: var(--label-bg);
   color: var(--text-color);
   border-radius: 1rem;
-  max-width: 240px;
+  max-width: 330px;
+  width: 100%;
   min-height: 120px;
   box-sizing: border-box;
   position: relative;
@@ -641,6 +648,31 @@ select:focus {
     opacity: 1;
     transition-delay: 0s;
   }
+  
+  .hero-subtitle {
+	  margin-bottom:170px;
+  }
+  .line-break {
+      display: block;
+    }  
+
+  .hero-title {
+		height: 125px;
+	}
+	
+    .lottie {
+      width: 360px;
+      height: auto;
+  }
+  
+  .lottie-right {
+	  right:-35px;
+  }
+  
+  .section-2.compound-interest {
+	  height:350px;
+  }
+
 }
 
 @media (max-width: 480px) {

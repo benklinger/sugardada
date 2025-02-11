@@ -43,10 +43,8 @@ function enableAutoSubmitText(form) {
   const textarea = form.querySelector('textarea');
   if (!textarea) return;
 
-  // read question from data-question or fallback
   const questionText = (form.dataset.question || '').toLowerCase();
 
-  // If question includes 'invest monthly', do the $ logic
   if(questionText.includes('invest monthly')){
     textarea.addEventListener('input', () => {
       let val = textarea.value.replace(/^\$\s*/, '').replace(/,/g, '');
@@ -61,7 +59,6 @@ function enableAutoSubmitText(form) {
       textarea.value = '$ ' + formatted;
     });
   }
-  // If question includes 'email', make it all-lowercase
   else if(questionText.includes('email')){
     textarea.addEventListener('input', () => {
       const pos = textarea.selectionStart;
@@ -69,7 +66,6 @@ function enableAutoSubmitText(form) {
       textarea.setSelectionRange(pos, pos);
     });
   }
-  // Otherwise, old logic => first letter uppercase, rest lower
   else {
     textarea.addEventListener('input', () => {
       const pos = textarea.selectionStart;
@@ -81,7 +77,6 @@ function enableAutoSubmitText(form) {
     });
   }
 
-  // Pressing Enter => submit
   textarea.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -96,12 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const forms = document.querySelectorAll('.form');
   forms.forEach(form => {
-    // only run once
-    if (form.dataset.typed === 'true') return;
+	  if (form.dataset.typed === 'true') return;
 
     let questionText = form.dataset.question || '';
 
-    // Some fallback logic (old code) if there's a data-gender or data-name
     if(!questionText && form.dataset.gender){
       const g = form.dataset.gender.toLowerCase();
       questionText = `What’s your ${g}’s name?`;
@@ -110,16 +103,12 @@ document.addEventListener('DOMContentLoaded', () => {
       questionText = `When was ${n} born?`;
     }
 
-    // clear question text
     questionEl.textContent = '';
-    // type out the question
     typeText(questionEl, questionText, 0, () => {
-      // once typed, show the form
-      form.classList.add('show');
+		form.classList.add('show');
 
       setTimeout(() => {
-        // focus first field
-        const firstField = form.querySelector('input, textarea, select');
+		  const firstField = form.querySelector('input, textarea, select');
         if (firstField) {
           firstField.focus();
           if(questionText.toLowerCase().includes('invest monthly')){
@@ -130,7 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }, 0);
 
-      // enable auto submit logic
       if(questionText.toLowerCase().includes('invest monthly')){
         enableAutoSubmitText(form);
       }
@@ -138,8 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         enableAutoSubmitRadio(form);
       }
       else {
-        // e.g. email, or name, or anything else
-        enableAutoSubmitRadio(form);
+		  enableAutoSubmitRadio(form);
         enableAutoSubmitText(form);
         enableAutoSubmitDOB(form);
       }

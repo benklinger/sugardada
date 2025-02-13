@@ -60,7 +60,10 @@
 
     <form action="/onboarding/7" method="POST" class="form" data-question="Results are ready. What's your email?">
       <div class="subtitle">You'll get the full plan</div>
+	  <div class="input-container">
       <textarea name="email" inputmode="email" autocomplete="email" rows="1" cols="30" style="text-transform: lowercase; width:300px;" required></textarea>
+      <button type="submit" class="submit-button">➝</button>
+	  </div>
 	  <div class="hint nomobile">Press Return to continue</div>
     </form>
   </div>
@@ -75,6 +78,22 @@
 	        card.classList.add('card-enter');
 	      }, i * 100);
 	    });
+		const emailTextarea = document.querySelector("textarea[name='email']");
+		  if (emailTextarea) {
+		    const emailContainer = emailTextarea.closest('.input-container');
+		    if (emailContainer) {
+		      const emailSubmitButton = emailContainer.querySelector('.submit-button');
+		      if (emailSubmitButton) {
+		        emailTextarea.addEventListener('input', function() {
+		          if (this.value.trim().length > 0) {
+		            emailSubmitButton.classList.add("active");
+		          } else {
+		            emailSubmitButton.classList.remove("active");
+		          }
+		        });
+		      }
+		    }
+		  }
 	  });
   </script>
 </body>

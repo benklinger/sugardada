@@ -1,4 +1,3 @@
-<!-- views/name.ejs -->
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -20,17 +19,38 @@
       </ul>
     <% } %>
 
-    <!-- If you want to dynamically show 'boy'/'girl' in the question, you can also do it in data-question. -->
-    <!-- Or you can rely on data-gender and handle it in JS. We'll show both approaches in the JS. -->
     <form action="/onboarding/2"
           method="POST"
           class="form"
           data-gender="<%= gender %>">
+    <div class="input-container">
       <textarea name="babyName" rows="1" required><%= oldInput.babyName ? oldInput.babyName : '' %></textarea>
-      <div class="hint">Press Return to continue</div>
+      <button type="submit" class="submit-button">➜</button>
+	  </div>
+      <div class="hint nomobile">Press Return to continue</div>
     </form>
   </div>
 
   <%- include('partials/footer') %>
+  <script>
+	  document.addEventListener('DOMContentLoaded', () => {
+		const emailTextarea = document.querySelector("textarea[name='babyName']");
+		  if (emailTextarea) {
+		    const emailContainer = emailTextarea.closest('.input-container');
+		    if (emailContainer) {
+		      const emailSubmitButton = emailContainer.querySelector('.submit-button');
+		      if (emailSubmitButton) {
+		        emailTextarea.addEventListener('input', function() {
+		          if (this.value.trim().length > 0) {
+		            emailSubmitButton.classList.add("active");
+		          } else {
+		            emailSubmitButton.classList.remove("active");
+		          }
+		        });
+		      }
+		    }
+		  }
+	  });
+  </script>
 </body>
 </html>

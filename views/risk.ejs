@@ -1,4 +1,3 @@
-<!-- views/risk.ejs -->
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -8,14 +7,11 @@
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <!-- Include Header Partial -->
   <%- include('partials/header') %>
 
   <div class="wrapper">
-    <!-- Typed question container -->
     <div class="question"></div>
 
-    <!-- Display validation errors, if any -->
     <% if (errors.length > 0) { %>
       <ul class="error">
         <% errors.forEach(error => { %>
@@ -24,33 +20,28 @@
       </ul>
     <% } %>
 
-    <!-- Risk Assessment Form -->
     <form action="/onboarding/5" method="POST" class="form" data-question="What level of risk are you comfortable taking when investing for <%= babyName %>'s future?">
       
-      <!-- Subtitle inside the form so it fades in with the form -->
-      <div class="subtitle">(estimated return when <%= babyName %> turns 18)</div>
+      <div class="subtitle">With more risk comes the potential <span class="mobile-break">for greater returns</span></div>
 
-      <!-- Radio Button Options -->
       <div class="radio-group">
         <label>
           <input type="radio" name="riskLevel" value="Low" required>
-          Low (~2x)
+          Low
         </label>
         <label>
           <input type="radio" name="riskLevel" value="Medium">
-          Medium (~4x)
+          Medium
         </label>
         <label>
           <input type="radio" name="riskLevel" value="High">
-          High (~6x)
+          High
         </label>
       </div>
 
-      <!-- Removed the "Press Enter to continue" hint -->
     </form>
   </div>
 
-  <!-- Include Footer Partial -->
   <%- include('partials/footer') %>
 </body>
 </html>

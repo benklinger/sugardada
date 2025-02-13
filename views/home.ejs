@@ -5,6 +5,11 @@
   <title>Home: Sugar Dada</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <meta name="description" content="A simple way for parents to invest in their child’s future through small, consistent contributions that grow over time. Easy setup, long-term benefits.">
+  <meta property="og:title" content="Sugar Dada" />
+  <meta property="og:description" content="A simple way for parents to invest in their child’s future through small, consistent contributions that grow over time. Easy setup, long-term benefits." />
+  <meta property="og:image" content="https://sugardada.app/images/og.image.jpg" />
+  <meta property="og:url" content="https://www.sugardada.app" />
+  <meta name="twitter:card" content="summary_large_image">
 </head>
 <body class="home-page">
   <%- include('partials/header') %>
@@ -19,7 +24,7 @@
         </div>
       </div>
     <p class="hero-subtitle margin-200">It’s never too late to give your baby's future <span class="mobile-break">a head start.</span></p>
-    <button class="cta-button" id="heroCTA">Start Today</button>
+    <button class="cta-button" id="heroCTA">Build a Plan</button>
   </div>
   <div class="lottie-right">
 	  <dotlottie-wc src="https://lottie.host/ee71f35d-733a-48e5-afa4-5d715c583846/xlYD7pd3hz.lottie" class="lottie" autoplay loop></dotlottie-wc>
@@ -42,6 +47,8 @@
     <span class="label-left"><span class="symbol-blue">$</span><span id="contrEl">1,000</span></span>
     <span class="year-mid" id="yearEl">2025</span>
     <span class="label-right"><span class="symbol-green">$</span><span id="interestEl">40</span></span>
+	<span class="legend-left">Contributions</span>
+	<span class="legend-right">Returns</span>
     <div class="ci-bar">
       <div class="bar-contr" id="barContr"></div>
       <div class="bar-interest" id="barInterest"></div>
@@ -68,7 +75,7 @@
       This isn’t a new concept, and there’s no AI buzzword here.<br/>It’s just 
       tried-and-true investing strategies made accessible to young parents.
     </p>
-    <button class="cta-button show" id="sectionCTA">Start Today</button>
+    <button class="cta-button show" id="sectionCTA">Build a Plan</button>
   </div>
 </section>
 

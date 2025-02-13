@@ -10,7 +10,7 @@ const {
 
 router.get('/', renderHome);
 router.get('/demo', startDemo);
-router.get('/results', finalizeAndRedirect);
-router.get('/results/:userId', showUserById);
+router.get('/plan', finalizeAndRedirect);
+router.get('/plan/:userId', showUserById);
 
 module.exports = router;

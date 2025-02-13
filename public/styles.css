@@ -265,24 +265,36 @@ h3 {
   margin: 0 auto;
 }
 
-.label-left,
-.label-right,
-.year-mid {
+.label-left, .label-right, .year-mid, .legend-right, .legend-left {
   position: absolute;
   font-weight: bold;
   color: var(--text-color);
-  top: 0;
   transform: translateY(-120%);
 }
 
 .label-left {
   left: 0;
+  top: 0;
 }
+
 .label-right {
   right: 0;
+  top: 0;
 }
+
+.legend-left {
+	left:0;
+	top:130px;
+}
+
+.legend-right {
+	right:0;
+	top:130px;
+}
+
 .year-mid {
   left: 50%;
+  top: 0;
   transform: translate(-50%, -120%);
   font-size: 2.4rem;
 }
@@ -314,6 +326,10 @@ h3 {
   left: 30%;
   background: var(--spring-green);
   width: 70%; 
+}
+
+.bottom: {
+	top: 40px !important;
 }
 
 .section-4, .section-5 {

@@ -126,6 +126,7 @@ html:not(.home-page), body:not(.home-page) {
   position: relative;
   max-width: 1024px;
   margin: 0 auto;
+  padding:0 10px;
 }
 
 .lottie-right {
@@ -161,6 +162,7 @@ html:not(.home-page), body:not(.home-page) {
 .hero-subtitle {
   font-size: 1rem;
   margin-bottom: 270px;
+  line-height: 1.5rem;
 }
 
 .margin-100 {
@@ -174,6 +176,7 @@ html:not(.home-page), body:not(.home-page) {
 .cta-button {
   transform: translateY(-20px);
   opacity: 0;
+  visibility: hidden;
   transition: transform 0.4s ease, opacity 0.4s ease;
   background-color: var(--spring-green);
   color: var(--bg-color);
@@ -184,7 +187,7 @@ html:not(.home-page), body:not(.home-page) {
   cursor: pointer;
   border-radius: 12px;
   font-weight: bold;
-  border:0;
+  border: 0;
   box-shadow: var(--spring-green, 0.5) 0px 5px 30px -10px;
 }
 
@@ -197,16 +200,17 @@ html:not(.home-page), body:not(.home-page) {
   padding: 0.8rem 1.4rem;
   border-radius: 9px;
   transition: opacity 0.2s ease, transform 0.2s ease;
-  opacity: 0;
   font-weight: bold;
   border: 0;
   cursor: pointer;
-  transform: translateY(-20px);
   box-shadow: var(--spring-green, 0.5) 0px 5px 30px -10px;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-20px);
 }
 
 .header-cta.show, .cta-button.show {
-  display: inline-block;
+  visibility: visible;
   opacity: 1;
   transform: translateY(0);
 }
@@ -486,6 +490,47 @@ h3 {
   background: var(--label-hover);
 }
 
+.input-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+textarea {
+  flex: 1;
+  padding-right: 50px;
+}
+
+.submit-button {
+    display: none !important;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background-color: var(--label-checked);
+	color: var(--text-color);
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    top: 5px;
+    font-weight: 900;
+}
+
+.submit-button.active {
+	background-color: var(--spring-green);
+    color: var(--bg-color);
+}
+
+.submit-button:hover {
+  transform: scale(1.1);
+}
+
 select {
   background: var(--label-bg);
   color: var(--text-color);
@@ -638,6 +683,19 @@ select:focus {
 	opacity:0.5;
 }
 
+@media (max-width: 1024px) {
+    .line-break {
+        display: block;
+      }	
+      .lottie {
+        width: 400px;
+        height: auto;
+    }
+    .hero-title {
+  		height: 125px;
+  	}
+}
+
 @media (max-width: 768px) {
   .cards-container {
     grid-template-columns: repeat(2, 1fr);
@@ -654,7 +712,7 @@ select:focus {
   }
   .line-break {
       display: block;
-    }  
+    }
 
   .hero-title {
 		height: 125px;
@@ -672,12 +730,24 @@ select:focus {
   .section-2.compound-interest {
 	  height:350px;
   }
-
+  .submit-button {
+    display: flex !important;
+  }
 }
 
 @media (max-width: 480px) {
+	.hero-section {
+		height: 550px;
+	}
   .cards-container {
     grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .hero-title {
+	  font-size:2rem;
+	  height:83px;
+  }
+  .hero-subtitle {
+	  margin-bottom: 50px;
   }
   .card {
     min-width: 160px;
@@ -685,6 +755,12 @@ select:focus {
   .card-title {
     font-size: 1rem;
   }
+  .line-break {
+      display: inline;
+    }
+	.mobile-break {
+		display:block;
+	}
   .card-value {
     font-size: 1.5rem;
   }
@@ -696,5 +772,40 @@ select:focus {
       max-width: 100%;
       visibility: visible !important;
       opacity: 1 !important;
+  }
+  .lottie-left, .nomobile {
+	  display:none;
+  }
+  .mobile-height {
+	  margin-bottom:90px;
+  }
+  .ci-bar-container {
+	  width: 95%;
+  }
+  .section-4, .section-2.compound-interest {
+	  height: 400px;
+  }
+  .bg-contribution {
+	  bottom: 9px;
+	  left: 10px;
+	  width: 112px;
+	  height: 94px;
+  }
+  .bg-interest {
+	  bottom: 0;
+	  right: 0px;
+	  width: 247px;
+	  height: 272px;
+  }
+  .margin-100 {
+	  margin-bottom:50px !important;
+  }
+  #varaContainer {
+      top: 15px;
+      left: -79px;
+  }
+  #caretContainer{
+      top: 9px;
+      left: 32px;
   }
 }

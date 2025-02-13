@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const caretakerContainer = document.getElementById("caretContainer");
   const untypeCount       = 14;
   let rc                  = null;
-  console.log('Hero Title Height:', heroTitle.offsetHeight, 'px');
 
   const tableData = [
     { year: 2025, contr: 1000,  interest: 40 },
@@ -132,20 +131,30 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 2000);
 
   if (heroCTA) {
-    heroCTA.addEventListener("click", () => {
+    const navigateToOnboarding = (event) => {
+      event.preventDefault();
       window.location.href = "/onboarding/1";
-    });
+    };
+    heroCTA.addEventListener("click", navigateToOnboarding);
+    heroCTA.addEventListener("touchstart", navigateToOnboarding);
   }
   if (headerCTA) {
-    headerCTA.addEventListener("click", () => {
+    const navigateToOnboarding = (event) => {
+      event.preventDefault();
       window.location.href = "/onboarding/1";
-    });
+    };
+    headerCTA.addEventListener("click", navigateToOnboarding);
+    headerCTA.addEventListener("touchstart", navigateToOnboarding);
   }
   if (sectionCTA) {
-    sectionCTA.addEventListener("click", () => {
+    const navigateToOnboarding = (event) => {
+      event.preventDefault();
       window.location.href = "/onboarding/1";
-    });
+    };
+    sectionCTA.addEventListener("click", navigateToOnboarding);
+    sectionCTA.addEventListener("touchstart", navigateToOnboarding);
   }
+
   if (heroCTA && headerCTA) {
     const observer2 = new IntersectionObserver(entries => {
       entries.forEach(entry => {

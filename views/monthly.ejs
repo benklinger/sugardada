@@ -1,4 +1,3 @@
-<!-- views/monthly.ejs -->
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -7,16 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
 </head>
 <body>
-  <!-- Include Header Partial -->
   <%- include('partials/header') %>
 
   <div class="wrapper">
-    <!-- Question with typewriter effect -->
     <div class="question"></div>
 
-    <!-- Subtitle below the question -->
-
-    <!-- Display validation errors, if any -->
     <% if (errors.length > 0) { %>
       <ul class="error">
         <% errors.forEach(error => { %>
@@ -25,20 +19,25 @@
       </ul>
     <% } %>
 
-    <!-- Monthly Investment Form -->
     <form action="/onboarding/4" method="POST" class="form" data-question="How much would you invest monthly?">
 	<div class="subtitle">Don't put all your sugar in one basket</div>
-      <!-- Textarea starts with "$ " -->
+    <div class="input-container">
       <textarea
+	    type="number"
+		inputmode="numeric"
+		enterkeyhint="done"
         name="monthlyInvestment"
+		maxlength="6"
+		pattern="[0-9]*"
         rows="1"
         required
       >$ </textarea>
-      <div class="hint">Press Enter to continue</div>
+      <button type="submit" class="submit-button">➝</button>
+	  </div>
+	  <div class="hint nomobile">Press Return to continue</div>
     </form>
   </div>
 
-  <!-- Include Footer Partial -->
   <%- include('partials/footer') %>
 </body>
 </html>

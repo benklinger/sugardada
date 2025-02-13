@@ -231,8 +231,8 @@ exports.getStep7 = async (req, res) => {
 };
 
 exports.postStep7 = (req, res) => {
-  const { userEmail } = req.body;
-  if(!userEmail || !userEmail.includes('@')){
+  const { email } = req.body;
+  if(!email || !email.includes('@')){
     return res.render('email',{
       errors:[{msg:'Please enter a valid email'}],
 	  name: req.session.confirmationName || 'Omer',
@@ -244,6 +244,6 @@ exports.postStep7 = (req, res) => {
       roiHint:'0'
     });
   }
-  req.session.confirmationEmail = userEmail.trim().toLowerCase();
+  req.session.confirmationEmail = email.trim().toLowerCase();
   res.redirect('/results');
 };

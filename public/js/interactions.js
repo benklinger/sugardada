@@ -135,3 +135,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+document.addEventListener("DOMContentLoaded", function () {
+  const textarea = document.querySelector("textarea[name='monthlyInvestment']");
+  const submitButton = document.querySelector(".submit-button");
+
+  if (textarea && submitButton) {
+    textarea.addEventListener("input", function () {
+      if (/\d/.test(this.value)) {
+        submitButton.classList.add("active");
+      } else {
+        submitButton.classList.remove("active");
+      }
+    });
+  }
+});

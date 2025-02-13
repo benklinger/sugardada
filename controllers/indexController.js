@@ -70,10 +70,10 @@ exports.finalizeAndRedirect = async (req, res) => {
         confirmationRiskLevel: riskLevel,
         confirmationInvestmentTicker: investmentTicker,
         confirmationHasIBAccount: hasIBAccount,
-        confirmationEmail: userEmail
+        confirmationEmail: email
       } = req.session;
 
-      if (![gender, name, dobMonth, dobDay, dobYear, investment, riskLevel, investmentTicker, userEmail].every(Boolean)) {
+      if (![gender, name, dobMonth, dobDay, dobYear, investment, riskLevel, investmentTicker, email].every(Boolean)) {
         return res.redirect('/');
       }
 
@@ -99,7 +99,7 @@ exports.finalizeAndRedirect = async (req, res) => {
         riskLevel,
         investmentTicker,
         hasIBAccount,
-        email: userEmail
+        email: email
       };
 
       [
@@ -147,7 +147,7 @@ exports.finalizeAndRedirect = async (req, res) => {
 <p>Thanks for creating an investment plan for ${user.name}!<br>
 You can revisit or update it anytime using <a href="${shareableUrl}">this link</a>.</p>
 
-<p>Here’s the deal: if you invest <strong>$${user.monthlyInvestment}/mo</strong> in <strong>${user.investmentTicker.toUpperCase()}</strong> until ${user.name} turns ${endAge}, your investment could grow to <strong>${estValue}</strong> — that’s an ROI of ~${roiPct}%.</p>
+<p>Here’s the deal: if you invest <strong>$${user.monthlyInvestment}/mo</strong> in <strong>${user.investmentTicker.toUpperCase()}</strong> until ${user.name} turns ${endAge}, your investment could grow to <strong>${estValue}</strong> — that’s an ROI of <strong>~${roiPct}%</strong>.</p>
 
 <p>${tickerParagraph}</p>
 
@@ -156,7 +156,7 @@ You can revisit or update it anytime using <a href="${shareableUrl}">this link</
   <li><del>Have a plan</del></li>
   ${step2}
   <li><a href="${rlink}">Set up recurring investments</a></li>
-  <li>Sit back and watch your plan work</li>
+  <li>Sit back until ${user.name} turns ${endAge}</li>
 </ol>
 
 <p>Cheers,<br/>Ben</p>

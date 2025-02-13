@@ -245,5 +245,5 @@ exports.postStep7 = (req, res) => {
     });
   }
   req.session.confirmationEmail = email.trim().toLowerCase();
-  res.redirect('/results');
+  res.redirect('/plan');
 };

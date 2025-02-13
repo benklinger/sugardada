@@ -457,7 +457,7 @@ h3 {
 
 .form label {
   display: inline-block;
-  padding: 0.8rem 1.5rem;
+  padding: 0.8rem 1rem;
   background: var(--label-bg);
   border-radius: 1rem;
   font-size: 1.25rem;

@@ -28,7 +28,7 @@ exports.startDemo = async (req, res) => {
         console.error('Session save error:', err);
         return res.status(500).send('Error saving session.');
       }
-      res.redirect('/results');
+      res.redirect('/plan');
     });
   } catch (error) {
     console.error('Error initiating demo:', error);
@@ -114,7 +114,7 @@ exports.finalizeAndRedirect = async (req, res) => {
     await user.save();
 
     const hostUrl = `${req.protocol}://${req.get('host')}`;
-    const shareableUrl = `${hostUrl}/results/${user._id}`;
+    const shareableUrl = `${hostUrl}/plan/${user._id}`;
 
     if (user.email) {
 	  const endAge = user.targetAge || 18;
@@ -176,7 +176,7 @@ You can revisit or update it anytime using <a href="${shareableUrl}">this link</
       }
     }
 
-    return res.redirect(`/results/${user._id}`);
+    return res.redirect(`/plan/${user._id}`);
   } catch (error) {
     console.error(error);
     return res.status(500).send('Error while processing your information. Please try again.');

@@ -119,7 +119,7 @@ exports.finalizeAndRedirect = async (req, res) => {
     if (user.email) {
 	  const endAge = user.targetAge || 18;
       const alink = 'https://u50048141.ct.sendgrid.net/ls/click?upn=u001.-2BlOTt6iTKyiCh3-2BMr4ellWVMqPTFCul7oE3y-2FV2F6it-2F4ckbZUff-2FQg5z5o7AD-2F2Oekg_Q21ZqrWvlwXxIMJklgw9w8-2FrXpMcNFIlJWo8kVCKJ0sYHklF4FqJg8YLpOqyl2x-2FM0UXciSKSS-2B0KLajDntSwKp6BgPuIRq1foDPVWwC-2BRDZ3mOuQbU7VPlnTsS49VaMVmTfHAV13Bi7WvB4QDmzL8dkmQrZMlvW4iPEZNwNx-2B-2B50P1lbRKkZ46SAT9oqs-2F6-2F5TIuPbFn7AnfJted1qeEg-3D-3D';
-      const rlink = 'https://u50048141.ct.sendgrid.net/ls/click?upn=u001.-2BlOTt6iTKyiCh3-2BMr4ellQa-2FbSjj8lPfQS7OhIiF0RMisMSMUSBWhXvHRaQoYX-2FQtncT03dP1VX54eQj6IefEg-3D-3Ddu6E_Q21ZqrWvlwXxIMJklgw9w8-2FrXpMcNFIlJWo8kVCKJ0sYHklF4FqJg8YLpOqyl2x-2FEt7he-2Fbz4ic2SMmPFVTROTah8MjsyxY8tI3gFP3I7wByQYg4ethIKTcwyqasuak-2B7QNkNA8ZzO18-2F8R3BN24h3k0Rii0Cp3KQFS3nrsQBhYp8aybBJvDz-2Fdwmz0R3ICi4328kJm0sH-2FND7IiutUL3A-3D-3D';
+      const rlink = 'https://www.interactivebrokers.com/en/trading/recurring-investments.php';
       const tickerParagraph = tickerParagraphMap[user.investmentTicker.toUpperCase()] || '';
 
       const today = new Date();

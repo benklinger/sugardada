@@ -124,7 +124,7 @@ function buildLightweightChart() {
   tooltip.style.borderRadius = '4px 4px 0 0';
   tooltip.style.borderBottom = 'none';
   tooltip.style.boxShadow = '0 2px 5px 0 rgba(117, 134, 150, 0.45)';
-  tooltip.style.background = 'rgba(255, 255, 255, 0.25)';
+  tooltip.style.background = 'rgba(255, 255, 255, 0.15)';
   tooltip.style.color = 'black';
   tooltip.style.borderColor = 'rgba(239, 83, 80, 1)';
   tooltip.style.top = '0';

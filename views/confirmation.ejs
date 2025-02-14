@@ -19,19 +19,9 @@
         </div>
      </div>
 
-  <div class="card card-entered" id="monthly-investment-card">
-    <div class="card-inner">
-      <div class="card-title">Contributions</div>
-      <div class="card-value">
-        <span class="symbol-blue">$</span><span id="monthly-investment-value" data-final="<%= investment %>"></span><span class="small">/mo</span>
-      </div>
-      <div class="card-hint">Tap to add $50, double-tap to undo</div>
-    </div>
-  </div>
-
   <div class="card card-entered" id="est-value-card">
     <div class="card-inner">
-      <div class="card-title" id="est-title"><%= name %> turns <span id="est-years" data-final="<%= targetAge %>"></span></div>
+      <div class="card-title" id="est-title"><span class="dot symbol-red">⬤</span> Total Value (Age <span id="est-years" data-final="<%= targetAge %>"></span>)</div>
       <div class="card-value">
         <span class="symbol-red">$</span><span id="est-value" data-final="<%= estValue %>"></span>
       </div>
@@ -39,6 +29,16 @@
     </div>
   </div>
   
+  <div class="card card-entered" id="monthly-investment-card">
+    <div class="card-inner">
+      <div class="card-title"><span class="dot symbol-blue">⬤</span> Contributions</div>
+      <div class="card-value">
+        <span class="symbol-blue">$</span><span id="monthly-investment-value" data-final="<%= investment %>"></span><span class="small">/mo</span>
+      </div>
+      <div class="card-hint">Tap to add $50, double-tap to undo</div>
+    </div>
+  </div>
+
   <div class="card card-entered">
     <div class="card-inner">
       <div class="card-title">Returns</div>

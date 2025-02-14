@@ -1,10 +1,17 @@
-/* lightweightChartBuilder.js */
 let myChart;
 let depositsSeries;
 let estValueSeries;
 let isDarkTheme;
 let gridColor;
 let textColor;
+
+function formatUsdWhole(num) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0
+  }).format(num);
+}
 
 function updateChartTheme() {
   if (!myChart) return;
@@ -22,24 +29,23 @@ function updateChartTheme() {
 }
 
 function buildLightweightChart() {
-  if (typeof LightweightCharts === 'undefined') {
-    console.error('LightweightCharts is not defined. Ensure you included the correct library script first.');
-    return;
-  }
+  if (typeof LightweightCharts === 'undefined') return;
   const chartContainer = document.getElementById('chartContainer');
   if (!chartContainer) return;
-  
-  let heightOffset = 240;
+
+  chartContainer.style.position = 'relative';
+
+  let heightOffset = 223;
   if (window.innerWidth <= 768) {
-    heightOffset = 390;
+    heightOffset = 363;
   }
-  let chartHeight = window.innerHeight - heightOffset;
-  chartContainer.style.height = `${chartHeight}px`;
+  const chartHeight = window.innerHeight - heightOffset;
+  chartContainer.style.height = chartHeight + 'px';
 
   isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
   gridColor = isDarkTheme ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
   textColor = isDarkTheme ? '#fff' : '#000';
-  
+
   if (!myChart) {
     myChart = LightweightCharts.createChart(chartContainer, {
       width: chartContainer.clientWidth,
@@ -50,10 +56,9 @@ function buildLightweightChart() {
         attributionLogo: false
       },
       leftPriceScale: {
-        visible: true,
-        borderVisible: false
+        visible: false        
       },
-      rightPriceScale: { visible: false },
+      rightPriceScale: { visible: true, borderVisible: false },
       localization: {
         priceFormatter: shortDollarFormat
       },
@@ -68,13 +73,13 @@ function buildLightweightChart() {
       watermark: { visible: false },
       crosshair: {
         vertLine: {
-          visible: true,
-          labelVisible: true,
-          style: 0,
-          width: 1,
-          color: 'rgba(51,51,51,0.6)'
+          visible: false,
+          labelVisible: false
         },
-        horzLine: { visible: false, labelVisible: false }
+        horzLine: {
+          visible: false,
+          labelVisible: false
+        }
       },
       handleScroll: { mouseWheel: false, pressedMouseMove: false },
       handleScale: { axisPressedMouseMove: false, pinch: false, mouseWheel: false },
@@ -83,8 +88,7 @@ function buildLightweightChart() {
         horzLines: { color: gridColor, visible: true }
       }
     });
-    
-    // Create smooth area series using the new unified API:
+
     depositsSeries = myChart.addSeries(LightweightCharts.AreaSeries, {
       lineColor: 'rgba(141, 182, 255, 1)',
       topColor: 'rgba(141, 182, 255, 0.4)',
@@ -94,6 +98,7 @@ function buildLightweightChart() {
       priceLineVisible: false,
       lineType: LightweightCharts.LineType.Smooth
     });
+
     estValueSeries = myChart.addSeries(LightweightCharts.AreaSeries, {
       lineColor: 'rgba(255, 153, 153, 1)',
       topColor: 'rgba(255, 153, 153, 0.4)',
@@ -104,14 +109,145 @@ function buildLightweightChart() {
       lineType: LightweightCharts.LineType.Smooth
     });
   }
+
   fetchAndUpdateChart();
+
+  const toolTipWidth = 130;
+  const tooltip = document.createElement('div');
+  tooltip.style.width = toolTipWidth + 'px';
+  tooltip.style.position = 'absolute';
+  tooltip.style.display = 'none';
+  tooltip.style.padding = '8px';
+  tooltip.style.boxSizing = 'border-box';
+  tooltip.style.pointerEvents = 'none';
+  tooltip.style.zIndex = '1000';
+  tooltip.style.borderRadius = '4px 4px 0 0';
+  tooltip.style.borderBottom = 'none';
+  tooltip.style.boxShadow = '0 2px 5px 0 rgba(117, 134, 150, 0.45)';
+  tooltip.style.background = 'rgba(255, 255, 255, 0.25)';
+  tooltip.style.color = 'black';
+  tooltip.style.borderColor = 'rgba(239, 83, 80, 1)';
+  tooltip.style.top = '0';
+  tooltip.style.height = chartContainer.clientHeight + 'px';
+  chartContainer.appendChild(tooltip);
+
+  myChart.subscribeCrosshairMove((param) => {
+    if (
+      !param.point ||
+      !param.time ||
+      param.point.x < 0 ||
+      param.point.x > chartContainer.clientWidth ||
+      param.point.y < 0 ||
+      param.point.y > chartContainer.clientHeight
+    ) {
+      tooltip.style.display = 'none';
+      return;
+    }
+
+    tooltip.style.display = 'block';
+
+    const dateObj = new Date(param.time);
+    const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+    const depositsData = param.seriesData.get(depositsSeries);
+    const estValueData = param.seriesData.get(estValueSeries);
+    const contributions = depositsData && depositsData.value !== undefined
+      ? formatUsdWhole(depositsData.value)
+      : 'N/A';
+    const totalValue = estValueData && estValueData.value !== undefined
+      ? formatUsdWhole(estValueData.value)
+      : 'N/A';
+
+	  function styleCurrency(val) {
+	    if (typeof val === 'string' && val.startsWith('$')) {
+	      return '$<span style="color: #fff;">' + val.slice(1) + '</span>';
+	    }
+	    return val;
+	  }
+
+	  tooltip.innerHTML = `
+	    <div style="
+	      font-size: 0.8rem; 
+	      color: #fff; 
+	      margin-bottom: 12px; 
+	      font-family: 'Roboto', sans-serif;
+	      font-weight: 900;">
+	      ${formattedDate}
+	    </div>
+
+	    <div style="
+	      display: flex; 
+	      flex-direction: column; 
+	      align-items: flex-start; 
+	      margin-bottom: 12px;">
+	      <div style="
+	        display: flex; 
+	        align-items: center; 
+	        font-size: 1rem; 
+	        font-family: 'Radley', serif;
+	        margin-bottom: 12px;
+	        color: #fff;">
+	        <span style="
+	          font-size: 0.35rem; 
+	          margin-right: 6px; 
+	          color: rgba(255,153,153,1);">
+	          ⬤
+	        </span>
+	        <span>Total Value</span>
+	      </div>
+	      <div style="
+	        font-size: 1.3rem; 
+	        color: rgba(255,153,153,1); 
+	        margin-top: 4px; 
+	        margin-bottom: 12px;">
+	        ${styleCurrency(totalValue)}
+	      </div>
+	    </div>
+
+	    <div style="
+	      display: flex; 
+	      flex-direction: column; 
+	      align-items: flex-start;">
+	      <div style="
+	        display: flex; 
+	        align-items: center; 
+	        font-size: 1rem; 
+	        font-family: 'Radley', serif; 
+	        margin-bottom: 20px;
+	        color: #fff;">
+	        <span style="
+	          font-size: 0.35rem; 
+	          margin-right: 6px; 
+	          color: rgba(141,182,255,1);">
+	          ⬤
+	        </span>
+	        <span>Contributions</span>
+	      </div>
+	      <div style="
+	        font-size: 1.3rem; 
+	        color: rgba(141,182,255,1); 
+	        margin-top: 4px;">
+	        ${styleCurrency(contributions)}
+	      </div>
+	    </div>
+	  `;
+
+    let left = param.point.x;
+    const timeScaleWidth = myChart.timeScale().width();
+    const priceScaleWidth = myChart.priceScale('left').width();
+    const halfTooltipWidth = toolTipWidth / 2;
+    left += priceScaleWidth - halfTooltipWidth;
+    left = Math.min(left, priceScaleWidth + timeScaleWidth - toolTipWidth);
+    left = Math.max(left, priceScaleWidth);
+    tooltip.style.left = left + 'px';
+  });
 }
 
 function fetchAndUpdateChart() {
   if (!window.userId) return;
   fetch(`/api/investment-records/${window.userId}`)
-    .then(res => res.json())
-    .then(d => {
+    .then((res) => res.json())
+    .then((d) => {
       if (d.error) {
         console.error('Error fetching records:', d.error);
         return;
@@ -122,21 +258,21 @@ function fetchAndUpdateChart() {
         estValueSeries.setData([]);
         return;
       }
-      const depositsData = recs.map(r => ({
+      const depositsData = recs.map((r) => ({
         time: r.simulatedDate.slice(0, 10),
         value: r.totalInvestment
       }));
-      const estValueData = recs.map(r => ({
+      const estValueData = recs.map((r) => ({
         time: r.simulatedDate.slice(0, 10),
         value: r.totalValue
       }));
       depositsSeries.setData(depositsData);
       estValueSeries.setData(estValueData);
       myChart.timeScale().fitContent();
-      
+
       if (window.lifeEvents && window.lifeEvents.length) {
         const markerColor = document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#000';
-        let markers = window.lifeEvents.map(ev => ({
+        let markers = window.lifeEvents.map((ev) => ({
           time: ev.time,
           position: 'aboveBar',
           color: markerColor,
@@ -152,8 +288,8 @@ function fetchAndUpdateChart() {
         LightweightCharts.createSeriesMarkers(estValueSeries, markers);
       }
     })
-    .catch(e => {
-      console.error("Chart fetch error:", e);
+    .catch((e) => {
+      console.error('Chart fetch error:', e);
     });
 }
 
@@ -168,10 +304,7 @@ window.buildLightweightChart = buildLightweightChart;
 window.updateLightweightChart = fetchAndUpdateChart;
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (typeof LightweightCharts === 'undefined') {
-    console.error('LightweightCharts not loaded. Check your script tag.');
-    return;
-  }
+  if (typeof LightweightCharts === 'undefined') return;
   if (window.buildLightweightChart) {
     buildLightweightChart();
   }

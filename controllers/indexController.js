@@ -160,7 +160,7 @@ You can revisit or update it anytime using <a href="${shareableUrl}">this link</
 </ol>
 
 <p>Cheers,<br/>Ben</p>
-<p>PS<br/>I ❤️ feedback</p>
+<p>P.S.<br/><a href="https://fantastical.app/benklinger-abJD/meet">I ❤️ feedback</a></p>
 `;
 
       try {

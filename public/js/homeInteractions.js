@@ -87,13 +87,10 @@ document.addEventListener('DOMContentLoaded', () => {
     rc = rough.canvas(caretakerCanvas);
   }
 
-  // Update: target the span with class "line-break" so that it persists.
   setTimeout(() => {
-    // Look for the span inside heroTitle
-    let lineBreakSpan = heroTitle.querySelector('.line-break');
+	  let lineBreakSpan = heroTitle.querySelector('.line-break');
     if (lineBreakSpan) {
-      // Remove the span's text content via untyping
-      untypeWords(lineBreakSpan, lineBreakSpan.textContent.length, () => {
+		untypeWords(lineBreakSpan, lineBreakSpan.textContent.length, () => {
         if (varaContainer) {
           varaContainer.style.opacity = 1;
           drawSecondWord();
@@ -103,14 +100,12 @@ document.addEventListener('DOMContentLoaded', () => {
             drawCaret(rc);
             caretakerContainer.style.opacity = 1;
           }
-          // Type into the span so it stays wrapped for styling
           typeText(lineBreakSpan, " is today", 0, () => {
             if (heroCTA) heroCTA.classList.add("show");
           });
         }, 2000);
       });
     } else {
-      // If the span doesn't exist, create it.
       lineBreakSpan = document.createElement('span');
       lineBreakSpan.classList.add('line-break');
       heroTitle.appendChild(lineBreakSpan);

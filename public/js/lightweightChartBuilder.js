@@ -171,6 +171,7 @@ function buildLightweightChart() {
 	      color: #fff; 
 	      margin-bottom: 12px; 
 	      font-family: 'Roboto', sans-serif;
+		  text-shadow: 5px 5px 20px black;
 	      font-weight: 900;">
 	      ${formattedDate}
 	    </div>
@@ -182,6 +183,7 @@ function buildLightweightChart() {
 	      margin-bottom: 12px;">
 	      <div style="
 	        display: flex; 
+			text-shadow: 5px 5px 20px black;
 	        align-items: center; 
 	        font-size: 1rem; 
 	        font-family: 'Radley', serif;
@@ -190,6 +192,7 @@ function buildLightweightChart() {
 	        <span style="
 	          font-size: 0.35rem; 
 	          margin-right: 6px; 
+			  text-shadow: 5px 5px 20px black;
 	          color: rgba(255,153,153,1);">
 	          ⬤
 	        </span>
@@ -197,7 +200,8 @@ function buildLightweightChart() {
 	      </div>
 	      <div style="
 	        font-size: 1.3rem; 
-	        color: rgba(255,153,153,1); 
+	        color: rgba(255,153,153,1);
+			text-shadow: 5px 5px 20px black;
 	        margin-top: 4px; 
 	        margin-bottom: 12px;">
 	        ${styleCurrency(totalValue)}
@@ -210,7 +214,8 @@ function buildLightweightChart() {
 	      align-items: flex-start;">
 	      <div style="
 	        display: flex; 
-	        align-items: center; 
+	        align-items: center;
+			text-shadow: 5px 5px 20px black; 
 	        font-size: 1rem; 
 	        font-family: 'Radley', serif; 
 	        margin-bottom: 20px;
@@ -218,6 +223,7 @@ function buildLightweightChart() {
 	        <span style="
 	          font-size: 0.35rem; 
 	          margin-right: 6px; 
+			  text-shadow: 5px 5px 20px black;
 	          color: rgba(141,182,255,1);">
 	          ⬤
 	        </span>
@@ -226,6 +232,7 @@ function buildLightweightChart() {
 	      <div style="
 	        font-size: 1.3rem; 
 	        color: rgba(141,182,255,1); 
+			text-shadow: 5px 5px 20px black;
 	        margin-top: 4px;">
 	        ${styleCurrency(contributions)}
 	      </div>

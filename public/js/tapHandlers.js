@@ -27,6 +27,16 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+function updateHintTemporarily(card, newText, duration = 5000) {
+  const hintEl = card.querySelector('.card-hint');
+  if (!hintEl) return;
+  const originalText = hintEl.textContent;
+  hintEl.textContent = newText;
+  setTimeout(() => {
+    hintEl.textContent = originalText;
+  }, duration);
+}
+
 function setupCard({ cardId, isDoubleTap, fetchUrl, fetchBody, onSuccess }) {
   const card = document.getElementById(cardId);
   if (!card) return;
@@ -53,10 +63,16 @@ function setupCard({ cardId, isDoubleTap, fetchUrl, fetchBody, onSuccess }) {
     });
   }
   async function singleTap(el) {
+    if (el.id === "monthly-investment-card") {
+      updateHintTemporarily(el, "Double-tap to undo", 5000);
+    }
     cardTapAnimate(el);
     await doCardAction(el, false);
   }
   async function doubleTap(el) {
+    if (el.id === "monthly-investment-card") {
+      updateHintTemporarily(el, "Double-tap to undo", 5000);
+    }
     cardTapAnimate(el);
     await doCardAction(el, true);
   }

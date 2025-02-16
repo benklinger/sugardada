@@ -147,7 +147,7 @@ exports.finalizeAndRedirect = async (req, res) => {
 <p>Thanks for creating an investment plan for ${user.name}!<br>
 You can revisit or update it anytime using <a href="${shareableUrl}">this link</a>.</p>
 
-<p>Here’s the deal: if you contribute <strong>$${user.monthlyInvestment}/mo</strong> until ${user.name} turns ${endAge} in <strong>${user.investmentTicker.toUpperCase()}</strong>, your investment could grow to <strong>${estValue}</strong> — that’s an return of <strong>~${roiPct}%</strong>.</p>
+<p>Here’s the deal: if you invest <strong>$${user.monthlyInvestment}/mo</strong> in <strong>${user.investmentTicker.toUpperCase()}</strong> until ${user.name} turns ${endAge}, your total value could grow to <strong>${estValue}</strong> — that’s an return of <strong>~${roiPct}%</strong>.</p>
 
 <p>${tickerParagraph}</p>
 
@@ -155,7 +155,7 @@ You can revisit or update it anytime using <a href="${shareableUrl}">this link</
 <ol>
   <li><del>Build a plan</del></li>
   ${step2}
-  <li><a href="${rlink}">Set up recurring contributions</a></li>
+  <li><a href="${rlink}">Set up recurring investments</a></li>
   <li>Sit back until ${user.name} turns ${endAge}</li>
 </ol>
 

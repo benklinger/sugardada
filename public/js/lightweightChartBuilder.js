@@ -1,5 +1,5 @@
 let myChart;
-let depositsSeries;
+let investmentSeries;
 let estValueSeries;
 let isDarkTheme;
 let gridColor;
@@ -89,7 +89,7 @@ function buildLightweightChart() {
       }
     });
 
-    depositsSeries = myChart.addSeries(LightweightCharts.AreaSeries, {
+    investmentSeries = myChart.addSeries(LightweightCharts.AreaSeries, {
       lineColor: 'rgba(141, 182, 255, 1)',
       topColor: 'rgba(141, 182, 255, 0.4)',
       bottomColor: 'rgba(141, 182, 255, 0.0)',
@@ -149,10 +149,10 @@ function buildLightweightChart() {
     const dateObj = new Date(param.time);
     const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 
-    const depositsData = param.seriesData.get(depositsSeries);
+    const investmentData = param.seriesData.get(investmentSeries);
     const estValueData = param.seriesData.get(estValueSeries);
-    const contributions = depositsData && depositsData.value !== undefined
-      ? formatUsdWhole(depositsData.value)
+    const investment = investmentData && investmentData.value !== undefined
+      ? formatUsdWhole(investmentData.value)
       : 'N/A';
     const totalValue = estValueData && estValueData.value !== undefined
       ? formatUsdWhole(estValueData.value)
@@ -227,14 +227,14 @@ function buildLightweightChart() {
 	          color: rgba(141,182,255,1);">
 	          ⬤
 	        </span>
-	        <span>Contributions</span>
+	        <span>Investment</span>
 	      </div>
 	      <div style="
 	        font-size: 1.3rem; 
 	        color: rgba(141,182,255,1); 
 			text-shadow: 5px 5px 20px black;
 	        margin-top: 4px;">
-	        ${styleCurrency(contributions)}
+	        ${styleCurrency(investment)}
 	      </div>
 	    </div>
 	  `;
@@ -261,11 +261,11 @@ function fetchAndUpdateChart() {
       }
       const recs = d.investmentRecords;
       if (!recs || !recs.length) {
-        depositsSeries.setData([]);
+        investmentSeries.setData([]);
         estValueSeries.setData([]);
         return;
       }
-      const depositsData = recs.map((r) => ({
+      const investmentData = recs.map((r) => ({
         time: r.simulatedDate.slice(0, 10),
         value: r.totalInvestment
       }));
@@ -273,7 +273,7 @@ function fetchAndUpdateChart() {
         time: r.simulatedDate.slice(0, 10),
         value: r.totalValue
       }));
-      depositsSeries.setData(depositsData);
+      investmentSeries.setData(investmentData);
       estValueSeries.setData(estValueData);
       myChart.timeScale().fitContent();
 

@@ -178,10 +178,10 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 });
 
-function updateCompoundBar(year, contributions, interest) {
+function updateCompoundBar(year, investment, interest) {
   const barContr    = document.getElementById("barContr");
   const barInterest = document.getElementById("barInterest");
-  let c = Math.max(0, contributions);
+  let c = Math.max(0, investment);
   let i = Math.max(0, interest);
   let total = c + i;
   if (total <= 0) {

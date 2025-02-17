@@ -187,7 +187,7 @@ function buildLightweightChart() {
 	        align-items: center; 
 	        font-size: 1rem; 
 	        font-family: 'Radley', serif;
-	        margin-bottom: 12px;
+	        margin-bottom: 6px;
 	        color: #000;">
 	        <span style="
 	          font-size: 0.35rem; 
@@ -202,7 +202,6 @@ function buildLightweightChart() {
 	        font-size: 1.3rem; 
 	        color: rgba(255,153,153,1);
 			text-shadow: 5px 5px 20px white;
-	        margin-top: 4px; 
 	        margin-bottom: 12px;">
 	        ${styleCurrency(totalValue)}
 	      </div>
@@ -218,7 +217,7 @@ function buildLightweightChart() {
 			text-shadow: 5px 5px 20px white; 
 	        font-size: 1rem; 
 	        font-family: 'Radley', serif; 
-	        margin-bottom: 20px;
+	        margin-bottom: 6px;
 	        color: #000;">
 	        <span style="
 	          font-size: 0.35rem; 
@@ -232,8 +231,7 @@ function buildLightweightChart() {
 	      <div style="
 	        font-size: 1.3rem; 
 	        color: rgba(141,182,255,1); 
-			text-shadow: 5px 5px 20px white;
-	        margin-top: 4px;">
+			text-shadow: 5px 5px 20px white;">
 	        ${styleCurrency(investment)}
 	      </div>
 	    </div>

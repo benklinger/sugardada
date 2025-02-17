@@ -1,15 +1,32 @@
 document.addEventListener("DOMContentLoaded", () => {
   initializeNumberFlowLite();
   pageLoadAnimateAll();
-
+  window.headerCTA = document.getElementById("headerCTA");
+  headerCTA.style.display = "block";
+  headerCTA.style.visibility = "hidden";
+  headerCTA.style.opacity = "0";
+  headerCTA.style.transform = "translateY(-20px)";
+  headerCTA.addEventListener("click", async () => {
+    const userId = document.body.getAttribute("data-userid");
+    try {
+      const res = await fetch(`/resend-plan/${userId}`, { method: "POST" });
+      if (res.ok) {
+        headerCTA.style.display = "none";
+      } else {
+        alert("Error resending plan.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error resending plan.");
+    }
+  });
   setupCard({
     cardId: "monthly-investment-card",
     isDoubleTap: true,
     fetchUrl: () => `/api/update-monthly-investment/${window.userId}`,
-    fetchBody: dbl => dbl ? { action: "decrement" } : null,
+    fetchBody: dbl => (dbl ? { action: "decrement" } : null),
     onSuccess: updatePlanUI
   });
-
   setupCard({
     cardId: "risk-card",
     isDoubleTap: false,
@@ -17,7 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchBody: () => null,
     onSuccess: updatePlanUI
   });
-
   setupCard({
     cardId: "est-value-card",
     isDoubleTap: false,
@@ -28,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function updateHintTemporarily(card, newText, duration = 5000) {
-  const hintEl = card.querySelector('.card-hint');
+  const hintEl = card.querySelector(".card-hint");
   if (!hintEl) return;
   const originalText = hintEl.textContent;
   hintEl.textContent = newText;
@@ -80,9 +96,16 @@ function setupCard({ cardId, isDoubleTap, fetchUrl, fetchBody, onSuccess }) {
     try {
       el.style.pointerEvents = "none";
       el.classList.add("disabled");
+      if (headerCTA) {
+        headerCTA.textContent = "Resend Plan";
+        headerCTA.style.display = "block";
+        headerCTA.style.visibility = "visible";
+        headerCTA.style.opacity = "1";
+        headerCTA.style.transform = "none";
+      }
       const url = fetchUrl(dbl);
       const bodyObj = fetchBody(dbl);
-      const opts = { method: 'POST', headers: { 'Content-Type': 'application/json' } };
+      const opts = { method: "POST", headers: { "Content-Type": "application/json" } };
       if (bodyObj) opts.body = JSON.stringify(bodyObj);
       const res = await fetch(url, opts);
       const data = await res.json();
@@ -120,7 +143,8 @@ function updatePlanUI(data) {
   }
   if (data.roiPct != null) {
     const roiMultipleEl = document.getElementById("roi-multiple");
-    if (roiMultipleEl) animateNumberFlowValue(roiMultipleEl, parseFloat(data.roiPct) || 0);
+    if (roiMultipleEl)
+      animateNumberFlowValue(roiMultipleEl, parseFloat(data.roiPct) || 0);
   }
   if (data.estValue != null) {
     const estValueEl = document.getElementById("est-value");
@@ -131,7 +155,7 @@ function updatePlanUI(data) {
   }
 }
 
-function cardTapAnimate(cardEl){
+function cardTapAnimate(cardEl) {
   cardEl.classList.add("tap-animate");
   setTimeout(() => cardEl.classList.remove("tap-animate"), 200);
 }
@@ -139,56 +163,71 @@ function cardTapAnimate(cardEl){
 function initializeNumberFlowLite() {
   const monthlyValEl = document.getElementById("monthly-investment-value");
   if (monthlyValEl) {
-    const val = parseFloat(monthlyValEl.textContent.replace(/[^\d.-]/g, '')) || 0;
-    initNumberFlowLiteOn(monthlyValEl, val, false, monthlyValEl.id === "est-value");
+    const val =
+      parseFloat(monthlyValEl.textContent.replace(/[^\d.-]/g, "")) || 0;
+    initNumberFlowLiteOn(
+      monthlyValEl,
+      val,
+      false,
+      monthlyValEl.id === "est-value"
+    );
   }
   const roiMultipleEl = document.getElementById("roi-multiple");
   if (roiMultipleEl) {
-    const val = parseFloat(roiMultipleEl.textContent.replace(/[^\d.-]/g, '')) || 0;
+    const val =
+      parseFloat(roiMultipleEl.textContent.replace(/[^\d.-]/g, "")) || 0;
     initNumberFlowLiteOn(roiMultipleEl, val);
   }
   const estValueEl = document.getElementById("est-value");
   if (estValueEl) {
-    const val = parseFloat(estValueEl.textContent.replace(/[^\d.-]/g, '')) || 0;
+    const val =
+      parseFloat(estValueEl.textContent.replace(/[^\d.-]/g, "")) || 0;
     initNumberFlowLiteOn(estValueEl, val, false, true);
   }
   const estYearsEl = document.getElementById("est-years");
   if (estYearsEl) {
-    const val = parseFloat(estYearsEl.textContent.replace(/[^\d.-]/g, '')) || 0;
+    const val =
+      parseFloat(estYearsEl.textContent.replace(/[^\d.-]/g, "")) || 0;
     initNumberFlowLiteOn(estYearsEl, val);
   }
 }
 
 function initNumberFlowLiteOn(el, value, isText = false, noDecimals = false) {
-  if(!el) return;
-  const nf = document.createElement('number-flow-lite');
-  if(isText){
+  if (!el) return;
+  const nf = document.createElement("number-flow-lite");
+  if (isText) {
     nf.data = formatTextToData(value);
-  } else if(noDecimals){
-    nf.data = formatToData(value, new Intl.NumberFormat('en-US',{ maximumFractionDigits: 0 }));
+  } else if (noDecimals) {
+    nf.data = formatToData(
+      value,
+      new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 })
+    );
   } else {
-    nf.data = formatToData(value, new Intl.NumberFormat('en-US'));
+    nf.data = formatToData(value, new Intl.NumberFormat("en-US"));
   }
   el.replaceChildren(nf);
 }
 
-function animateNumberFlowValue(el, newVal){
-  if(!el) return;
-  const nf = el.querySelector('number-flow-lite');
-  const isEstValue = (el.id === "est-value");
-  if(!nf){
+function animateNumberFlowValue(el, newVal) {
+  if (!el) return;
+  const nf = el.querySelector("number-flow-lite");
+  const isEstValue = el.id === "est-value";
+  if (!nf) {
     initNumberFlowLiteOn(el, newVal, false, isEstValue);
   } else {
     nf.data = isEstValue
-      ? formatToData(newVal, new Intl.NumberFormat('en-US',{ maximumFractionDigits: 0 }))
-      : formatToData(newVal, new Intl.NumberFormat('en-US'));
+      ? formatToData(
+          newVal,
+          new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 })
+        )
+      : formatToData(newVal, new Intl.NumberFormat("en-US"));
   }
 }
 
-function animateText(el, newVal){
-  if(!el) return;
-  const nf = el.querySelector('number-flow-lite');
-  if(!nf){
+function animateText(el, newVal) {
+  if (!el) return;
+  const nf = el.querySelector("number-flow-lite");
+  if (!nf) {
     initNumberFlowLiteOn(el, newVal, true);
   } else {
     nf.data = formatTextToData(newVal);
@@ -197,25 +236,27 @@ function animateText(el, newVal){
 
 function pageLoadAnimateAll() {
   const placeholders = {
-    'monthly-investment-value': { type: 'number', initial: 999, final: 123456 },
-    'est-value':               { type: 'number', initial: 999999, final: 800000 },
-    'roi-multiple':            { type: 'number', initial: 999,    final: 525 },
-    'ticker':                  { type: 'text',   initial: 'ACME', final: 'SPY' },
-    'est-years':               { type: 'number', initial: 17,     final: 18 }
+    "monthly-investment-value": { type: "number", initial: 999, final: 123456 },
+    "est-value": { type: "number", initial: 999999, final: 800000 },
+    "roi-multiple": { type: "number", initial: 999, final: 525 },
+    ticker: { type: "text", initial: "ACME", final: "SPY" },
+    "est-years": { type: "number", initial: 17, final: 18 },
   };
   Object.entries(placeholders).forEach(([id, cfg]) => {
     const el = document.getElementById(id);
     if (!el) return;
-    if (cfg.type === 'number') {
-      const finalVal = parseFloat((el.dataset.final||"").replace(/,/g,'')) || cfg.final;
-      const initVal = parseFloat(el.textContent.replace(/[^\d.-]/g,'')) || cfg.initial;
+    if (cfg.type === "number") {
+      const finalVal =
+        parseFloat((el.dataset.final || "").replace(/,/g, "")) || cfg.final;
+      const initVal =
+        parseFloat(el.textContent.replace(/[^\d.-]/g, "")) || cfg.initial;
       el.textContent = "";
       initNumberFlowLiteOn(el, initVal);
       requestAnimationFrame(() => {
         animateNumberFlowValue(el, finalVal);
       });
     } else {
-      const finalTxt = (el.dataset.final||"").trim() || cfg.final;
+      const finalTxt = (el.dataset.final || "").trim() || cfg.final;
       const initTxt = el.textContent.trim() || cfg.initial;
       el.textContent = "";
       initNumberFlowLiteOn(el, initTxt, true);

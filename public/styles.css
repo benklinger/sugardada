@@ -550,7 +550,7 @@ textarea {
 }
 
 .submit-button.active {
-	background-color: var(--spring-green);
+	background-color: var(--peach);
     color: var(--bg-color);
 }
 

@@ -42,7 +42,7 @@ function buildLightweightChart() {
   const chartHeight = window.innerHeight - heightOffset;
   chartContainer.style.height = chartHeight + 'px';
 
-  isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+  isDarkTheme = document.documentElement.getAttribute('data-theme') === 'light';
   gridColor = isDarkTheme ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
   textColor = isDarkTheme ? '#fff' : '#000';
 
@@ -124,7 +124,7 @@ function buildLightweightChart() {
   tooltip.style.borderRadius = '4px 4px 0 0';
   tooltip.style.borderBottom = 'none';
   tooltip.style.boxShadow = '0 2px 5px 0 rgba(117, 134, 150, 0.45)';
-  tooltip.style.background = 'rgba(255, 255, 255, 0.15)';
+  tooltip.style.background = 'rgba(0, 0, 0, 0.1)';
   tooltip.style.color = 'black';
   tooltip.style.borderColor = 'rgba(239, 83, 80, 1)';
   tooltip.style.top = '0';
@@ -160,7 +160,7 @@ function buildLightweightChart() {
 
 	  function styleCurrency(val) {
 	    if (typeof val === 'string' && val.startsWith('$')) {
-	      return '$<span style="color: #fff;">' + val.slice(1) + '</span>';
+	      return '$<span style="color: #000;">' + val.slice(1) + '</span>';
 	    }
 	    return val;
 	  }
@@ -168,10 +168,10 @@ function buildLightweightChart() {
 	  tooltip.innerHTML = `
 	    <div style="
 	      font-size: 0.8rem; 
-	      color: #fff; 
+	      color: #000; 
 	      margin-bottom: 12px; 
 	      font-family: 'Roboto', sans-serif;
-		  text-shadow: 5px 5px 20px black;
+		  text-shadow: 5px 5px 20px white;
 	      font-weight: 900;">
 	      ${formattedDate}
 	    </div>
@@ -183,16 +183,16 @@ function buildLightweightChart() {
 	      margin-bottom: 12px;">
 	      <div style="
 	        display: flex; 
-			text-shadow: 5px 5px 20px black;
+			text-shadow: 5px 5px 20px white;
 	        align-items: center; 
 	        font-size: 1rem; 
 	        font-family: 'Radley', serif;
 	        margin-bottom: 12px;
-	        color: #fff;">
+	        color: #000;">
 	        <span style="
 	          font-size: 0.35rem; 
 	          margin-right: 6px; 
-			  text-shadow: 5px 5px 20px black;
+			  text-shadow: 5px 5px 20px white;
 	          color: rgba(255,153,153,1);">
 	          ⬤
 	        </span>
@@ -201,7 +201,7 @@ function buildLightweightChart() {
 	      <div style="
 	        font-size: 1.3rem; 
 	        color: rgba(255,153,153,1);
-			text-shadow: 5px 5px 20px black;
+			text-shadow: 5px 5px 20px white;
 	        margin-top: 4px; 
 	        margin-bottom: 12px;">
 	        ${styleCurrency(totalValue)}
@@ -215,15 +215,15 @@ function buildLightweightChart() {
 	      <div style="
 	        display: flex; 
 	        align-items: center;
-			text-shadow: 5px 5px 20px black; 
+			text-shadow: 5px 5px 20px white; 
 	        font-size: 1rem; 
 	        font-family: 'Radley', serif; 
 	        margin-bottom: 20px;
-	        color: #fff;">
+	        color: #000;">
 	        <span style="
 	          font-size: 0.35rem; 
 	          margin-right: 6px; 
-			  text-shadow: 5px 5px 20px black;
+			  text-shadow: 5px 5px 20px white;
 	          color: rgba(141,182,255,1);">
 	          ⬤
 	        </span>
@@ -232,7 +232,7 @@ function buildLightweightChart() {
 	      <div style="
 	        font-size: 1.3rem; 
 	        color: rgba(141,182,255,1); 
-			text-shadow: 5px 5px 20px black;
+			text-shadow: 5px 5px 20px white;
 	        margin-top: 4px;">
 	        ${styleCurrency(investment)}
 	      </div>

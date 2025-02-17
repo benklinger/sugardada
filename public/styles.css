@@ -1,4 +1,4 @@
-:root[data-theme="dark"] {
+/*:root[data-theme="dark"] {
   --bg-color: #131314;
   --text-color: #ffffff;
   --disclaimer-color: #888888;
@@ -11,6 +11,23 @@
   --error-text: #ff6666;
   --selected-label-text: #ffffff;
   --spring-green: #00FF7F;
+  --peach: rgba(255, 153, 153, 1);
+}*/
+
+:root[data-theme="light"] {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --disclaimer-color: #666666;
+  --label-bg: #eeeeee;
+  --label-hover: #dddddd;
+  --label-checked: #cccccc;
+  --input-bg: #ffffff;
+  --error-bg: #ffe6e6;
+  --error-border: #ff4444;
+  --error-text: #990000;
+  --selected-label-text: #000000;
+  --spring-green: #00FF7F;
+  --peach: rgba(255, 153, 153, 1);
 }
 
 html, body {
@@ -173,7 +190,7 @@ p.parents {
   opacity: 0;
   visibility: hidden;
   transition: transform 0.4s ease, opacity 0.4s ease;
-  background-color: var(--spring-green);
+  background-color: var(--peach);
   color: var(--bg-color);
   font-size: 1.2rem;
   font-family: 'Radley', serif;
@@ -183,14 +200,14 @@ p.parents {
   border-radius: 12px;
   font-weight: bold;
   border: 0;
-  box-shadow: var(--spring-green, 0.5) 0px 5px 30px -10px;
+  box-shadow: var(--peach, 0.5) 0px 5px 30px -10px;
 }
 
 .header-cta {
   margin-left: auto;
   font-size: 1rem;
   text-transform: uppercase;
-  background-color: var(--spring-green);
+  background-color: var(--peach);
   font-family: 'Radley', serif;
   color: var(--bg-color);
   padding: 0.5rem 1.2rem;
@@ -199,7 +216,7 @@ p.parents {
   font-weight: bold;
   border: 0;
   cursor: pointer;
-  box-shadow: var(--spring-green, 0.5) 0px 5px 30px -10px;
+  box-shadow: var(--peach, 0.5) 0px 5px 30px -10px;
   visibility: hidden;
   opacity: 0;
   transform: translateY(-20px);
@@ -301,7 +318,6 @@ h3 {
   height: 100%;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: var(--spring-green, 0.5) 0px 5px 30px -10px;
 }
 
 .bar-contr,

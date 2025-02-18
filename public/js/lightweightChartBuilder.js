@@ -1,4 +1,5 @@
 let myChart;
+let trendlineSeries;
 let investmentSeries;
 let estValueSeries;
 let isDarkTheme;
@@ -55,13 +56,9 @@ function buildLightweightChart() {
         textColor,
         attributionLogo: false
       },
-      leftPriceScale: {
-        visible: false        
-      },
+      leftPriceScale: { visible: false },
       rightPriceScale: { visible: true, borderVisible: false },
-      localization: {
-        priceFormatter: shortDollarFormat
-      },
+      localization: { priceFormatter: shortDollarFormat },
       timeScale: {
         borderVisible: false,
         tickMarkFormatter: (time) => {
@@ -72,14 +69,8 @@ function buildLightweightChart() {
       branding: { visible: false },
       watermark: { visible: false },
       crosshair: {
-        vertLine: {
-          visible: false,
-          labelVisible: false
-        },
-        horzLine: {
-          visible: false,
-          labelVisible: false
-        }
+        vertLine: { visible: false, labelVisible: false },
+        horzLine: { visible: false, labelVisible: false }
       },
       handleScroll: { mouseWheel: false, pressedMouseMove: false },
       handleScale: { axisPressedMouseMove: false, pinch: false, mouseWheel: false },
@@ -87,6 +78,14 @@ function buildLightweightChart() {
         vertLines: { color: gridColor, visible: true },
         horzLines: { color: gridColor, visible: true }
       }
+    });
+
+    trendlineSeries = myChart.addSeries(LightweightCharts.LineSeries, {
+      color: '#00FF7F',
+      lineWidth: 3,
+      lineStyle: LightweightCharts.LineStyle.Dashed,
+      lastValueVisible: false,
+      priceLineVisible: false
     });
 
     investmentSeries = myChart.addSeries(LightweightCharts.AreaSeries, {
@@ -151,91 +150,130 @@ function buildLightweightChart() {
 
     const investmentData = param.seriesData.get(investmentSeries);
     const estValueData = param.seriesData.get(estValueSeries);
-    const investment = investmentData && investmentData.value !== undefined
-      ? formatUsdWhole(investmentData.value)
-      : 'N/A';
-    const totalValue = estValueData && estValueData.value !== undefined
-      ? formatUsdWhole(estValueData.value)
-      : 'N/A';
 
-	  function styleCurrency(val) {
-	    if (typeof val === 'string' && val.startsWith('$')) {
-	      return '$<span style="color: #000;">' + val.slice(1) + '</span>';
-	    }
-	    return val;
-	  }
+    const investmentVal = investmentData && investmentData.value !== undefined ? investmentData.value : null;
+    const estVal = estValueData && estValueData.value !== undefined ? estValueData.value : null;
 
-	  tooltip.innerHTML = `
-	    <div style="
-	      font-size: 0.8rem; 
-	      color: #000; 
-	      margin-bottom: 12px; 
-	      font-family: 'Roboto', sans-serif;
-		  text-shadow: 5px 5px 20px white;
-	      font-weight: 900;">
-	      ${formattedDate}
-	    </div>
+    const investment = investmentVal === null ? 'N/A' : formatUsdWhole(investmentVal);
+    const totalValue = estVal === null ? 'N/A' : formatUsdWhole(estVal);
 
-	    <div style="
-	      display: flex; 
-	      flex-direction: column; 
-	      align-items: flex-start; 
-	      margin-bottom: 12px;">
-	      <div style="
-	        display: flex; 
-			text-shadow: 5px 5px 20px white;
-	        align-items: center; 
-	        font-size: 1rem; 
-	        font-family: 'Radley', serif;
-	        margin-bottom: 6px;
-	        color: #000;">
-	        <span style="
-	          font-size: 0.35rem; 
-	          margin-right: 6px; 
-			  text-shadow: 5px 5px 20px white;
-	          color: rgba(255,153,153,1);">
-	          ⬤
-	        </span>
-	        <span>Total Value</span>
-	      </div>
-	      <div style="
-	        font-size: 1.3rem; 
-	        color: rgba(255,153,153,1);
-			text-shadow: 5px 5px 20px white;
-	        margin-bottom: 12px;">
-	        ${styleCurrency(totalValue)}
-	      </div>
-	    </div>
+    let returnsContent = 'N/A';
+    if (investmentVal !== null && estVal !== null && investmentVal > 0) {
+      const gain = estVal - investmentVal;
+      const pct = (gain / investmentVal) * 100;
+      const rounded = Math.round(pct);
+      returnsContent = `
+        <span style="color: #000;">${rounded}</span><span style="color: #00FF7F;">%</span>`;
+    }
 
-	    <div style="
-	      display: flex; 
-	      flex-direction: column; 
-	      align-items: flex-start;">
-	      <div style="
-	        display: flex; 
-	        align-items: center;
-			text-shadow: 5px 5px 20px white; 
-	        font-size: 1rem; 
-	        font-family: 'Radley', serif; 
-	        margin-bottom: 6px;
-	        color: #000;">
-	        <span style="
-	          font-size: 0.35rem; 
-	          margin-right: 6px; 
-			  text-shadow: 5px 5px 20px white;
-	          color: rgba(141,182,255,1);">
-	          ⬤
-	        </span>
-	        <span>Investment</span>
-	      </div>
-	      <div style="
-	        font-size: 1.3rem; 
-	        color: rgba(141,182,255,1); 
-			text-shadow: 5px 5px 20px white;">
-	        ${styleCurrency(investment)}
-	      </div>
-	    </div>
-	  `;
+    function styleCurrency(val) {
+      if (typeof val === 'string' && val.startsWith('$')) {
+        return '$<span style="color: #000;">' + val.slice(1) + '</span>';
+      }
+      return val;
+    }
+
+    tooltip.innerHTML = `
+      <div style="
+        font-size: 0.8rem; 
+        color: #000; 
+        margin-bottom: 12px; 
+        font-family: 'Roboto', sans-serif;
+        text-shadow: 5px 5px 20px white;
+        font-weight: 900;">
+        ${formattedDate}
+      </div>
+
+      <div style="
+        display: flex; 
+        flex-direction: column; 
+        align-items: flex-start; 
+        margin-bottom: 12px;">
+        <div style="
+          display: flex; 
+          text-shadow: 5px 5px 20px white;
+          align-items: center; 
+          font-size: 1rem; 
+          font-family: 'Radley', serif;
+          margin-bottom: 6px;
+          color: #000;">
+          <span style="
+            font-size: 0.35rem; 
+            margin-right: 6px; 
+            text-shadow: 5px 5px 20px white;
+            color: rgba(255,153,153,1);">
+            ⬤
+          </span>
+          <span>Total Value</span>
+        </div>
+        <div style="
+          font-size: 1.3rem; 
+          color: rgba(255,153,153,1);
+          text-shadow: 5px 5px 20px white;
+          margin-bottom: 12px;">
+          ${styleCurrency(totalValue)}
+        </div>
+      </div>
+
+      <div style="
+        display: flex; 
+        flex-direction: column; 
+        align-items: flex-start;">
+        <div style="
+          display: flex; 
+          align-items: center;
+          text-shadow: 5px 5px 20px white; 
+          font-size: 1rem; 
+          font-family: 'Radley', serif; 
+          margin-bottom: 6px;
+          color: #000;">
+          <span style="
+            font-size: 0.35rem; 
+            margin-right: 6px; 
+            text-shadow: 5px 5px 20px white;
+            color: rgba(141,182,255,1);">
+            ⬤
+          </span>
+          <span>Investment</span>
+        </div>
+        <div style="
+          font-size: 1.3rem; 
+          color: rgba(141,182,255,1); 
+          text-shadow: 5px 5px 20px white;
+          margin-bottom: 20px;">
+          ${styleCurrency(investment)}
+        </div>
+      </div>
+
+      <div style="
+        display: flex; 
+        flex-direction: column; 
+        align-items: flex-start;">
+        <div style="
+          display: flex; 
+          align-items: center;
+          text-shadow: 5px 5px 20px white; 
+          font-size: 1rem; 
+          font-family: 'Radley', serif; 
+          margin-bottom: 6px;
+          color: #000;">
+          <span style="
+            font-size: 0.35rem; 
+            margin-right: 6px; 
+            text-shadow: 5px 5px 20px white;
+            color: #00FF7F;">
+            ⬤
+          </span>
+          <span>Returns</span>
+        </div>
+        <div style="
+          font-size: 1.3rem; 
+          text-shadow: 5px 5px 20px white;
+          margin-bottom: 6px;">
+          ${returnsContent}
+        </div>
+      </div>
+    `;
 
     let left = param.point.x;
     const timeScaleWidth = myChart.timeScale().width();
@@ -248,36 +286,65 @@ function buildLightweightChart() {
   });
 }
 
+function calculateExponentialTrendline(data) {
+  if (data.length < 2) return [];
+  const firstTime = new Date(data[0].time).getTime();
+  const xs = data.map(d => (new Date(d.time).getTime() - firstTime) / (1000 * 60 * 60 * 24));
+  const ys = data.map(d => d.value);
+  const n = xs.length;
+  let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+  for (let i = 0; i < n; i++) {
+    const x = xs[i];
+    const y = Math.log(ys[i]);
+    sumX += x;
+    sumY += y;
+    sumXY += x * y;
+    sumXX += x * x;
+  }
+  const b = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+  const a = Math.exp((sumY - b * sumX) / n);
+  return data.map((d, i) => ({
+    time: d.time,
+    value: a * Math.exp(b * xs[i])
+  }));
+}
+
 function fetchAndUpdateChart() {
   if (!window.userId) return;
   fetch(`/api/investment-records/${window.userId}`)
-    .then((res) => res.json())
-    .then((d) => {
+    .then(res => res.json())
+    .then(d => {
       if (d.error) {
         console.error('Error fetching records:', d.error);
         return;
       }
       const recs = d.investmentRecords;
       if (!recs || !recs.length) {
+        trendlineSeries.setData([]);
         investmentSeries.setData([]);
         estValueSeries.setData([]);
         return;
       }
-      const investmentData = recs.map((r) => ({
+      const investmentData = recs.map(r => ({
         time: r.simulatedDate.slice(0, 10),
         value: r.totalInvestment
       }));
-      const estValueData = recs.map((r) => ({
+      const estValueData = recs.map(r => ({
         time: r.simulatedDate.slice(0, 10),
         value: r.totalValue
       }));
+
       investmentSeries.setData(investmentData);
       estValueSeries.setData(estValueData);
+
+      const trendData = calculateExponentialTrendline(estValueData);
+      trendlineSeries.setData(trendData);
+
       myChart.timeScale().fitContent();
 
       if (window.lifeEvents && window.lifeEvents.length) {
         const markerColor = document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#000';
-        let markers = window.lifeEvents.map((ev) => ({
+        let markers = window.lifeEvents.map(ev => ({
           time: ev.time,
           position: 'aboveBar',
           color: markerColor,
@@ -293,7 +360,7 @@ function fetchAndUpdateChart() {
         LightweightCharts.createSeriesMarkers(estValueSeries, markers);
       }
     })
-    .catch((e) => {
+    .catch(e => {
       console.error('Chart fetch error:', e);
     });
 }
